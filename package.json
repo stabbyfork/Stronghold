@@ -1,7 +1,27 @@
 {
-  "dependencies": {
-    "@eslint/js": "^9.31.0",
-    "discord.js": "^14.21.0",
-    "eslint": "^9.31.0"
-  }
+	"dependencies": {
+		"@typescript-eslint/parser": "^8.37.0",
+		"discord-api-types": "^0.38.16",
+		"discord.js": "^14.21.0",
+		"prettier": "^3.6.2",
+		"typescript": "^5.8.3"
+	},
+	"type": "module",
+	"devDependencies": {
+		"@eslint/js": "^9.31.0",
+		"eslint": "^9.31.0",
+		"globals": "^16.3.0",
+		"jiti": "^2.4.2",
+		"nodemon": "^3.1.10",
+		"tsx": "^4.20.3",
+		"typescript-eslint": "^8.37.0"
+	},
+	"scripts": {
+		"watch": "nodemon --exec npm start",
+		"start": "npm run serve",
+		"serve": "npx tsx src/index.ts",
+		"build": "npm run build.cmd; npm run build.register",
+		"build.cmd": "npx tsx scripts/cmd-index.ts",
+		"build.register": "npx tsx scripts/cmd-register.ts"
+	}
 }

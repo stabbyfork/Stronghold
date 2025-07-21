@@ -20,8 +20,8 @@
 		"watch": "nodemon --exec npm start",
 		"start": "npm run serve",
 		"serve": "npx tsx src/index.ts",
-		"build": "npm run build.cmd; npm run build.register",
-		"build.cmd": "npx tsx scripts/cmd-index.ts",
+		"build": "npm run build.cmds ; npm run build.register",
+		"build.cmds": "npx tsx scripts/cmd-index.ts",
 		"build.register": "npx tsx scripts/cmd-register.ts"
 	}
 }

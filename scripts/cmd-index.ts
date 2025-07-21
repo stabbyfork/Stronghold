@@ -1,6 +1,8 @@
+import { SlashCommandBuilder } from 'discord.js';
 import fs from 'fs';
 import path from 'path';
 import { pathToFileURL } from 'url';
+import { flattenVals, getSubcommands } from '../src/utils';
 
 const outDir = 'src/commands.ts';
 
@@ -26,7 +28,7 @@ function* walk(dir: string): Generator<string> {
 }
 
 async function build() {
-	const entries: [string, string][] = [];
+	const entries: [SlashCommandBuilder, string][] = [];
 
 	for (const file of walk(cmdDir)) {
 		const relPath = './' + path.relative('src', file).replace(/\\/g, '/'); // for import
@@ -42,21 +44,24 @@ async function build() {
 			typeof cmd.data === 'object' &&
 			typeof cmd.execute === 'function'
 		) {
-			entries.push([cmd.data.name, relPath.replace('.ts', '')]);
+			entries.push([cmd.data, relPath.replace('.ts', '')]);
 		}
 	}
-
-	const tsOutput = `// AUTO-GENERATED AT ${new Date().toUTCString().toUpperCase()} WITH ${entries.length} COMMAND${
+	const tsOutput = `// AUTO-GENERATED ON ${new Date().toUTCString().toUpperCase()} WITH ${entries.length} TOP-LEVEL COMMAND${
 		entries.length === 1 ? '' : 'S'
-	}
+	} AND DERIVED FROM ${cmdDir}
 
-import type { CommandConstruct } from './types';
+import type { CommandConstruct, SubcommandMap } from './types';
 
-${entries.map(([name, rel]) => `import ${name} from '${rel}';`).join('\n')}
+${entries.map(([data, rel]) => `import ${data.name} from '${rel}';`).join('\n')}
 
 export const commands = {
-${entries.map(([name]) => `  "${name}": ${name},`).join('\n')}
+${entries.map(([data]) => `  "${data.name}": ${data.name},`).join('\n')}
 } as const satisfies { [key: string]: CommandConstruct };
+
+export const subcommands = {
+${entries.map(([data]) => `  "${data.name}": ${JSON.stringify(getSubcommands(data), null, 2)},`).join('\n')}
+} as const satisfies { [key in keyof typeof commands]: SubcommandMap | string };
 `;
 
 	fs.writeFileSync(outDir, tsOutput);

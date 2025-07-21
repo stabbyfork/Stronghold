@@ -7,27 +7,39 @@ export default createEvent({
 	name: Events.InteractionCreate,
 	once: false,
 	async execute(interaction) {
-		if (!interaction.isChatInputCommand()) return;
-		const cmd: CommandConstruct | undefined =
-			commands[interaction.commandName as keyof typeof commands];
-		if (!cmd) {
-			console.error(`Command \`${interaction.commandName}\` not found`);
-			return;
-		}
-		try {
-			await cmd.execute(interaction);
-		} catch (error) {
-			console.error(
-				`Error while executing command \`${interaction.commandName}\`: ${error}`,
-			);
-			const toReply: InteractionReplyOptions = {
-				content: `An unexpected error has occurred. Please report this to the bot owner: <@${appOwnerId}>.`,
-				flags: MessageFlags.Ephemeral,
-			};
-			if (interaction.replied || interaction.deferred) {
-				await interaction.followUp(toReply);
-			} else {
-				await interaction.reply(toReply);
+		if (interaction.isChatInputCommand() || interaction.isAutocomplete()) {
+			const cmd: CommandConstruct | undefined =
+				commands[interaction.commandName as keyof typeof commands];
+			if (!cmd) {
+				console.error(
+					`Command \`${interaction.commandName}\` not found`,
+				);
+				return;
+			}
+			try {
+				if (interaction.isAutocomplete()) {
+					// Should exist
+					await (cmd as CommandConstruct<true>)?.autocomplete(
+						interaction,
+					);
+				} else {
+					await cmd.execute(interaction);
+				}
+			} catch (error) {
+				console.error(
+					`Error while executing command \`${interaction.commandName}\`: ${error}`,
+				);
+				if (interaction.isChatInputCommand()) {
+					const toReply: InteractionReplyOptions = {
+						content: `An unexpected error has occurred. Please report this to the bot owner: <@${appOwnerId}>.`,
+						flags: MessageFlags.Ephemeral,
+					};
+					if (interaction.replied || interaction.deferred) {
+						await interaction.followUp(toReply);
+					} else {
+						await interaction.reply(toReply);
+					}
+				}
 			}
 		}
 	},

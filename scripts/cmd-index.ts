@@ -3,6 +3,8 @@ import fs from 'fs';
 import path from 'path';
 import { pathToFileURL } from 'url';
 import { flattenVals, getSubcommands } from '../src/utils';
+import { subcommands } from '../src/commands';
+import { SubcommandMap } from '../src/types';
 
 const outDir = 'src/commands.ts';
 
@@ -44,24 +46,49 @@ async function build() {
 			typeof cmd.data === 'object' &&
 			typeof cmd.execute === 'function'
 		) {
-			entries.push([cmd.data, relPath.replace('.ts', '')]);
+			entries.push([cmd.data, relPath]);
+		}
+	}
+	const flatSubcmds: string[] = [];
+	for (const [data, _] of entries) {
+		const subs = getSubcommands(data);
+		if (typeof subs !== 'string') {
+			flatSubcmds.push(...Object.keys(flattenVals(subs)));
 		}
 	}
 	const tsOutput = `// AUTO-GENERATED ON ${new Date().toUTCString().toUpperCase()} WITH ${entries.length} TOP-LEVEL COMMAND${
 		entries.length === 1 ? '' : 'S'
-	} AND DERIVED FROM ${cmdDir}
+	} AND DERIVED FROM ${cmdDir}; SOURCE OF TRUTH
 
-import type { CommandConstruct, SubcommandMap } from './types';
+import type { CommandConstruct, CommandExecute } from './types';
 
 ${entries.map(([data, rel]) => `import ${data.name} from '${rel}';`).join('\n')}
 
+${flatSubcmds.map((sub) => `import ${sub.replaceAll(' ', '_')} from '${'./commands/' + sub.replaceAll(' ', '/') + '.ts' /*May break if the path changes*/}';`).join('\n')}
+
 export const commands = {
-${entries.map(([data]) => `  "${data.name}": ${data.name},`).join('\n')}
+${entries.map(([data]) => `  '${data.name}': ${data.name},`).join('\n')}
 } as const satisfies { [key: string]: CommandConstruct };
 
 export const subcommands = {
-${entries.map(([data]) => `  "${data.name}": ${JSON.stringify(getSubcommands(data), null, 2)},`).join('\n')}
-} as const satisfies { [key in keyof typeof commands]: SubcommandMap | string };
+${entries
+	.filter(([data]) => {
+		let cds = getSubcommands(data);
+		if (typeof cds === 'string') {
+			return false;
+		}
+		return true;
+	})
+	.map(([data]) => {
+		const cds = getSubcommands(data, '_') as SubcommandMap;
+		return `  ${data.name}: ${JSON.stringify(cds, null, 2).replaceAll('"', '')},`;
+	})
+	.join('\n')}
+} as const satisfies {
+	[key in keyof Partial<typeof commands>]:
+		| { [key: string]: CommandExecute | { [key: string]: CommandExecute } }
+		| CommandExecute;
+};
 `;
 
 	fs.writeFileSync(outDir, tsOutput);

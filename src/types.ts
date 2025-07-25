@@ -6,11 +6,10 @@ import {
 	SlashCommandOptionsOnlyBuilder,
 	SlashCommandSubcommandsOnlyBuilder,
 } from 'discord.js';
-import { getSubcommands } from './utils';
 import { subcommands } from './commands';
 
 //#region Commands
-/*export function createCommand<T extends CommandData>({
+export function createCommand<T extends CommandData>({
 	data,
 	execute,
 	autocomplete,
@@ -25,36 +24,21 @@ export function createCommand<T extends CommandData>({
 }: {
 	data: CommandData;
 	execute: (interaction: ChatInputCommandInteraction) => Promise<void>;
-}): CommandConstruct<false>;*/
-export function createCommand<
-	Autocomplete extends boolean,
-	T extends CommandData,
-	/*Name extends
-		keyof SubcommandStructure = T['name'] extends keyof SubcommandStructure
-		? T['name']
-		: never,*/
->({
+}): CommandConstruct<false>;
+export function createCommand<Autocomplete extends boolean = false>({
 	data,
 	execute,
 	autocomplete,
-	//subcommands: subcmdList,
 }: {
-	data: T;
+	data: CommandData;
 	execute: (interaction: ChatInputCommandInteraction) => Promise<void>;
-	autocomplete: Autocomplete extends true
-		? (interaction: AutocompleteInteraction) => Promise<void>
-		: undefined;
-	/*subcommands?: {
-		[subcmd in keyof SubcommandStructure[Name]]: (
-			interaction: ChatInputCommandInteraction,
-		) => Promise<void>;
-	};*/
+	autocomplete?: (interaction: AutocompleteInteraction) => Promise<void>;
 }): CommandConstruct<Autocomplete> {
-	const subcommands =
+	/*const subcommands =
 		// Check if there are subcommands
 		'addSubcommand' in data
 			? getSubcommands(data as SlashCommandBuilder)
-			: {};
+			: {};*/
 	if (autocomplete === undefined) {
 		return { data, execute } as any;
 	} else {
@@ -65,9 +49,12 @@ type CommandData =
 	| SlashCommandBuilder
 	| SlashCommandOptionsOnlyBuilder
 	| SlashCommandSubcommandsOnlyBuilder;
+export type CommandExecute = (
+	interaction: ChatInputCommandInteraction,
+) => Promise<void>;
 interface CommandBase {
 	data: CommandData;
-	execute: (interaction: ChatInputCommandInteraction) => Promise<void>;
+	execute: CommandExecute;
 }
 
 interface AutocompletedCommand {
@@ -83,6 +70,7 @@ export type CommandConstruct<Autocomplete extends boolean = false> =
 //#endregion
 
 //#region Events
+
 export function createEvent<E extends keyof ClientEvents>({
 	name,
 	once,

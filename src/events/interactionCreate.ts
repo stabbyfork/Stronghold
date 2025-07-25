@@ -9,7 +9,7 @@ export default createEvent({
 	async execute(interaction) {
 		if (interaction.isChatInputCommand() || interaction.isAutocomplete()) {
 			const cmd: CommandConstruct | undefined =
-				commands[interaction.commandName as keyof typeof commands];
+				commands?.[interaction.commandName as keyof typeof commands];
 			if (!cmd) {
 				console.error(
 					`Command \`${interaction.commandName}\` not found`,

@@ -1,6 +1,8 @@
 import { SlashCommandBuilder } from 'discord.js';
 import { createCommand } from '../types';
 
+const subcmds = {} as const;
+
 export default createCommand({
 	data: new SlashCommandBuilder()
 		.setName('ranking')
@@ -25,10 +27,15 @@ export default createCommand({
 				.setDescription('Todo')
 				.addSubcommand((cmd) =>
 					cmd.setName('view').setDescription('Todo'),
+				)
+				.addSubcommand((cmd) =>
+					cmd.setName('add').setDescription('Todo'),
+				)
+				.addSubcommand((cmd) =>
+					cmd.setName('remove').setDescription('Todo'),
 				),
 		),
 	execute: async (interaction) => {
 		await interaction.reply('Todo');
 	},
-	autocomplete: undefined,
 });

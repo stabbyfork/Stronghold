@@ -8,5 +8,4 @@ export default createCommand({
 	async execute(interaction) {
 		await interaction.reply('Pong!');
 	},
-	autocomplete: undefined,
 });

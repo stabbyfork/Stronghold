@@ -175,7 +175,7 @@ export function getSubcommands(
 	return out;
 }*/
 
-function buildCommandFromStructure(
+/*function buildCommandFromStructure(
 	structure: SubcommandStructure,
 ): SlashCommandBuilder {
 	const builder = new SlashCommandBuilder()
@@ -221,6 +221,6 @@ function buildCommandFromStructure(
 	}
 
 	return builder;
-}
+}*/
 
 //#endregion

@@ -1,5 +1,5 @@
 import { ActivityType, Events } from 'discord.js';
-import { createEvent } from '../types';
+import { createEvent } from '../types.js';
 
 export default createEvent({
 	name: Events.ClientReady,

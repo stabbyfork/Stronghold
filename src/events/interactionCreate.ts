@@ -1,7 +1,11 @@
 import { Events, InteractionReplyOptions, MessageFlags } from 'discord.js';
-import { CommandConstruct, createEvent } from '../types';
-import { commands } from '../commands';
-import { appOwnerId } from '../config.json';
+import { CommandConstruct, createEvent, ErrorReplies } from '../types.js';
+import { commands } from '../commands.js';
+import {
+	constructError,
+	getSubcommandExec,
+	reportErrorToUser,
+} from '../utils.js';
 
 export default createEvent({
 	name: Events.InteractionCreate,
@@ -14,31 +18,53 @@ export default createEvent({
 				console.error(
 					`Command \`${interaction.commandName}\` not found`,
 				);
+				if (interaction.isChatInputCommand()) {
+					reportErrorToUser(
+						interaction,
+						constructError([
+							ErrorReplies.CommandNotFound,
+							ErrorReplies.OutdatedCommand,
+						]),
+					);
+				}
 				return;
 			}
 			try {
 				if (interaction.isAutocomplete()) {
-					// Should exist
-					await (cmd as CommandConstruct<true>)?.autocomplete(
-						interaction,
-					);
+					// Should exist, autocompletion
+					await (cmd as CommandConstruct<true>)
+						.autocomplete?.(interaction)
+						.catch(console.error);
 				} else {
-					await cmd.execute(interaction);
+					// Slash command
+					const [cmdExec, _, hasSubcommands] =
+						getSubcommandExec(interaction);
+					if (hasSubcommands) {
+						// Also run the main command function, even if there are subcommands
+						await cmd.execute?.(interaction).catch(console.error);
+					}
+					await cmdExec(interaction).catch(console.error);
 				}
-			} catch (error) {
+			} catch (err) {
 				console.error(
-					`Error while executing command \`${interaction.commandName}\`: ${error}`,
+					`Error while executing command \`${interaction.commandName}\`: ${err}`,
 				);
-				if (interaction.isChatInputCommand()) {
+				if (
+					interaction.isChatInputCommand() &&
+					(typeof err === 'string' || err instanceof Error)
+				) {
 					const toReply: InteractionReplyOptions = {
-						content: `An unexpected error has occurred. Please report this to the bot owner: <@${appOwnerId}>.`,
+						content: constructError(
+							[
+								ErrorReplies.UnknownError,
+								ErrorReplies.PrefixWithError,
+								ErrorReplies.ReportToOwner,
+							],
+							err,
+						),
 						flags: MessageFlags.Ephemeral,
 					};
-					if (interaction.replied || interaction.deferred) {
-						await interaction.followUp(toReply);
-					} else {
-						await interaction.reply(toReply);
-					}
+					reportErrorToUser(interaction, toReply);
 				}
 			}
 		}

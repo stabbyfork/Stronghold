@@ -1,0 +1,61 @@
+{
+	"$schema": "https://json-schema.org/draft-07/schema",
+	"$id": "data.schema.json",
+	"title": "GuildData",
+	"description": "The schema for the data.json file",
+	"type": "object",
+	"patternProperties": {
+		"^[0-9]+$": {
+			"type": ["object", "string"],
+			"description": "Data specific to a guild ID, never actually a string",
+			"properties": {
+				"roles": {
+					"type": "object",
+					"description": "Role to permission mappings",
+					"patternProperties": {
+						"^[0-9]+$": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/permission"
+							}
+						}
+					},
+					"additionalProperties": false
+				},
+				"users": {
+					"type": "object",
+					"description": "User to permission mappings",
+					"patternProperties": {
+						"^[0-9]+$": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/permission"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			},
+			"required": ["roles", "users"],
+			"additionalProperties": false
+		}
+	},
+	"properties": {
+		"$schema": {
+			"type": "string",
+			"description": "Just used to stop VSCode being angry"
+		},
+		"version": {
+			"type": "string",
+			"description": "The version of the data schema"
+		}
+	},
+	"required": ["version", "$schema"],
+	"additionalProperties": false,
+	"definitions": {
+		"permission": {
+			"type": "string",
+			"enum": ["administrator", "noActivityKick"]
+		}
+	}
+}

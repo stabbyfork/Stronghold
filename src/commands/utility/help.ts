@@ -1,7 +1,7 @@
 import { AutocompleteInteraction, SlashCommandBuilder } from 'discord.js';
-import { createCommand } from '../../types';
-import { defaultEmbed } from '../../utils';
-import { commands } from '../../commands';
+import { createCommand } from '../../types.js';
+import { defaultEmbed } from '../../utils.js';
+import { commands } from '../../commands.js';
 
 export default createCommand({
 	data: new SlashCommandBuilder()

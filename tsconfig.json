@@ -1,17 +1,21 @@
 {
 	"compilerOptions": {
 		"target": "ES2020",
-		"module": "ESNext",
-		"moduleResolution": "Node",
+		"module": "nodenext",
+		"moduleResolution": "nodenext",
 		"strict": true,
 		"esModuleInterop": true,
 		"skipLibCheck": true,
 		"forceConsistentCasingInFileNames": true,
 		"resolveJsonModule": true,
 		"isolatedModules": true,
-		"noEmit": true,
-		"allowImportingTsExtensions": true,
-		"allowJs": false
+		"allowImportingTsExtensions": false,
+		"noEmit": false,
+		"allowJs": false,
+		"noErrorTruncation": true,
+		"sourceMap": true,
+		"outDir": "dist"
 	},
-	"include": ["src"]
+	"include": ["src"],
+	"exclude": ["node_modules", "dist"]
 }

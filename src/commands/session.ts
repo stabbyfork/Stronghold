@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { createCommand } from '../types';
+import { createCommand } from '../types.js';
 
 export default createCommand({
 	data: new SlashCommandBuilder()
@@ -13,7 +13,4 @@ export default createCommand({
 		.addSubcommand((cmd) => cmd.setName('stop').setDescription('Todo'))
 		.addSubcommand((cmd) => cmd.setName('join').setDescription('Todo'))
 		.addSubcommand((cmd) => cmd.setName('edit').setDescription('Todo')),
-	execute: async (interaction) => {
-		await interaction.reply('Todo');
-	},
 });

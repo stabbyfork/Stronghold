@@ -1,0 +1,63 @@
+{
+	"$schema": "https://json-schema.org/draft-07/schema",
+	"$id": "config.schema.json",
+	"title": "Config",
+	"description": "The schema for the config.json file",
+	"type": "object",
+	"properties": {
+		"$schema": {
+			"type": "string",
+			"description": "Just used to stop VSCode being angry"
+		},
+		"appOwnerUsername": {
+			"type": "string",
+			"description": "The ID of the bot owner"
+		},
+		"token": {
+			"type": "string",
+			"description": "The bot token"
+		},
+		"clientId": {
+			"type": "string",
+			"description": "The bot's client ID"
+		},
+		"database": {
+			"type": "object",
+			"description": "Properties and options of the database to use",
+			"properties": {
+				"username": {
+					"type": "string",
+					"description": "Username"
+				},
+				"password": {
+					"type": "string",
+					"description": "User's password"
+				},
+				"host": {
+					"type": "string",
+					"description": "Host IP"
+				},
+				"port": {
+					"type": "number",
+					"description": "Port number"
+				},
+				"name": {
+					"type": "string",
+					"description": "Database name"
+				},
+				"dialect": {
+					"type": "string",
+					"description": "Database dialect (MySQL, SQLite, etc.)",
+					"enum": ["mysql", "sqlite", "db2", "mariadb", "mssql", "oracle", "postgres", "snowflake"],
+					"default": "mysql"
+				}
+			},
+			"readOnly": true,
+			"additionalProperties": false,
+			"required": ["username", "password", "host", "name", "dialect"]
+		}
+	},
+	"readOnly": true,
+	"required": ["appOwnerUsername", "token", "clientId", "$schema", "database"],
+	"additionalProperties": false
+}

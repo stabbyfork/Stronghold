@@ -6,16 +6,19 @@ import {
 	SlashCommandOptionsOnlyBuilder,
 	SlashCommandSubcommandsOnlyBuilder,
 } from 'discord.js';
-import { subcommands } from './commands';
+import { subcommands } from './commands.js';
+import { constructError } from './utils.js';
+import { Config } from './config.js';
 
 //#region Commands
+
 export function createCommand<T extends CommandData>({
 	data,
 	execute,
 	autocomplete,
 }: {
 	data: CommandData;
-	execute: (interaction: ChatInputCommandInteraction) => Promise<void>;
+	execute?: (interaction: ChatInputCommandInteraction) => Promise<void>;
 	autocomplete: (interaction: AutocompleteInteraction) => Promise<void>;
 }): CommandConstruct<true>;
 export function createCommand<T extends CommandData>({
@@ -23,15 +26,23 @@ export function createCommand<T extends CommandData>({
 	execute,
 }: {
 	data: CommandData;
-	execute: (interaction: ChatInputCommandInteraction) => Promise<void>;
+	execute?: (interaction: ChatInputCommandInteraction) => Promise<void>;
 }): CommandConstruct<false>;
+/**
+ * Creates a new command construct
+ *
+ * @param data The data for the command
+ * @param execute The execute function for the command
+ * @param autocomplete The autocomplete function for the command. If not provided, then the command will not have autocomplete support.
+ * @returns The command construct
+ */
 export function createCommand<Autocomplete extends boolean = false>({
 	data,
 	execute,
 	autocomplete,
 }: {
 	data: CommandData;
-	execute: (interaction: ChatInputCommandInteraction) => Promise<void>;
+	execute?: (interaction: ChatInputCommandInteraction) => Promise<void>;
 	autocomplete?: (interaction: AutocompleteInteraction) => Promise<void>;
 }): CommandConstruct<Autocomplete> {
 	/*const subcommands =
@@ -54,7 +65,7 @@ export type CommandExecute = (
 ) => Promise<void>;
 interface CommandBase {
 	data: CommandData;
-	execute: CommandExecute;
+	execute?: CommandExecute;
 }
 
 interface AutocompletedCommand {
@@ -71,21 +82,33 @@ export type CommandConstruct<Autocomplete extends boolean = false> =
 
 //#region Events
 
+/**
+ * Creates an event construct for a given event.
+ * @template E The event name to create an event for.
+ * @param options The options for the event.
+ * @param options.name The name of the event.
+ * @param options.once Whether the event is once or not.
+ * @param options.execute The function to call when the event is emitted.
+ * @returns The event construct.
+ */
 export function createEvent<E extends keyof ClientEvents>({
 	name,
 	once,
 	execute,
+	onConnect,
 }: {
 	name: E;
 	once: boolean;
 	execute: (...args: ClientEvents[E]) => Promise<void>;
+	onConnect?: () => Promise<void>;
 }): EventConstruct<E> {
-	return { name, once, execute };
+	return { name, once, execute, onConnect };
 }
 interface EventConstruct<E extends keyof ClientEvents> {
 	name: E;
 	once: boolean;
 	execute: (...args: ClientEvents[E]) => Promise<void>;
+	onConnect?: () => Promise<void>;
 }
 //#endregion
 
@@ -132,16 +155,31 @@ export type RecursiveFlatKeys<T> =
 	T extends Record<string, any>
 		? { [K in keyof T]: K | RecursiveFlatKeys<T[K]> }[keyof T]
 		: never;
-const test = {
-	a: 1,
-	b: {
-		c: 2,
-		d: {
-			e: 3,
-		},
-	},
+
+//#endregion
+
+//#region Errors
+
+/**
+ * Always index this instead of using values directly, they may change!
+ *
+ * For constructing error messages, see {@link constructError}
+ */
+export const ErrorReplies = {
+	UnknownError: 'An unexpected error has occurred.',
+	PermissionError: 'You do not have permission to use this command.',
+	CommandNotFound: 'Command not found.',
+	ReportToOwner: `Please report this to the bot owner: <@${Config.get('appOwnerUsername')}>.`,
+	PrefixWithError: 'Error: !{ERROR}',
+	CommandNotFoundSubstitute: 'Command not found: \`!{ERROR}\`.',
+	OutdatedCommand: 'This command cannot be used and may be outdated.',
+	InteractionHasNoGuild:
+		'This interaction does not have an associated guild.',
+	SetupAlreadyComplete: 'This server is already set up.',
 } as const;
-type Test = RecursiveFlatKeys<typeof test>;
-type Test2 = { [V in Test]: V };
+
+//#endregion
+
+//#region Database
 
 //#endregion

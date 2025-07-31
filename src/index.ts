@@ -1,9 +1,10 @@
 import { Client, GatewayIntentBits } from 'discord.js';
-import { token } from './config.json';
 import fs from 'fs';
 import path from 'path';
-import { error } from 'console';
 import { pathToFileURL } from 'url';
+import { Data } from './data.js';
+import { Config } from './config.js';
+import { Debug } from './utils.js';
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
@@ -16,13 +17,16 @@ async function registerEvents(dir: string, workDir: string) {
 				return await import(
 					pathToFileURL(
 						path.join(
-							'src',
-							path.relative(workDir, path.join(dir, file)),
+							'dist',
+							path.relative(
+								workDir,
+								path.join(dir, file).replace('.ts', '.js'),
+							),
 						),
 					).toString()
 				);
 			} catch (err) {
-				error(`Error while importing ${file}: ${err}`);
+				Debug.error(`Error while importing ${file}: ${err}`);
 				return undefined;
 			}
 		});
@@ -31,13 +35,29 @@ async function registerEvents(dir: string, workDir: string) {
 		modules.forEach((module) => {
 			if (!module) return;
 			const evt = module.default;
-			if (!(evt && evt.name && evt.once && evt.execute)) return;
+			if (!(evt && 'name' in evt && 'once' in evt && 'execute' in evt))
+				return;
 			if (evt.once) client.once(evt.name, evt.execute);
 			else client.on(evt.name, evt.execute);
+			evt.onConnect?.();
 		});
 	});
 }
 
-registerEvents('src/events', 'src');
+function safeShutdown(signal: NodeJS.Signals) {
+	console.log('Shutting down with signal', signal);
+	Promise.all([client.destroy(), Data.closeDb()])
+		.then(() => process.exit(0))
+		.catch((err) => {
+			Debug.error(err);
+			process.exit(1);
+		});
+}
 
-client.login(token);
+await Data.setup();
+await registerEvents('src/events', 'src');
+
+process.on('SIGINT', safeShutdown).on('SIGTERM', safeShutdown);
+
+client.login(Config.get('token'));
+process.send?.('ready');

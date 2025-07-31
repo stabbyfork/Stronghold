@@ -1,27 +1,39 @@
 {
 	"dependencies": {
-		"@typescript-eslint/parser": "^8.37.0",
+		"@sequelize/mysql": "^7.0.0-alpha.46",
+		"@sequelize/sqlite3": "^7.0.0-alpha.46",
+		"@types/node": "^24.1.0",
 		"discord-api-types": "^0.38.16",
 		"discord.js": "^14.21.0",
-		"prettier": "^3.6.2",
+		"mysql2": "^3.14.2",
+		"parse-duration": "^2.1.4",
+		"sequelize": "^6.37.7",
 		"typescript": "^5.8.3"
 	},
 	"type": "module",
 	"devDependencies": {
 		"@eslint/js": "^9.31.0",
+		"@types/ms": "^2.1.0",
+		"@typescript-eslint/parser": "^8.38.0",
 		"eslint": "^9.31.0",
 		"globals": "^16.3.0",
 		"jiti": "^2.4.2",
+		"json-schema-to-typescript": "^15.0.4",
 		"nodemon": "^3.1.10",
+		"prettier": "^3.6.2",
 		"tsx": "^4.20.3",
 		"typescript-eslint": "^8.37.0"
 	},
 	"scripts": {
-		"watch": "nodemon --exec npm start",
-		"start": "npm run serve",
-		"serve": "npx tsx src/index.ts",
-		"build": "npm run build.cmds ; npm run build.register",
-		"build.cmds": "npx tsx scripts/cmd-index.ts",
-		"build.register": "npx tsx scripts/cmd-register.ts"
-	}
+		"start": "pm2 start ./ecosystem.config.cjs --time",
+		"stop": "pm2 stop ./ecosystem.config.cjs",
+		"restart": "pm2 restart ./ecosystem.config.cjs --time",
+		"build": "npm run build:schema && npm run build:index && npm run build:register && npm run compile && echo 'Build complete'",
+		"compile": "npx tsc",
+		"build:index": "npx tsx scripts/cmd-index.ts",
+		"build:register": "npx tsx scripts/cmd-register.ts",
+		"build:schema": "npx json2ts -i ./config.schema.json > src/schema-types.d.ts",
+		"preinstall": "npm ls --global pm2 || npm install --global pm2@latest"
+	},
+	"version": "0.0.1"
 }

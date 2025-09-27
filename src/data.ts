@@ -39,31 +39,6 @@ const dbConfg = Config.get('database');
 export namespace Data {
 	let ready = false;
 
-	process.env.NODE_ENV === 'prod'
-		? new Sequelize({
-				password: dbConfg.password,
-				user: dbConfg.username,
-				database: dbConfg.name,
-				host: dbConfg.host,
-				port: dbConfg.port,
-				dialect: MySqlDialect,
-				logging: false,
-				pool: {
-					max: 5,
-					min: 1,
-					idle: 10000,
-					acquire: 5000,
-				},
-			})
-		: new Sequelize({
-				dialect: 'sqlite3',
-				pool: {
-					max: 5,
-					min: 1,
-					idle: 10000,
-					acquire: 5000,
-				},
-			});
 	export const models = {
 		Guild,
 		UserPermission,
@@ -76,18 +51,36 @@ export namespace Data {
 		GuildSession,
 		SessionOptions,
 	};
-	export const mainDb = new Sequelize({
-		dialect: SqliteDialect,
-		storage: ':memory:',
-		pool: {
-			max: 1,
-			min: 1,
-			idle: Infinity,
-		},
-		benchmark: true,
-		logging: (q, t) => console.log(q, t, 'ms'),
-		models: Object.values(models),
-	});
+	export const mainDb =
+		process.env.NODE_ENV === 'prod'
+			? new Sequelize({
+					password: dbConfg.password,
+					user: dbConfg.username,
+					database: dbConfg.name,
+					host: dbConfg.host,
+					port: dbConfg.port,
+					dialect: MySqlDialect,
+					logging: false,
+					pool: {
+						max: 5,
+						min: 1,
+						idle: 10000,
+						acquire: 5000,
+					},
+					models: Object.values(models),
+				})
+			: new Sequelize({
+					dialect: SqliteDialect,
+					storage: ':memory:',
+					pool: {
+						max: 1,
+						min: 1,
+						idle: Infinity,
+					},
+					benchmark: true,
+					logging: (q, t) => console.log(q, t, 'ms'),
+					models: Object.values(models),
+				});
 
 	export async function setup() {
 		if (ready) {

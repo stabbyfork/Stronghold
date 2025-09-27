@@ -1,8 +1,9 @@
 import { ChatInputCommandInteraction, GuildMember } from 'discord.js';
-import { constructError, defaultEmbed, reportErrorToUser } from '../../../utils.js';
-import { ErrorReplies } from '../../../types.js';
-import { hasPermissions, Permission } from '../../../schema.js';
+import { ErrorReplies } from '../../../types/errors.js';
 import { Data } from '../../../data.js';
+import { defaultEmbed } from '../../../utils/discordUtils.js';
+import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js';
+import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction) => {
 	await interaction.deferReply();

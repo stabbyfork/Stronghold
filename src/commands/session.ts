@@ -1,6 +1,6 @@
 import { ChannelType, SlashCommandBuilder } from 'discord.js';
-import { createCommand } from '../types.js';
-import { UsageScope } from '../schema.js';
+import { createCommand } from '../types/commandTypes.js';
+import { UsageScope } from '../utils/usageLimitsUtils.js';
 
 export default createCommand<{}, 'session'>({
 	data: new SlashCommandBuilder()

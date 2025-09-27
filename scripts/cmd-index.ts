@@ -2,8 +2,10 @@ import { SlashCommandBuilder } from 'discord.js';
 import fs from 'fs';
 import path from 'path';
 import { pathToFileURL } from 'url';
-import { flattenVals, getSubcommands } from '../src/utils';
-import { CommandConstruct, SubcommandMap } from '../src/types';
+import { CommandConstruct } from '../src/types/commandTypes.js';
+import { SubcommandMap } from '../src/types/subcommandTypes.js';
+import { flattenVals } from '../src/utils/genericsUtils.js';
+import { getSubcommands } from '../src/utils/subcommandsUtils.js';
 
 const outPath = 'src/commands.ts';
 const optionsOutPath = 'src/cmdOptions.ts';
@@ -54,15 +56,13 @@ async function build() {
 		entries.length === 1 ? '' : 'S'
 	} AND DERIVED FROM ${cmdDir}; SOURCE OF TRUTH
 
-import type { CommandConstruct, CommandExecute } from './types.js';
-
 ${entries.map(([cmd, rel]) => `import ${cmd.data.name} from '${rel}';`).join('\n')}
 
 ${flatSubcmds.map((sub) => `import ${sub.replaceAll(' ', '_')} from '${'./commands/' + sub.replaceAll(' ', '/') + '.js' /*May break if the path changes*/}';`).join('\n')}
 
 export const commands = {
 ${entries.map(([cmd]) => `  '${cmd.data.name}': ${cmd.data.name},`).join('\n')}
-} as const satisfies { [key: string]: CommandConstruct<boolean, any> };
+} as const
 
 export const subcommands = {
 ${entries
@@ -78,9 +78,7 @@ ${entries
 		return `${cmd.data.name}: ${JSON.stringify(cds, null, 2).replaceAll('"', '')},`;
 	})
 	.join('\n')}
-} as const satisfies {
-	[K in keyof Partial<typeof commands>]: { [key: string]: CommandExecute<any> | { [key: string]: CommandExecute<any> } };
-};
+} as const
 `;
 
 	fs.writeFileSync(
@@ -89,17 +87,13 @@ ${entries
 			entries.length === 1 ? '' : 'S'
 		} AND DERIVED FROM ${cmdDir}; SOURCE OF TRUTH
 
-import type { CommandConstruct } from './types.js';
-
 export const commandOptions = {
 ${entries
 	.map(([cmd]) => {
 		return `${cmd.data.name}: ${JSON.stringify(cmd.options, null, 2)},`;
 	})
 	.join('\n')}
-} as const satisfies {
-	[key: string]: CommandConstruct['options'];
-}
+} as const
 
 export type CommandList<T> = {
 ${entries

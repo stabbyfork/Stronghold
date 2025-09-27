@@ -6,7 +6,9 @@ import { pathToFileURL } from 'url';
 import { client } from './client.js';
 import { Config } from './config.js';
 import { Data } from './data.js';
-import { Debug, intDiv, runActivityCheckExecute } from './utils.js';
+import { runActivityCheckExecute } from './utils/discordUtils.js';
+import { Debug } from './utils/errorsUtils.js';
+import { intDiv } from './utils/genericsUtils.js';
 
 let activityChecksId: NodeJS.Timeout;
 

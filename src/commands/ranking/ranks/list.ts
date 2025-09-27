@@ -1,8 +1,10 @@
 import { ChatInputCommandInteraction, ContainerBuilder, roleMention } from 'discord.js';
-import { constructError, Pages, reportErrorIfNotSetup, reportErrorToUser } from '../../../utils.js';
 import { Data } from '../../../data.js';
-import { ErrorReplies } from '../../../types.js';
+import { ErrorReplies } from '../../../types/errors.js';
 import { RankAssociations } from '../../../models/rank.js';
+import { Pages } from '../../../utils/discordUtils.js';
+import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js';
+import { reportErrorIfNotSetup } from '../../../utils/subcommandsUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction) => {
 	if (!(await reportErrorIfNotSetup(interaction))) return;

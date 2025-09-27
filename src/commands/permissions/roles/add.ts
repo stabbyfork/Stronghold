@@ -1,7 +1,8 @@
 import { ChatInputCommandInteraction, roleMention } from 'discord.js';
 import { commandOptions } from '../../../cmdOptions.js';
-import { defaultEmbed, getOption } from '../../../utils.js';
 import { setPermissionsWithInteractionRoles } from './set.js';
+import { defaultEmbed } from '../../../utils/discordUtils.js';
+import { getOption } from '../../../utils/subcommandsUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.permissions.roles.add) => {
 	setPermissionsWithInteractionRoles({

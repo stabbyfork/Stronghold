@@ -1,9 +1,11 @@
 import { ChatInputCommandInteraction, GuildMember, MessageFlags, roleMention } from 'discord.js';
 import { commandOptions } from '../../../cmdOptions.js';
 import { Data } from '../../../data.js';
-import { ErrorReplies } from '../../../types.js';
-import { constructError, defaultEmbed, getOption, reportErrorIfNotSetup, reportErrorToUser } from '../../../utils.js';
-import { hasPermissions, Permission } from '../../../schema.js';
+import { ErrorReplies } from '../../../types/errors.js';
+import { defaultEmbed } from '../../../utils/discordUtils.js';
+import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js';
+import { reportErrorIfNotSetup, getOption } from '../../../utils/subcommandsUtils.js';
+import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.ranking.ranks.add) => {
 	if (!(await reportErrorIfNotSetup(interaction))) return;

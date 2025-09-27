@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction } from 'discord.js';
-import { defaultEmbed } from '../../utils.js';
-import { Permission } from '../../schema.js';
+import { defaultEmbed } from '../../utils/discordUtils.js';
+import { Permission } from '../../utils/permissionsUtils.js';
 
 const fields = [
 	{

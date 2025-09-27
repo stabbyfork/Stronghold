@@ -2,16 +2,19 @@ import {
 	channelMention,
 	ChatInputCommandInteraction,
 	GuildMember,
-	MessageFlags,
 	time,
 	TimestampStyles,
 	userMention,
 } from 'discord.js';
-import { GuildFlag, hasPermissions, Permission } from '../../schema.js';
-import { ErrorReplies } from '../../types.js';
-import { reportErrorIfNotSetup, reportErrorToUser, constructError, defaultEmbed, Logging } from '../../utils.js';
-import { Data } from '../../data.js';
 import ms from 'ms';
+import { Data } from '../../data.js';
+import { ErrorReplies } from '../../types/errors.js';
+import { defaultEmbed } from '../../utils/discordUtils.js';
+import { constructError, reportErrorToUser } from '../../utils/errorsUtils.js';
+import { GuildFlag } from '../../utils/guildFlagsUtils.js';
+import { Logging } from '../../utils/loggingUtils.js';
+import { hasPermissions, Permission } from '../../utils/permissionsUtils.js';
+import { reportErrorIfNotSetup } from '../../utils/subcommandsUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction) => {
 	if (!(await reportErrorIfNotSetup(interaction))) return;

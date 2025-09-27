@@ -1,9 +1,13 @@
 import { ChatInputCommandInteraction, GuildMember } from 'discord.js';
 import { commandOptions } from '../../../cmdOptions.js';
 import { Data } from '../../../data.js';
-import { hasPermissions, Permission, UsageDefaults, UsageEnum, Usages } from '../../../schema.js';
-import { ActivityCheckEvent, ActivityCheckSequence, ErrorReplies, Errors } from '../../../types.js';
-import { constructError, defaultEmbed, getOption, reportErrorToUser, runActivityCheckExecute } from '../../../utils.js';
+import { ErrorReplies, Errors } from '../../../types/errors.js';
+import { ActivityCheckSequence, ActivityCheckEvent } from '../../../types/activityChecks.js';
+import { runActivityCheckExecute, defaultEmbed } from '../../../utils/discordUtils.js';
+import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js';
+import { getOption } from '../../../utils/subcommandsUtils.js';
+import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
+import { Usages, UsageEnum, UsageDefaults } from '../../../utils/usageLimitsUtils.js';
 
 export default async (
 	interaction: ChatInputCommandInteraction,

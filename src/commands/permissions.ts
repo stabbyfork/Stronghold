@@ -1,6 +1,6 @@
 import { AutocompleteInteraction, SlashCommandBuilder } from 'discord.js';
-import { createCommand } from '../types.js';
-import { Permission } from '../schema.js';
+import { createCommand } from '../types/commandTypes.js';
+import { Permission } from '../utils/permissionsUtils.js';
 
 export default createCommand({
 	data: new SlashCommandBuilder()

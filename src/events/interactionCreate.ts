@@ -1,27 +1,22 @@
-import { Events, GuildMember, InteractionReplyOptions, MessageFlags, urlSafeCharacters, userMention } from 'discord.js';
+import { Events, GuildMember, InteractionReplyOptions, MessageFlags, userMention } from 'discord.js';
 import { commands } from '../commands.js';
-import {
-	CommandConstruct,
-	CommandExecute,
-	CommandOptionDictDeclare,
-	createEvent,
-	ErrorReplies,
-	Errors,
-	GlobalCustomIds,
-} from '../types.js';
-import {
-	constructError,
-	Debug,
-	defaultEmbed,
-	getAllOptionsOfCommand,
-	getCommandFullName,
-	getSubcommandExec,
-	getValue,
-	Logging,
-	reportErrorToUser,
-} from '../utils.js';
-import { GuildFlag, UsageDefaults, UsageEnum, UsageLimit, UsageLimitParams, Usages, UsageScope } from '../schema.js';
 import { Data } from '../data.js';
+import { CommandConstruct, CommandExecute, CommandOptionDictDeclare } from '../types/commandTypes.js';
+import { ErrorReplies, Errors } from '../types/errors.js';
+import { createEvent, GlobalCustomIds } from '../types/eventTypes.js';
+import { constructError, Debug, reportErrorToUser } from '../utils/errorsUtils.js';
+import { getValue } from '../utils/genericsUtils.js';
+import { GuildFlag } from '../utils/guildFlagsUtils.js';
+import { Logging } from '../utils/loggingUtils.js';
+import { getAllOptionsOfCommand, getCommandFullName, getSubcommandExec } from '../utils/subcommandsUtils.js';
+import {
+	UsageDefaults,
+	UsageEnum,
+	UsageLimit,
+	UsageLimitParams,
+	Usages,
+	UsageScope,
+} from '../utils/usageLimitsUtils.js';
 
 export default createEvent({
 	name: Events.InteractionCreate,

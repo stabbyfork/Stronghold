@@ -1,7 +1,8 @@
 import { ChatInputCommandInteraction, userMention } from 'discord.js';
 import { setPermissionsWithInteractionUsers } from './set.js';
 import { commandOptions } from '../../../cmdOptions.js';
-import { defaultEmbed, getOption } from '../../../utils.js';
+import { defaultEmbed } from '../../../utils/discordUtils.js';
+import { getOption } from '../../../utils/subcommandsUtils.js';
 
 export default async (
 	interaction: ChatInputCommandInteraction,

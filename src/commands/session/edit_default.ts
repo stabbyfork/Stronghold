@@ -1,18 +1,13 @@
-import {
-	channelMention,
-	ChatInputCommandInteraction,
-	GuildMember,
-	MessageFlags,
-	ModalSubmitInteraction,
-} from 'discord.js';
+import { ChatInputCommandInteraction, GuildMember, MessageFlags, ModalSubmitInteraction } from 'discord.js';
 import { client } from '../../client.js';
-import { Data } from '../../data.js';
-import { hasPermissions, Permission } from '../../schema.js';
-import { ErrorReplies } from '../../types.js';
-import { reportErrorIfNotSetup, reportErrorToUser, constructError, getOption, defaultEmbed } from '../../utils.js';
-import { createSessionModal, createSessionMessage } from './start.js';
 import { commandOptions } from '../../cmdOptions.js';
-import { GuildSessionAssociations } from '../../models/session.js';
+import { Data } from '../../data.js';
+import { ErrorReplies } from '../../types/errors.js';
+import { defaultEmbed } from '../../utils/discordUtils.js';
+import { constructError, reportErrorToUser } from '../../utils/errorsUtils.js';
+import { hasPermissions, Permission } from '../../utils/permissionsUtils.js';
+import { getOption, reportErrorIfNotSetup } from '../../utils/subcommandsUtils.js';
+import { createSessionModal } from './start.js';
 
 const enum CustomIds {
 	DetailsModal = 'session-edit_default-modal',

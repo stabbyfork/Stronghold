@@ -1,6 +1,4 @@
-// AUTO-GENERATED ON SAT, 27 SEP 2025 13:37:06 GMT WITH 7 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
-
-import type { CommandConstruct, CommandExecute } from './types.js';
+// AUTO-GENERATED ON SAT, 27 SEP 2025 16:13:45 GMT WITH 7 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import activity from './commands/activity.js';
 import permissions from './commands/permissions.js';
@@ -53,7 +51,7 @@ export const commands = {
   'help': help,
   'ping': ping,
   'setup': setup,
-} as const satisfies { [key: string]: CommandConstruct<boolean, any> };
+} as const
 
 export const subcommands = {
 activity: {
@@ -108,6 +106,4 @@ session: {
   edit: session_edit,
   edit_default: session_edit_default
 },
-} as const satisfies {
-	[K in keyof Partial<typeof commands>]: { [key: string]: CommandExecute<any> | { [key: string]: CommandExecute<any> } };
-};
+} as const

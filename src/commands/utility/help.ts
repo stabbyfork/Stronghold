@@ -1,30 +1,23 @@
 import {
-	_AddUndefinedToPossiblyUndefinedPropertiesOfInterface,
 	APIApplicationCommand,
 	APIApplicationCommandOption,
 	ApplicationCommandOptionType,
-	ApplicationCommandType,
 	AutocompleteInteraction,
 	ContainerBuilder,
 	MessageFlags,
 	SlashCommandBuilder,
 	SlashCommandSubcommandBuilder,
 	SlashCommandSubcommandGroupBuilder,
-	SlashCommandSubcommandsOnlyBuilder,
 	TextDisplayBuilder,
 } from 'discord.js';
 import { commandOptions } from '../../cmdOptions.js';
 import { commands, subcommands } from '../../commands.js';
-import { createCommand, ErrorReplies } from '../../types.js';
-import {
-	constructError,
-	flattenVals,
-	getOption,
-	getSubcommands,
-	getValue,
-	Pages,
-	reportErrorToUser,
-} from '../../utils.js';
+import { createCommand } from '../../types/commandTypes.js';
+import { ErrorReplies } from '../../types/errors.js';
+import { Pages } from '../../utils/discordUtils.js';
+import { constructError, reportErrorToUser } from '../../utils/errorsUtils.js';
+import { flattenVals, getValue } from '../../utils/genericsUtils.js';
+import { getOption, getSubcommands } from '../../utils/subcommandsUtils.js';
 const commandArray: string[] = [];
 let splitHelpText: string[] = [];
 

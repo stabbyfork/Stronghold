@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction } from 'discord.js';
-import { defaultEmbed } from '../../../utils.js';
-import { ActivityCheckEvent, ActivityCheckSequence } from '../../../types.js';
+import { ActivityCheckSequence, ActivityCheckEvent } from '../../../types/activityChecks.js';
+import { defaultEmbed } from '../../../utils/discordUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction) => {
 	const sep = ActivityCheckSequence.SEPARATOR;

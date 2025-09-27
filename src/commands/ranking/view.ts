@@ -1,11 +1,13 @@
 import { ChatInputCommandInteraction, ContainerBuilder, Embed, EmbedBuilder, GuildMember } from 'discord.js';
-import { ErrorReplies } from '../../types.js';
-import { reportErrorToUser, constructError, getOption, reportErrorIfNotSetup, defaultEmbed } from '../../utils.js';
+import { ErrorReplies } from '../../types/errors.js';
 import { commandOptions } from '../../cmdOptions.js';
 import { Data } from '../../data.js';
-import { hasPermissions, Permission, PermissionBits } from '../../schema.js';
 import { UserAssociations } from '../../models/user.js';
 import { RankAssociations } from '../../models/rank.js';
+import { defaultEmbed } from '../../utils/discordUtils.js';
+import { reportErrorToUser, constructError } from '../../utils/errorsUtils.js';
+import { reportErrorIfNotSetup, getOption } from '../../utils/subcommandsUtils.js';
+import { hasPermissions, Permission, PermissionBits } from '../../utils/permissionsUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.ranking.view) => {
 	if (!(await reportErrorIfNotSetup(interaction))) return;

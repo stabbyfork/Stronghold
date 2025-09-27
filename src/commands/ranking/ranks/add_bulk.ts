@@ -1,18 +1,13 @@
+import { Op } from '@sequelize/core';
 import { Ajv } from 'ajv';
-import {
-	ChatInputCommandInteraction,
-	ColorResolvable,
-	Colors,
-	GuildMember,
-	MessageFlags,
-	roleMention,
-} from 'discord.js';
+import { ChatInputCommandInteraction, Colors, GuildMember, MessageFlags, roleMention } from 'discord.js';
 import { commandOptions } from '../../../cmdOptions.js';
 import { Data } from '../../../data.js';
-import { hasPermissions, Permission } from '../../../schema.js';
-import { ErrorReplies, Errors } from '../../../types.js';
-import { constructError, defaultEmbed, getOption, reportErrorIfNotSetup, reportErrorToUser } from '../../../utils.js';
-import { Op } from '@sequelize/core';
+import { ErrorReplies, Errors } from '../../../types/errors.js';
+import { defaultEmbed } from '../../../utils/discordUtils.js';
+import { constructError, reportErrorToUser } from '../../../utils/errorsUtils.js';
+import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
+import { getOption, reportErrorIfNotSetup } from '../../../utils/subcommandsUtils.js';
 
 const ajv = new Ajv();
 

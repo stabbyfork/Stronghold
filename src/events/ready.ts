@@ -1,11 +1,11 @@
+import { Op } from '@sequelize/core';
 import { ActivityType, Events } from 'discord.js';
-import { createEvent } from '../types.js';
+import { setInterval } from 'timers/promises';
 import { commands } from '../commands.js';
 import { Data } from '../data.js';
-import { Op } from '@sequelize/core';
-import { setInterval } from 'timers/promises';
-import { Logging } from '../utils.js';
-import { GuildFlag } from '../schema.js';
+import { createEvent } from '../types/eventTypes.js';
+import { GuildFlag } from '../utils/guildFlagsUtils.js';
+import { Logging } from '../utils/loggingUtils.js';
 
 export default createEvent({
 	name: Events.ClientReady,

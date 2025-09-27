@@ -21,16 +21,14 @@ import {
 import { client } from '../../client.js';
 import { commandOptions } from '../../cmdOptions.js';
 import { Data } from '../../data.js';
-import { GuildFlag, hasPermissions, Permission } from '../../schema.js';
-import { ErrorReplies, Errors, GlobalCustomIds } from '../../types.js';
-import {
-	constructError,
-	defaultEmbed,
-	getOption,
-	Logging,
-	reportErrorIfNotSetup,
-	reportErrorToUser,
-} from '../../utils.js';
+import { ErrorReplies } from '../../types/errors.js';
+import { GlobalCustomIds } from '../../types/eventTypes.js';
+import { defaultEmbed } from '../../utils/discordUtils.js';
+import { constructError, reportErrorToUser } from '../../utils/errorsUtils.js';
+import { GuildFlag } from '../../utils/guildFlagsUtils.js';
+import { Logging } from '../../utils/loggingUtils.js';
+import { hasPermissions, Permission } from '../../utils/permissionsUtils.js';
+import { getOption, reportErrorIfNotSetup } from '../../utils/subcommandsUtils.js';
 
 export function createSessionMessage(title: string, message: string, imageUrls: string[], userId: string) {
 	const msg = new ContainerBuilder().setAccentColor([255, 255, 255]).addTextDisplayComponents(

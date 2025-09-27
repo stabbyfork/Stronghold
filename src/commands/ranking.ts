@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { createCommand } from '../types.js';
+import { createCommand } from '../types/commandTypes.js';
 
 const exampleRankObjs = [
 	{

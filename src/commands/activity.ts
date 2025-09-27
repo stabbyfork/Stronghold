@@ -1,5 +1,5 @@
 import { ChannelType, SlashCommandBuilder } from 'discord.js';
-import { createCommand } from '../types.js';
+import { createCommand } from '../types/commandTypes.js';
 
 export default createCommand<{}, 'activity'>({
 	data: new SlashCommandBuilder()

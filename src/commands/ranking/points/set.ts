@@ -1,11 +1,13 @@
 import { ChatInputCommandInteraction, EmbedBuilder, GuildMember, userMention } from 'discord.js';
 import { commandOptions } from '../../../cmdOptions.js';
 import { Data } from '../../../data.js';
-import { hasPermissions, Permission } from '../../../schema.js';
-import { ErrorReplies, Errors } from '../../../types.js';
-import { constructError, defaultEmbed, getOption, reportErrorIfNotSetup, reportErrorToUser } from '../../../utils.js';
+import { ErrorReplies, Errors } from '../../../types/errors.js';
 import { Transaction } from '@sequelize/core';
 import { User } from '../../../models/user.js';
+import { defaultEmbed } from '../../../utils/discordUtils.js';
+import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js';
+import { reportErrorIfNotSetup, getOption } from '../../../utils/subcommandsUtils.js';
+import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
 
 export async function setPointsWithInteraction(
 	interaction: ChatInputCommandInteraction,

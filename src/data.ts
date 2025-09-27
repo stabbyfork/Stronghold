@@ -14,8 +14,8 @@ import { GuildSession } from './models/session.js';
 import { SessionOptions } from './models/sessionOptions.js';
 import { User } from './models/user.js';
 import { UserPermission } from './models/userPermission.js';
-import { Errors } from './types.js';
-import { Debug } from './utils.js';
+import { Errors } from './types/errors.js';
+import { Debug } from './utils/errorsUtils.js';
 
 const dbConfg = Config.get('database');
 

@@ -1,9 +1,11 @@
 import { ChatInputCommandInteraction, EmbedBuilder, GuildMember, MessageFlags, userMention } from 'discord.js';
 import { Data } from '../../../data.js';
-import { hasPermissions, Permission, PermissionBits } from '../../../schema.js';
-import { ErrorReplies, Errors } from '../../../types.js';
-import { reportErrorIfNotSetup, reportErrorToUser, constructError, defaultEmbed, getOption } from '../../../utils.js';
+import { ErrorReplies, Errors } from '../../../types/errors.js';
 import { commandOptions } from '../../../cmdOptions.js';
+import { defaultEmbed } from '../../../utils/discordUtils.js';
+import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js';
+import { reportErrorIfNotSetup, getOption } from '../../../utils/subcommandsUtils.js';
+import { hasPermissions, Permission, PermissionBits } from '../../../utils/permissionsUtils.js';
 
 export async function setPermissionsWithInteractionUsers({
 	interaction,

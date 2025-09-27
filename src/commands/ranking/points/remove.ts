@@ -1,7 +1,8 @@
 import { ChatInputCommandInteraction, userMention } from 'discord.js';
 import { setPointsWithInteraction } from './set.js';
 import { commandOptions } from '../../../cmdOptions.js';
-import { getOption, defaultEmbed } from '../../../utils.js';
+import { defaultEmbed } from '../../../utils/discordUtils.js';
+import { getOption } from '../../../utils/subcommandsUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.ranking.points.remove) => {
 	setPointsWithInteraction(

@@ -1,8 +1,10 @@
 import { ChatInputCommandInteraction, time, TimestampStyles } from 'discord.js';
-import { constructError, defaultEmbed, reportErrorIfNotSetup, reportErrorToUser } from '../../utils.js';
-import { ErrorReplies } from '../../types.js';
+import { ErrorReplies } from '../../types/errors.js';
 import { Data } from '../../data.js';
 import ms from 'ms';
+import { defaultEmbed } from '../../utils/discordUtils.js';
+import { reportErrorToUser, constructError } from '../../utils/errorsUtils.js';
+import { reportErrorIfNotSetup } from '../../utils/subcommandsUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction) => {
 	if (!(await reportErrorIfNotSetup(interaction))) return;

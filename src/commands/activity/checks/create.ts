@@ -2,17 +2,13 @@ import { ChatInputCommandInteraction, EmojiIdentifierResolvable, GuildMember, Me
 import ms from 'ms';
 import { commandOptions } from '../../../cmdOptions.js';
 import { Data } from '../../../data.js';
-import { hasPermissions, Permission } from '../../../schema.js';
-import { ActivityCheckEvent, ActivityCheckSequence, ErrorReplies, Errors } from '../../../types.js';
-import {
-	constructError,
-	defaultEmbed,
-	getOption,
-	intDiv,
-	reportErrorIfNotSetup,
-	reportErrorToUser,
-	strToDuration,
-} from '../../../utils.js';
+import { ErrorReplies, Errors } from '../../../types/errors.js';
+import { ActivityCheckSequence, ActivityCheckEvent } from '../../../types/activityChecks.js';
+import { defaultEmbed } from '../../../utils/discordUtils.js';
+import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js';
+import { strToDuration, intDiv } from '../../../utils/genericsUtils.js';
+import { reportErrorIfNotSetup, getOption } from '../../../utils/subcommandsUtils.js';
+import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
 
 export function getDefaultActivityCheckEmoji(): string {
 	return '✅';

@@ -1,9 +1,10 @@
 import { ChatInputCommandInteraction, ContainerBuilder, userMention } from 'discord.js';
-import { constructError, defaultEmbed, Pages, reportErrorToUser } from '../../../utils.js';
-import { ErrorReplies } from '../../../types.js';
+import { ErrorReplies } from '../../../types/errors.js';
 import { Data } from '../../../data.js';
 import { Op } from '@sequelize/core';
 import { UserAssociations } from '../../../models/user.js';
+import { Pages } from '../../../utils/discordUtils.js';
+import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction) => {
 	const guild = interaction.guild;

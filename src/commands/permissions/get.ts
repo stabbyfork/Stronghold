@@ -1,10 +1,12 @@
 import { ChatInputCommandInteraction, GuildMember, MessageFlags, userMention } from 'discord.js';
-import { ErrorReplies } from '../../types.js';
-import { reportErrorToUser, constructError, defaultEmbed, getOption } from '../../utils.js';
+import { ErrorReplies } from '../../types/errors.js';
 import { Data } from '../../data.js';
 import { commandOptions } from '../../cmdOptions.js';
-import { Permission, PermissionBits } from '../../schema.js';
 import { UserAssociations } from '../../models/user.js';
+import { defaultEmbed } from '../../utils/discordUtils.js';
+import { reportErrorToUser, constructError } from '../../utils/errorsUtils.js';
+import { getOption } from '../../utils/subcommandsUtils.js';
+import { Permission, PermissionBits } from '../../utils/permissionsUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.permissions.get) => {
 	const guild = interaction.guild;

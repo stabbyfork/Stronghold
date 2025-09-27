@@ -1,3 +1,4 @@
+import { Op, Transaction } from '@sequelize/core';
 import {
 	ButtonBuilder,
 	ButtonStyle,
@@ -22,23 +23,18 @@ import {
 	userMention,
 	UserSelectMenuBuilder,
 } from 'discord.js';
-import { Op, Transaction, where } from '@sequelize/core';
+import _ from 'lodash';
 import { commandOptions } from '../../cmdOptions.js';
 import { Data } from '../../data.js';
-import {
-	getWhereForAllPerms,
-	GuildFlag,
-	GuildFlagBits,
-	Permission,
-	PermissionBits,
-	UsageEnum,
-	Usages,
-	UsageScope,
-} from '../../schema.js';
-import { createCommand, ErrorReplies, Errors } from '../../types.js';
-import { constructError, Debug, defaultEmbed, getOption, isSameUser, Logging, reportErrorToUser } from '../../utils.js';
-import { UserPermission } from '../../models/userPermission.js';
-import _ from 'lodash';
+import { createCommand } from '../../types/commandTypes.js';
+import { ErrorReplies, Errors } from '../../types/errors.js';
+import { defaultEmbed, isSameUser } from '../../utils/discordUtils.js';
+import { constructError, Debug, reportErrorToUser } from '../../utils/errorsUtils.js';
+import { GuildFlag, GuildFlagBits } from '../../utils/guildFlagsUtils.js';
+import { Logging } from '../../utils/loggingUtils.js';
+import { Permission, PermissionBits } from '../../utils/permissionsUtils.js';
+import { getOption } from '../../utils/subcommandsUtils.js';
+import { UsageScope } from '../../utils/usageLimitsUtils.js';
 
 const enum RoleNames {
 	InSession = 'In Session',

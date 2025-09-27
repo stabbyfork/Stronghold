@@ -1,6 +1,4 @@
-// AUTO-GENERATED ON SAT, 27 SEP 2025 13:37:06 GMT WITH 7 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
-
-import type { CommandConstruct } from './types.js';
+// AUTO-GENERATED ON SAT, 27 SEP 2025 16:13:45 GMT WITH 7 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 export const commandOptions = {
 activity: {
@@ -270,9 +268,7 @@ setup: {
     "required": false
   }
 },
-} as const satisfies {
-	[key: string]: CommandConstruct['options'];
-}
+} as const
 
 export type CommandList<T> = {
 activity: {

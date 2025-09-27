@@ -90,5 +90,11 @@ process
 	.on('SIGTERM', async (signal) => await safeShutdown(signal));
 
 console.log('Logging in');
-client.login(Config.get('token'));
+console.log('Running in', process.env.NODE_ENV);
+if (process.env.NODE_ENV !== 'prod') {
+	await client.login(Config.get('dev')?.token);
+} else {
+	await client.login(Config.get('token'));
+}
+
 process.send?.('ready');

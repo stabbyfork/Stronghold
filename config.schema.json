@@ -52,7 +52,28 @@
 			},
 			"readOnly": true,
 			"additionalProperties": false,
-			"required": ["username", "password", "dialect"]
+			"required": ["username", "password"]
+		},
+		"dev": {
+			"type": "object",
+			"description": "Properties and options for the development bot. These are not used in production. Used for testing and debugging purposes.",
+			"properties": {
+				"token": {
+					"type": "string",
+					"description": "The development bot token"
+				},
+				"clientId": {
+					"type": "string",
+					"description": "The development bot's client ID"
+				},
+				"devServerId": {
+					"type": "string",
+					"description": "The ID of the development server (where to register dev commands)"
+				}
+			},
+			"readOnly": true,
+			"required": ["token", "clientId"],
+			"additionalProperties": false
 		}
 	},
 	"readOnly": true,

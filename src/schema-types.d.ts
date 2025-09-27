@@ -30,7 +30,7 @@ export interface Config {
    */
   clientId: string;
   /**
-   * Properties and options of the database to use. See https://sequelize.org for more info
+   * Properties and options of the database (MySQL only) to use. See https://sequelize.org for more info
    */
   database: {
     /**
@@ -53,15 +53,22 @@ export interface Config {
      * Database name
      */
     name?: string;
+  };
+  /**
+   * Properties and options for the development bot. These are not used in production. Used for testing and debugging purposes.
+   */
+  dev?: {
     /**
-     * Database dialect (MySQL, SQLite, etc.)
+     * The development bot token
      */
-    dialect: "mysql" | "sqlite3" | "db2" | "mariadb" | "mssql" | "postgres" | "snowflake";
+    token: string;
     /**
-     * Dialect-specific options
+     * The development bot's client ID
      */
-    dialectOptions?: {
-      [k: string]: unknown;
-    };
+    clientId: string;
+    /**
+     * The ID of the development server (where to register dev commands)
+     */
+    devServerId?: string;
   };
 }

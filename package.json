@@ -40,5 +40,5 @@
 		"compileAndRestart": "npm run compile && pm2 flush && npm restart",
 		"logs": "pm2 logs"
 	},
-	"version": "0.0.1"
+	"version": "1.0.0"
 }

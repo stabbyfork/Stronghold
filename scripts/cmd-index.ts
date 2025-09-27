@@ -56,13 +56,15 @@ async function build() {
 		entries.length === 1 ? '' : 'S'
 	} AND DERIVED FROM ${cmdDir}; SOURCE OF TRUTH
 
+import type { CommandConstruct, CommandExecute } from './types/commandTypes.js';
+
 ${entries.map(([cmd, rel]) => `import ${cmd.data.name} from '${rel}';`).join('\n')}
 
 ${flatSubcmds.map((sub) => `import ${sub.replaceAll(' ', '_')} from '${'./commands/' + sub.replaceAll(' ', '/') + '.js' /*May break if the path changes*/}';`).join('\n')}
 
 export const commands = {
 ${entries.map(([cmd]) => `  '${cmd.data.name}': ${cmd.data.name},`).join('\n')}
-} as const
+} as const satisfies { [key: string]: CommandConstruct<boolean, any> };
 
 export const subcommands = {
 ${entries
@@ -78,7 +80,9 @@ ${entries
 		return `${cmd.data.name}: ${JSON.stringify(cds, null, 2).replaceAll('"', '')},`;
 	})
 	.join('\n')}
-} as const
+} as const satisfies {
+	[K in keyof Partial<typeof commands>]: { [key: string]: CommandExecute<any> | { [key: string]: CommandExecute<any> } };
+};
 `;
 
 	fs.writeFileSync(
@@ -87,13 +91,17 @@ ${entries
 			entries.length === 1 ? '' : 'S'
 		} AND DERIVED FROM ${cmdDir}; SOURCE OF TRUTH
 
+import type { CommandConstruct } from "./types/commandTypes.js";
+
 export const commandOptions = {
 ${entries
 	.map(([cmd]) => {
 		return `${cmd.data.name}: ${JSON.stringify(cmd.options, null, 2)},`;
 	})
 	.join('\n')}
-} as const
+} as const satisfies {
+	[key: string]: CommandConstruct['options'];
+}
 
 export type CommandList<T> = {
 ${entries

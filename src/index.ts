@@ -1,19 +1,18 @@
-import fs from 'fs';
-import path from 'path';
 import { Op, Sequelize, sql } from '@sequelize/core';
 import { setInterval as yieldInterval } from 'timers/promises';
-import { pathToFileURL } from 'url';
 import { client } from './client.js';
 import { Config } from './config.js';
 import { Data } from './data.js';
 import { runActivityCheckExecute } from './utils/discordUtils.js';
 import { Debug } from './utils/errorsUtils.js';
 import { intDiv } from './utils/genericsUtils.js';
+//@ts-ignore
+import * as Events from './events/*';
 
 let activityChecksId: NodeJS.Timeout;
 
 async function registerEvents(dir: string, workDir: string) {
-	const files = fs
+	/*const files = fs
 		.readdirSync(dir)
 		.filter((file) => file.endsWith('.ts'))
 		.map(async (file) => {
@@ -38,7 +37,14 @@ async function registerEvents(dir: string, workDir: string) {
 			else client.on(evt.name, evt.execute);
 			evt.onConnect?.();
 		});
-	});
+	});*/
+	for (const file of Events.default) {
+		const evt = file.default;
+		if (!(evt && 'name' in evt && 'once' in evt && 'execute' in evt)) continue;
+		if (evt.once) client.once(evt.name, evt.execute);
+		else client.on(evt.name, evt.execute);
+		evt.onConnect?.();
+	}
 }
 
 async function safeShutdown(signal: NodeJS.Signals) {

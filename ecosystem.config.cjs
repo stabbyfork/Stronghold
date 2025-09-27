@@ -6,7 +6,6 @@ module.exports = {
 			interpreter: 'node',
 			interpreter_args: '--trace-deprecation',
 			watch: ['dist'],
-			ignore_watch: ['dist/data.json'],
 			wait_ready: true,
 			kill_timeout: 3000,
 			env: {

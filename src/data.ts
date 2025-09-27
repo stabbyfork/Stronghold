@@ -111,7 +111,7 @@ export namespace Data {
 	}
 
 	async function handleShutdown() {
-		console.log('Saving data');
+		console.log('Shutting down database');
 	}
 	async function _promoteUser(user: User, transaction: Transaction) {
 		const guildId = user.guildId;

@@ -92,7 +92,9 @@ process
 console.log('Logging in');
 console.log('Running in', process.env.NODE_ENV);
 if (process.env.NODE_ENV !== 'prod') {
-	await client.login(Config.get('dev')?.token);
+	const dev = Config.get('dev');
+	if (!dev) throw new Error('No dev config found');
+	await client.login(dev.token);
 } else {
 	await client.login(Config.get('token'));
 }

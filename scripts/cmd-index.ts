@@ -3,9 +3,10 @@ import fs from 'fs';
 import path from 'path';
 import { pathToFileURL } from 'url';
 import { flattenVals, getSubcommands } from '../src/utils';
-import { SubcommandMap } from '../src/types';
+import { CommandConstruct, SubcommandMap } from '../src/types';
 
-const outDir = 'src/commands.ts';
+const outPath = 'src/commands.ts';
+const optionsOutPath = 'src/cmdOptions.ts';
 
 let cmdDir: string;
 if (process.argv.length == 3) {
@@ -14,8 +15,7 @@ if (process.argv.length == 3) {
 	cmdDir = 'src/commands';
 }
 
-const isTSFile = (file: string) =>
-	file.endsWith('.ts') && !file.endsWith('.d.ts');
+const isTSFile = (file: string) => file.endsWith('.ts') && !file.endsWith('.d.ts');
 
 function* walk(dir: string): Generator<string> {
 	for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -29,7 +29,7 @@ function* walk(dir: string): Generator<string> {
 }
 
 async function build() {
-	const entries: [SlashCommandBuilder, string][] = [];
+	const entries: [CommandConstruct, string][] = [];
 
 	for (const file of walk(cmdDir)) {
 		const relPath = './' + path.relative('src', file).replace(/\\/g, '/'); // for import
@@ -40,14 +40,14 @@ async function build() {
 
 		// Basic type check for CommandConstruct
 		if (cmd && typeof cmd === 'object' && typeof cmd.data === 'object') {
-			entries.push([cmd.data, relPath.replace('.ts', '.js')]);
+			entries.push([cmd, relPath.replace('.ts', '.js')]);
 		}
 	}
 	const flatSubcmds: string[] = [];
-	for (const [data, _] of entries) {
-		const subs = getSubcommands(data);
+	for (const [cmd, _] of entries) {
+		const subs = getSubcommands(cmd.data as SlashCommandBuilder);
 		if (typeof subs !== 'string') {
-			flatSubcmds.push(...Object.keys(flattenVals(subs)));
+			flatSubcmds.push(...(flattenVals(subs) as string[]));
 		}
 	}
 	const tsOutput = `// AUTO-GENERATED ON ${new Date().toUTCString().toUpperCase()} WITH ${entries.length} TOP-LEVEL COMMAND${
@@ -56,42 +56,75 @@ async function build() {
 
 import type { CommandConstruct, CommandExecute } from './types.js';
 
-${entries.map(([data, rel]) => `import ${data.name} from '${rel}';`).join('\n')}
+${entries.map(([cmd, rel]) => `import ${cmd.data.name} from '${rel}';`).join('\n')}
 
 ${flatSubcmds.map((sub) => `import ${sub.replaceAll(' ', '_')} from '${'./commands/' + sub.replaceAll(' ', '/') + '.js' /*May break if the path changes*/}';`).join('\n')}
 
 export const commands = {
-${entries.map(([data]) => `  '${data.name}': ${data.name},`).join('\n')}
-} as const satisfies { [key: string]: CommandConstruct };
+${entries.map(([cmd]) => `  '${cmd.data.name}': ${cmd.data.name},`).join('\n')}
+} as const satisfies { [key: string]: CommandConstruct<boolean, any> };
 
 export const subcommands = {
 ${entries
-	.filter(([data]) => {
-		let cds = getSubcommands(data);
+	.filter(([cmd]) => {
+		let cds = getSubcommands(cmd.data as SlashCommandBuilder);
 		if (typeof cds === 'string') {
 			return false;
 		}
 		return true;
 	})
-	.map(([data]) => {
-		const cds = getSubcommands(data, '_') as SubcommandMap;
-		return `  ${data.name}: ${JSON.stringify(cds, null, 2).replaceAll('"', '')},`;
+	.map(([cmd]) => {
+		const cds = getSubcommands(cmd.data as SlashCommandBuilder, '_') as SubcommandMap;
+		return `${cmd.data.name}: ${JSON.stringify(cds, null, 2).replaceAll('"', '')},`;
 	})
 	.join('\n')}
 } as const satisfies {
-	[key in keyof Partial<typeof commands>]:
-		| { [key: string]: CommandExecute | { [key: string]: CommandExecute } }
-		| CommandExecute;
+	[K in keyof Partial<typeof commands>]: { [key: string]: CommandExecute<any> | { [key: string]: CommandExecute<any> } };
 };
 `;
 
-	fs.writeFileSync(outDir, tsOutput);
+	fs.writeFileSync(
+		optionsOutPath,
+		`// AUTO-GENERATED ON ${new Date().toUTCString().toUpperCase()} WITH ${entries.length} TOP-LEVEL COMMAND${
+			entries.length === 1 ? '' : 'S'
+		} AND DERIVED FROM ${cmdDir}; SOURCE OF TRUTH
+
+import type { CommandConstruct } from './types.js';
+
+export const commandOptions = {
+${entries
+	.map(([cmd]) => {
+		return `${cmd.data.name}: ${JSON.stringify(cmd.options, null, 2)},`;
+	})
+	.join('\n')}
+} as const satisfies {
+	[key: string]: CommandConstruct['options'];
+}
+
+export type CommandList<T> = {
+${entries
+	.filter(([cmd]) => {
+		let cds = getSubcommands(cmd.data as SlashCommandBuilder);
+		if (typeof cds === 'string') {
+			return false;
+		}
+		return true;
+	})
+	.map(([cmd]) => {
+		const cds = getSubcommands(cmd.data as SlashCommandBuilder, '_') as SubcommandMap;
+		return `${cmd.data.name}: ${JSON.stringify(cds, null, 2)
+			.replaceAll('"', '')
+			.replaceAll(/(\w+): (\w+)/g, '$1: T')},`;
+	})
+	.join('\n')}	
+};
+`,
+	);
+	fs.writeFileSync(outPath, tsOutput);
 	console.log(
-		`Generated at ${outDir} with ${entries.length} top-level command${
+		`Generated at ${outPath} with ${entries.length} top-level command${
 			entries.length === 1 ? '' : 's'
-		} and ${flatSubcmds.length} subcommand${
-			flatSubcmds.length === 1 ? '' : 's'
-		}`,
+		} and ${flatSubcmds.length} subcommand${flatSubcmds.length === 1 ? '' : 's'}`,
 	);
 }
 

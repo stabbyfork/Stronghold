@@ -1,3 +1,20 @@
-import { ChatInputCommandInteraction } from 'discord.js';
+import { ChatInputCommandInteraction, userMention } from 'discord.js';
+import { setPointsWithInteraction } from './set.js';
+import { commandOptions } from '../../../cmdOptions.js';
+import { getOption, defaultEmbed } from '../../../utils.js';
 
-export default async (interaction: ChatInputCommandInteraction) => {};
+export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.ranking.points.remove) => {
+	setPointsWithInteraction(
+		interaction,
+		getOption(interaction, args, 'users'),
+		getOption(interaction, args, 'points'),
+		(prevPoints, givenPoints) => prevPoints - givenPoints,
+		(userIds, points) =>
+			defaultEmbed()
+				.setColor('Green')
+				.setTitle('Success')
+				.setDescription(
+					`Removed \`${points}\` points from ${userIds.map(userMention).join(', ')} successfully.`,
+				),
+	);
+};

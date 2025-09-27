@@ -1,3 +1,18 @@
-import { ChatInputCommandInteraction } from 'discord.js';
+import { ChatInputCommandInteraction, userMention } from 'discord.js';
+import { setPointsWithInteraction } from './set.js';
+import { commandOptions } from '../../../cmdOptions.js';
+import { defaultEmbed, getOption } from '../../../utils.js';
 
-export default async (interaction: ChatInputCommandInteraction) => {};
+export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.ranking.points.add) => {
+	setPointsWithInteraction(
+		interaction,
+		getOption(interaction, args, 'users'),
+		getOption(interaction, args, 'points'),
+		(prevPoints, givenPoints) => prevPoints + givenPoints,
+		(userIds, points) =>
+			defaultEmbed()
+				.setColor('Green')
+				.setTitle('Success')
+				.setDescription(`Added \`${points}\` points to ${userIds.map(userMention).join(', ')} successfully.`),
+	);
+};

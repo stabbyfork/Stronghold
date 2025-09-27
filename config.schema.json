@@ -11,6 +11,10 @@
 		},
 		"appOwnerUsername": {
 			"type": "string",
+			"description": "The username of the bot owner"
+		},
+		"appOwnerId": {
+			"type": "string",
 			"description": "The ID of the bot owner"
 		},
 		"token": {
@@ -23,7 +27,7 @@
 		},
 		"database": {
 			"type": "object",
-			"description": "Properties and options of the database to use",
+			"description": "Properties and options of the database (MySQL only) to use. See https://sequelize.org for more info",
 			"properties": {
 				"username": {
 					"type": "string",
@@ -44,20 +48,14 @@
 				"name": {
 					"type": "string",
 					"description": "Database name"
-				},
-				"dialect": {
-					"type": "string",
-					"description": "Database dialect (MySQL, SQLite, etc.)",
-					"enum": ["mysql", "sqlite", "db2", "mariadb", "mssql", "oracle", "postgres", "snowflake"],
-					"default": "mysql"
 				}
 			},
 			"readOnly": true,
 			"additionalProperties": false,
-			"required": ["username", "password", "host", "name", "dialect"]
+			"required": ["username", "password", "dialect"]
 		}
 	},
 	"readOnly": true,
-	"required": ["appOwnerUsername", "token", "clientId", "$schema", "database"],
+	"required": ["appOwnerUsername", "token", "clientId", "$schema", "database", "appOwnerId"],
 	"additionalProperties": false
 }

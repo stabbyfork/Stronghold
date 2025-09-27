@@ -14,9 +14,13 @@ export interface Config {
    */
   $schema: string;
   /**
-   * The ID of the bot owner
+   * The username of the bot owner
    */
   appOwnerUsername: string;
+  /**
+   * The ID of the bot owner
+   */
+  appOwnerId: string;
   /**
    * The bot token
    */
@@ -26,7 +30,7 @@ export interface Config {
    */
   clientId: string;
   /**
-   * Properties and options of the database to use
+   * Properties and options of the database to use. See https://sequelize.org for more info
    */
   database: {
     /**
@@ -40,7 +44,7 @@ export interface Config {
     /**
      * Host IP
      */
-    host: string;
+    host?: string;
     /**
      * Port number
      */
@@ -48,10 +52,16 @@ export interface Config {
     /**
      * Database name
      */
-    name: string;
+    name?: string;
     /**
      * Database dialect (MySQL, SQLite, etc.)
      */
-    dialect: "mysql" | "sqlite" | "db2" | "mariadb" | "mssql" | "oracle" | "postgres" | "snowflake";
+    dialect: "mysql" | "sqlite3" | "db2" | "mariadb" | "mssql" | "postgres" | "snowflake";
+    /**
+     * Dialect-specific options
+     */
+    dialectOptions?: {
+      [k: string]: unknown;
+    };
   };
 }

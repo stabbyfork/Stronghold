@@ -1,0 +1,102 @@
+import { ChatInputCommandInteraction, EmbedBuilder, GuildMember, userMention } from 'discord.js';
+import { commandOptions } from '../../../cmdOptions.js';
+import { Data } from '../../../data.js';
+import { hasPermissions, Permission } from '../../../schema.js';
+import { ErrorReplies, Errors } from '../../../types.js';
+import { constructError, defaultEmbed, getOption, reportErrorIfNotSetup, reportErrorToUser } from '../../../utils.js';
+import { Transaction } from '@sequelize/core';
+import { User } from '../../../models/user.js';
+
+export async function setPointsWithInteraction(
+	interaction: ChatInputCommandInteraction,
+	users: string,
+	points: number,
+	setPointsFunc: (prevPoints: number, givenPoints: number) => number,
+	successEmbed: (userIds: string[], points: number) => EmbedBuilder,
+) {
+	if (!(await reportErrorIfNotSetup(interaction))) return;
+	const guild = interaction.guild;
+	if (!guild) {
+		await reportErrorToUser(interaction, constructError([ErrorReplies.InteractionHasNoGuild]), true);
+		return;
+	}
+	const usr = interaction.member as GuildMember | null;
+	if (!usr) {
+		await reportErrorToUser(interaction, constructError([ErrorReplies.InteractionHasNoMember]), true);
+		return;
+	}
+	if (!(await hasPermissions(usr, guild, true, Permission.ManagePoints))) {
+		await reportErrorToUser(
+			interaction,
+			constructError(
+				[ErrorReplies.PermissionError, ErrorReplies.PermissionsNeededSubstitute],
+				Permission.ManagePoints,
+			),
+			true,
+		);
+		return;
+	}
+	const userIds = Array.from(users.matchAll(/<@(\d+)>/g)).map((match) => match[1]);
+	try {
+		await Data.mainDb.transaction(async (transaction: Transaction) => {
+			for (const userId of userIds) {
+				const user = guild.members.cache.get(userId);
+				if (!user) {
+					await reportErrorToUser(
+						interaction,
+						constructError([ErrorReplies.UserNotFoundSubstitute], userMention(userId)),
+						true,
+					);
+					throw new Errors.NotFoundError('User not found');
+				}
+				const prevData = await Data.models.User.findOne({
+					where: { guildId: guild.id, userId: userId },
+					transaction,
+				});
+				let data: User;
+				const newPoints = Math.max(0, setPointsFunc(prevData?.points ?? 0, points));
+				if (prevData) {
+					await prevData.update({ points: newPoints }, { transaction });
+					data = prevData;
+				} else {
+					data = await Data.models.User.create(
+						{ guildId: guild.id, userId: userId, points: newPoints },
+						{ transaction },
+					);
+				}
+				await Data.promoteUser(data, transaction).catch(async (e) => {
+					// Send to user
+					if (e instanceof Errors.DatabaseError) {
+						reportErrorToUser(interaction, constructError([ErrorReplies.OnlySubstitute], e.message), true);
+					} else {
+						// Unexpected
+						throw e;
+					}
+				});
+			}
+		});
+	} catch (e) {
+		if (e instanceof Errors.NotFoundError) return;
+		throw e;
+	}
+
+	await interaction.reply({
+		embeds: [successEmbed(userIds, points)],
+	});
+}
+
+export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.ranking.points.set) => {
+	await setPointsWithInteraction(
+		interaction,
+		getOption(interaction, args, 'users'),
+		getOption(interaction, args, 'points'),
+		(_, givenPoints) => givenPoints,
+		(userIds, points) =>
+			defaultEmbed()
+				.setColor('Green')
+				.setTitle('Success')
+				.setDescription(
+					`Set point count to ${points} for ${userIds.map(userMention).join(', ')} successfully.`,
+				),
+	);
+};

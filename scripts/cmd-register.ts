@@ -1,16 +1,11 @@
-import {
-	REST,
-	RESTPostAPIApplicationCommandsJSONBody,
-	Routes,
-	SlashCommandBuilder,
-} from 'discord.js';
+import { REST, RESTPostAPIApplicationCommandsJSONBody, Routes, SlashCommandBuilder } from 'discord.js';
 import { token, clientId } from '../src/config.json';
 import { commands } from '../src/commands';
 
 const rest = new REST().setToken(token);
 function flattenCmds(obj: { [key: string]: unknown }) {
 	const out: RESTPostAPIApplicationCommandsJSONBody[] = [];
-	for (const [key, val] of Object.entries(obj)) {
+	for (const [_, val] of Object.entries(obj)) {
 		if (typeof val === 'object' && val !== null) {
 			if ('data' in val) {
 				out.push((val.data as SlashCommandBuilder).toJSON());
@@ -25,9 +20,7 @@ function flattenCmds(obj: { [key: string]: unknown }) {
 (async () => {
 	try {
 		const cmdArray = flattenCmds(commands);
-		console.log(
-			`Refreshing ${cmdArray.length} slash command${cmdArray.length === 1 ? '' : 's'}`,
-		);
+		console.log(`Refreshing ${cmdArray.length} slash command${cmdArray.length === 1 ? '' : 's'}`);
 
 		await rest.put(Routes.applicationCommands(clientId), {
 			body: cmdArray,

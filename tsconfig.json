@@ -1,6 +1,6 @@
 {
 	"compilerOptions": {
-		"target": "ES2020",
+		"target": "esnext",
 		"module": "nodenext",
 		"moduleResolution": "nodenext",
 		"strict": true,
@@ -14,7 +14,9 @@
 		"allowJs": false,
 		"noErrorTruncation": true,
 		"sourceMap": true,
-		"outDir": "dist"
+		"outDir": "dist",
+		"resolvePackageJsonExports": true,
+		"experimentalDecorators": true
 	},
 	"include": ["src"],
 	"exclude": ["node_modules", "dist"]

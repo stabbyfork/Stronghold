@@ -2,15 +2,15 @@ import {
 	CreationOptional,
 	DataTypes,
 	ForeignKey,
-	HasOneGetAssociationMixin,
 	HasManyGetAssociationsMixin,
+	HasOneGetAssociationMixin,
 	InferAttributes,
 	InferCreationAttributes,
 	Model,
 	NonAttribute,
 } from '@sequelize/core';
+import { Attribute, HasMany, HasOne, Table } from '@sequelize/core/decorators-legacy';
 import { Guild } from './guild.js';
-import { Attribute, BelongsToMany, HasMany, HasOne, Table } from '@sequelize/core/decorators-legacy';
 import { RankUsage } from './rankUsage.js';
 import { User } from './user.js';
 
@@ -35,7 +35,7 @@ export class Rank extends Model<InferAttributes<Rank>, InferCreationAttributes<R
 	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, allowNull: false })
 	declare pointsRequired: number;
 
-	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, allowNull: false, defaultValue: -1 })
+	@Attribute({ type: DataTypes.INTEGER, allowNull: false, defaultValue: -1 })
 	declare userLimit: number;
 
 	@HasOne(() => RankUsage, 'rankId')

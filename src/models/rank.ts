@@ -38,7 +38,7 @@ export class Rank extends Model<InferAttributes<Rank>, InferCreationAttributes<R
 	@Attribute({ type: DataTypes.INTEGER, allowNull: false, defaultValue: -1 })
 	declare userLimit: number;
 
-	@HasOne(() => RankUsage, 'rankId')
+	@HasOne(() => RankUsage, { foreignKey: { name: 'rankId', onUpdate: 'RESTRICT', onDelete: 'CASCADE' } })
 	declare rankUsage?: NonAttribute<RankUsage>;
 	declare getRankUsage: HasOneGetAssociationMixin<RankUsage>;
 

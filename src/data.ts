@@ -1,38 +1,21 @@
-import {
-	Association,
-	col,
-	CreationOptional,
-	DataTypes,
-	ForeignKey,
-	InferAttributes,
-	InferCreationAttributes,
-	Lock,
-	Model,
-	NonAttribute,
-	Op,
-	Sequelize,
-	sql,
-	Transaction,
-} from '@sequelize/core';
-import { Config } from './config.js';
-import { Debug } from './utils.js';
-import { Errors } from './types.js';
-import { messageLink, userMention } from 'discord.js';
-import { Attribute } from '@sequelize/core/decorators-legacy';
-import { Guild } from './models/guild.js';
-import { User } from './models/user.js';
+import { Lock, Op, Sequelize, Transaction } from '@sequelize/core';
+import { MySqlDialect } from '@sequelize/mysql';
 import { SqliteDialect } from '@sequelize/sqlite3';
-import { UserPermission } from './models/userPermission.js';
-import { RolePermission } from './models/rolePermission.js';
+import { userMention } from 'discord.js';
+import { client } from './client.js';
+import { Config } from './config.js';
 import { ActivityCheck } from './models/activityCheck.js';
+import { Guild } from './models/guild.js';
+import { MessageLink } from './models/messageLink.js';
 import { Rank, RankAssociations } from './models/rank.js';
 import { RankUsage } from './models/rankUsage.js';
-import { LOCK } from 'sequelize/types/transaction.js';
-import { MessageLink } from './models/messageLink.js';
+import { RolePermission } from './models/rolePermission.js';
 import { GuildSession } from './models/session.js';
 import { SessionOptions } from './models/sessionOptions.js';
-import { client } from './client.js';
-import { MySqlDialect } from '@sequelize/mysql';
+import { User } from './models/user.js';
+import { UserPermission } from './models/userPermission.js';
+import { Errors } from './types.js';
+import { Debug } from './utils.js';
 
 const dbConfg = Config.get('database');
 

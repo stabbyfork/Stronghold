@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { Op, Sequelize } from '@sequelize/core';
+import { Op, Sequelize, sql } from '@sequelize/core';
 import { setInterval as yieldInterval } from 'timers/promises';
 import { pathToFileURL } from 'url';
 import { client } from './client.js';
@@ -56,7 +56,7 @@ async function runActivityChecks() {
 				[Op.ne]: null,
 			},
 			paused: false,
-			[Op.and]: Sequelize.where(Sequelize.literal(`lastRun + interval`), {
+			[Op.and]: Sequelize.where(sql`"lastRun" + "interval"`, {
 				[Op.lt]: intDiv(Date.now(), 1000),
 			}),
 		},

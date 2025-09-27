@@ -36,7 +36,7 @@
 		"build:index": "npx tsx scripts/cmd-index.ts",
 		"build:register": "npx tsx scripts/cmd-register.ts",
 		"build:schema": "npx json2ts -i ./*.schema.json > src/schema-types.d.ts",
-		"preinstall": "npm ls --global pm2@>=6.0.8 || npm install --global pm2@latest",
+		"preinstall": "npm ls --global \"pm2@>=6.0.8\" || npm install --global pm2@latest",
 		"compileAndRestart": "npm run compile && pm2 flush && npm restart",
 		"logs": "pm2 logs"
 	},

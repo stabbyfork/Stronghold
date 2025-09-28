@@ -23,7 +23,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	let accPerms = 0;
 	const dbUser = await Data.models.User.findOne({
 		where: { guildId: guild.id, userId: member.id },
-		include: [{ association: UserAssociations.UserPermissions, where: { guildId: guild.id } }],
+		include: [{ association: UserAssociations.UserPermission, where: { guildId: guild.id } }],
 	});
 	const userPerms = dbUser?.userPermissions?.[0];
 	if (userPerms) accPerms |= userPerms.permissions;

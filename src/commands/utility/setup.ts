@@ -737,7 +737,7 @@ export default createCommand<typeof commandOptions.setup>({
 						const dbUser = await Data.models.User.findOne({
 							where: { userId: admUsr, guildId: guild.id },
 							transaction,
-							include: [UserAssociations.UserPermissions],
+							include: [UserAssociations.UserPermission],
 						});
 						if (!dbUser) {
 							throw new Errors.ThirdPartyError('Failed to create admin user');

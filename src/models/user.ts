@@ -20,7 +20,7 @@ import { UserPermission } from './userPermission.js';
 
 export enum UserAssociations {
 	Guilds = 'guilds',
-	UserPermissions = 'userPermissions',
+	UserPermission = 'userPermission',
 	Rank = 'rank',
 	NextRank = 'nextRank',
 }

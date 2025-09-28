@@ -47,7 +47,8 @@
 		"depGraph": "npx depcruise src/index.ts --include-only \"^src\" --output-type dot | dot -T svg > dependency-graph.svg",
 		"bundle": "node esbuild.js",
 		"bundleAndRestart": "npm run bundle && pm2 flush && npm restart",
-		"bundleAndRestart:production": "npm run bundle && pm2 flush && npm run start:production"
+		"bundleAndRestart:production": "npm run bundle && pm2 flush && npm run start:production",
+		"pullAndRestart:production": "git pull && npm run bundleAndRestart:production "
 	},
 	"version": "1.0.1"
 }

@@ -717,22 +717,31 @@ export default createCommand<typeof commandOptions.setup>({
 
 				if (!setupConfig.adminUsers.includes(user.id)) setupConfig.adminUsers.push(user.id);
 				await Data.models.User.bulkCreate(
-					setupConfig.adminUsers.map((id) => ({ userId: id, guildId: guild.id })),
+					setupConfig.adminUsers.map((id) => ({
+						userId: id,
+						guildId: guild.id,
+					})),
 					{ ignoreDuplicates: true, transaction },
 				);
-				const prevPerms = await Data.models.UserPermission.findAll({
+				/*const prevPerms = await Data.models.UserPermission.findAll({
 					where: {
 						guildId: guild.id,
 						userId: setupConfig.adminUsers,
 					},
 					transaction,
 					include: [UserPermissionAssociations.User],
-				});
+				});*/
 				for (const admUsr of setupConfig.adminUsers) {
-					const prevPerm = prevPerms.find(async (p) => p.user?.userId === admUsr);
-					if (prevPerm) {
-						prevPerm.permissions |= PermissionBits[Permission.Administrator];
-						await prevPerm.save({ transaction });
+					const prevPerms = await Data.models.UserPermission.findOne({
+						where: {
+							guildId: guild.id,
+							userId: admUsr,
+						},
+						transaction,
+					});
+					if (prevPerms) {
+						prevPerms.permissions |= PermissionBits[Permission.Administrator];
+						await prevPerms.save({ transaction });
 					} else {
 						const dbUser = await Data.models.User.findOne({
 							where: { userId: admUsr, guildId: guild.id },

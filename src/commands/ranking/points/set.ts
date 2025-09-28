@@ -56,7 +56,7 @@ export async function setPointsWithInteraction(
 					transaction,
 				});
 				let data: User;
-				const newPoints = Math.max(0, setPointsFunc(prevData?.points ?? 0, points));
+				const newPoints = Math.min(Math.max(0, setPointsFunc(prevData?.points ?? 0, points)), 2 ** 32 - 1);
 				if (prevData) {
 					await prevData.update({ points: newPoints }, { transaction });
 					data = prevData;

@@ -917,8 +917,8 @@ export default createCommand<typeof commandOptions.setup>({
 		});
 	},
 	limits: {
-		usesPerInterval: 1,
-		intervalMs: 5 * 60 * 1000,
+		usesPerInterval: 2,
+		intervalMs: 4 * 60 * 1000,
 		useCooldown: 0,
 		scope: UsageScope.GuildAll,
 	},

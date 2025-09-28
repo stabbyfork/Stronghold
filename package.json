@@ -49,5 +49,5 @@
 		"bundleAndRestart": "npm run bundle && pm2 flush && npm restart",
 		"bundleAndRestart:production": "npm run bundle && pm2 flush && npm run start:production"
 	},
-	"version": "1.0.0"
+	"version": "1.0.1"
 }

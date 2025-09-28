@@ -76,7 +76,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	}
 
 	const interval = getOption(interaction, args, 'interval');
-	if (interval && sequence.getSequence().includes(ActivityCheckEvent.SendNextMessage)) {
+	if (interval && !sequence.getSequence().includes(ActivityCheckEvent.SendNextMessage)) {
 		reportErrorToUser(interaction, constructError([ErrorReplies.IntervalWithoutSendNext]), true);
 		return;
 	}

@@ -34,7 +34,7 @@ import { GuildFlag, GuildFlagBits } from '../../utils/guildFlagsUtils.js';
 import { Logging } from '../../utils/loggingUtils.js';
 import { Permission, PermissionBits } from '../../utils/permissionsUtils.js';
 import { getOption } from '../../utils/subcommandsUtils.js';
-import { UsageScope } from '../../utils/usageLimitsUtils.js';
+import { Usages, UsageScope } from '../../utils/usageLimitsUtils.js';
 
 const enum RoleNames {
 	InSession = 'In Session',
@@ -319,17 +319,18 @@ export default createCommand<typeof commandOptions.setup>({
 	execute: async (interaction, args) => {
 		const guild = interaction.guild;
 		if (!guild) {
-			reportErrorToUser(interaction, constructError([ErrorReplies.InteractionHasNoGuild]), true);
+			await reportErrorToUser(interaction, constructError([ErrorReplies.InteractionHasNoGuild]), true);
 			return;
 		}
 		const channel = interaction.channel;
 		if (!channel) {
-			reportErrorToUser(interaction, constructError([ErrorReplies.InteractionHasNoChannel]), true);
+			await reportErrorToUser(interaction, constructError([ErrorReplies.InteractionHasNoChannel]), true);
 			return;
 		}
 		const user = interaction.user;
 		if (user.id !== guild.ownerId) {
-			reportErrorToUser(interaction, constructError([ErrorReplies.MustBeServerOwner]), true);
+			await reportErrorToUser(interaction, constructError([ErrorReplies.MustBeServerOwner]), true);
+			Usages.guildAll(guild.id).get('setup')?.addUse();
 			return;
 		}
 
@@ -340,7 +341,7 @@ export default createCommand<typeof commandOptions.setup>({
 		});
 		const force = getOption(interaction, args, 'force') ?? false;
 		if (existingInst !== null && !force && existingInst.ready) {
-			reportErrorToUser(interaction, constructError([ErrorReplies.SetupAlreadyComplete]), true);
+			await reportErrorToUser(interaction, constructError([ErrorReplies.SetupAlreadyComplete]), true);
 			return;
 		}
 

@@ -12,6 +12,10 @@ import { Attribute, BelongsTo, Table } from '@sequelize/core/decorators-legacy';
 import { Guild } from './guild.js';
 import { User } from './user.js';
 
+export enum UserPermissionAssociations {
+	User = 'user',
+}
+
 @Table({ indexes: [{ unique: true, fields: ['guildId', 'userId'] }] })
 export class UserPermission extends Model<InferAttributes<UserPermission>, InferCreationAttributes<UserPermission>> {
 	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, primaryKey: true, autoIncrement: true })
@@ -27,10 +31,8 @@ export class UserPermission extends Model<InferAttributes<UserPermission>, Infer
 	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, allowNull: false })
 	declare permissions: number;
 
-	/** Associated in {@link Guild} */
-	//declare guild: NonAttribute<Guild>;
 	/** Associated in {@link User} */
-	declare user: NonAttribute<User>;
+	declare user?: NonAttribute<User>;
 
 	declare getUser: BelongsToGetAssociationMixin<User>;
 

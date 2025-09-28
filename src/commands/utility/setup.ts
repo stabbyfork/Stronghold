@@ -35,6 +35,8 @@ import { Logging } from '../../utils/loggingUtils.js';
 import { Permission, PermissionBits } from '../../utils/permissionsUtils.js';
 import { getOption } from '../../utils/subcommandsUtils.js';
 import { Usages, UsageScope } from '../../utils/usageLimitsUtils.js';
+import { UserAssociations } from '../../models/user.js';
+import { UserPermissionAssociations } from '../../models/userPermission.js';
 
 const enum RoleNames {
 	InSession = 'In Session',
@@ -726,22 +728,30 @@ export default createCommand<typeof commandOptions.setup>({
 						userId: setupConfig.adminUsers,
 					},
 					transaction,
+					include: [UserPermissionAssociations.User],
 				});
 				for (const admUsr of setupConfig.adminUsers) {
-					const prevPerm = prevPerms.find(async (p) => (await p.getUser())?.userId === admUsr);
+					const prevPerm = prevPerms.find(async (p) => p.user?.userId === admUsr);
 					if (prevPerm) {
 						prevPerm.permissions |= PermissionBits[Permission.Administrator];
 						await prevPerm.save({ transaction });
 					} else {
-						const dbUser = await Data.models.User.findOne({ where: { userId: admUsr }, transaction });
-						await Data.models.UserPermission.create(
+						const dbUser = await Data.models.User.findOne({
+							where: { userId: admUsr, guildId: guild.id },
+							transaction,
+							include: [UserAssociations.UserPermissions],
+						});
+						if (!dbUser) {
+							throw new Errors.ThirdPartyError('Failed to create admin user');
+						}
+						await dbUser.createUserPermission(
 							{
 								guildId: guild.id,
-								userId: dbUser!.id,
 								permissions: PermissionBits[Permission.Administrator],
 							},
 							{
 								transaction,
+								destroyPrevious: true,
 							},
 						);
 					}

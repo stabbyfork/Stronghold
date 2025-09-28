@@ -5,8 +5,8 @@ import {
 	CreationOptional,
 	DataTypes,
 	ForeignKey,
-	HasManyCreateAssociationMixin,
-	HasManyGetAssociationsMixin,
+	HasOneCreateAssociationMixin,
+	HasOneGetAssociationMixin,
 	InferAttributes,
 	InferCreationAttributes,
 	Model,
@@ -50,11 +50,11 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
 	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, allowNull: true })
 	declare nextRankId: number | null;
 
-	@HasMany(() => UserPermission, { foreignKey: 'userId', inverse: 'user' })
-	declare userPermissions?: UserPermission[];
+	@HasOne(() => UserPermission, { foreignKey: 'userId', inverse: 'user' })
+	declare userPermissions?: UserPermission;
 
-	declare getUserPermissions: HasManyGetAssociationsMixin<UserPermission>;
-	declare createUserPermissions: HasManyCreateAssociationMixin<UserPermission, 'userId'>;
+	declare getUserPermission: HasOneGetAssociationMixin<UserPermission>;
+	declare createUserPermission: HasOneCreateAssociationMixin<UserPermission, 'userId'>;
 
 	@BelongsToMany(() => Guild, {
 		through: 'UserGuild',

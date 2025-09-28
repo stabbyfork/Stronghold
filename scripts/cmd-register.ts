@@ -1,10 +1,25 @@
 import { REST, RESTPostAPIApplicationCommandsJSONBody, Routes, SlashCommandBuilder } from 'discord.js';
-import { token, clientId } from '../src/config.json';
+import { argv } from 'process';
 import { commands } from '../src/commands';
 import { Config } from '../src/config';
-import { argv } from 'process';
+import { clientId, token } from '../src/config.json';
 
-const rest = new REST().setToken(token);
+const environ = argv[2];
+if (environ !== 'dev' && environ !== 'prod') {
+	throw new Error('Invalid environment. Must be "dev" or "prod"');
+}
+
+const rest = new REST();
+if (environ === 'dev') {
+	const dev = Config.get('dev');
+	if (dev) {
+		rest.setToken(dev.token);
+	} else {
+		throw new Error('No development bot token found');
+	}
+} else {
+	rest.setToken(token);
+}
 function flattenCmds(obj: { [key: string]: unknown }) {
 	const out: RESTPostAPIApplicationCommandsJSONBody[] = [];
 	for (const [_, val] of Object.entries(obj)) {
@@ -17,11 +32,6 @@ function flattenCmds(obj: { [key: string]: unknown }) {
 		}
 	}
 	return out;
-}
-
-const environ = argv[2];
-if (environ !== 'dev' && environ !== 'prod') {
-	throw new Error('Invalid environment. Must be "dev" or "prod"');
 }
 
 await (async () => {

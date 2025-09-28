@@ -6,38 +6,14 @@ import { Data } from './data.js';
 import { runActivityCheckExecute } from './utils/discordUtils.js';
 import { Debug } from './utils/errorsUtils.js';
 import { intDiv } from './utils/genericsUtils.js';
+import { subcommands } from './commands.js';
+import activity_check_create from './commands/activity/checks/create.js';
 //@ts-ignore
 import * as Events from './events/*';
 
 let activityChecksId: NodeJS.Timeout;
 
 async function registerEvents(dir: string, workDir: string) {
-	/*const files = fs
-		.readdirSync(dir)
-		.filter((file) => file.endsWith('.ts'))
-		.map(async (file) => {
-			try {
-				return await import(
-					pathToFileURL(
-						path.join('dist', path.relative(workDir, path.join(dir, file).replace('.ts', '.js'))),
-					).toString()
-				);
-			} catch (err) {
-				Debug.error(`Error while importing ${file}: ${err}`);
-				return undefined;
-			}
-		});
-
-	await Promise.all(files).then((modules) => {
-		modules.forEach((module) => {
-			if (!module) return;
-			const evt = module.default;
-			if (!(evt && 'name' in evt && 'once' in evt && 'execute' in evt)) return;
-			if (evt.once) client.once(evt.name, evt.execute);
-			else client.on(evt.name, evt.execute);
-			evt.onConnect?.();
-		});
-	});*/
 	for (const file of Events.default) {
 		const evt = file.default;
 		if (!(evt && 'name' in evt && 'once' in evt && 'execute' in evt)) continue;
@@ -65,7 +41,7 @@ async function runActivityChecks() {
 			},
 			paused: false,
 			[Op.and]: Sequelize.where(sql`"lastRun" + "interval"`, {
-				[Op.lt]: intDiv(Date.now(), 1000),
+				[Op.lt]: Math.ceil(Date.now() / 1000),
 			}),
 		},
 	});
@@ -96,6 +72,11 @@ activityChecksId = setInterval(runActivityChecks, 1000 * 60 * 60);
 process
 	.on('SIGINT', async (signal) => await safeShutdown(signal))
 	.on('SIGTERM', async (signal) => await safeShutdown(signal));
+
+// Init order fix (VERY HACKY)
+// If it ain't broke don't fix it
+//@ts-ignore
+subcommands.activity.checks.create = activity_check_create;
 
 console.log('Logging in');
 console.log('Running in', process.env.NODE_ENV);

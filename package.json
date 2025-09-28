@@ -35,20 +35,19 @@
 		"start": "pm2 start ./ecosystem.config.cjs --time",
 		"stop": "pm2 stop ./ecosystem.config.cjs",
 		"restart": "pm2 restart ./ecosystem.config.cjs --time",
-		"build:production": "npm run build:schema && npm run build:index && npm run build:register prod && npm run compileAndBundle && echo 'Build complete'",
-		"build:dev": "npm run build:schema && npm run build:index && npm run build:register dev && npm run compileAndBundle && echo 'Build complete'",
+		"build:production": "npm run build:schema && npm run build:index && npm run build:register prod && npm run bundle && echo 'Build complete'",
+		"build:dev": "npm run build:schema && npm run build:index && npm run build:register dev && npm run bundle && echo 'Build complete'",
 		"compile": "npx tsc",
 		"build:index": "npx tsx scripts/cmd-index.ts",
 		"build:register": "npx tsx scripts/cmd-register.ts",
 		"build:schema": "npx json2ts -i ./*.schema.json > src/schema-types.d.ts",
 		"preinstall": "npm ls --global \"pm2@>=6.0.8\" || npm install --global pm2@latest",
-		"compileAndRestart": "npm run compile && pm2 flush && npm restart",
 		"logs": "pm2 logs",
 		"depCruise": "npx depcruise src/index.ts",
 		"depGraph": "npx depcruise src/index.ts --include-only \"^src\" --output-type dot | dot -T svg > dependency-graph.svg",
 		"bundle": "node esbuild.js",
-		"compileAndBundle": "npm run compile && npm run bundle",
-		"bundleAndRestart": "npm run bundle && pm2 flush && npm restart"
+		"bundleAndRestart": "npm run bundle && pm2 flush && npm restart",
+		"bundleAndRestart:production": "npm run bundle && pm2 flush && npm run start:production"
 	},
 	"version": "1.0.0"
 }

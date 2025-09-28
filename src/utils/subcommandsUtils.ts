@@ -1,22 +1,22 @@
 //#region Subcommands
 
 import {
-	ChatInputCommandInteraction,
-	AutocompleteInteraction,
-	Guild,
-	SlashCommandBuilder,
-	RESTPostAPIApplicationCommandsJSONBody,
-	ApplicationCommandOptionType,
 	APIApplicationCommandSubcommandGroupOption,
+	ApplicationCommandOptionType,
+	AutocompleteInteraction,
+	ChatInputCommandInteraction,
+	Guild,
+	RESTPostAPIApplicationCommandsJSONBody,
+	SlashCommandBuilder,
 } from 'discord.js';
 import { commandOptions } from '../cmdOptions.js';
-import { subcommands, commands } from '../commands.js';
+import { commands, subcommands } from '../commands.js';
 import { Data } from '../data.js';
-import { CommandOptionDictDeclare, CommandOptionStrToType, CommandExecute } from '../types/commandTypes.js';
+import { CommandExecute, CommandOptionDictDeclare, CommandOptionStrToType } from '../types/commandTypes.js';
 import { ErrorReplies } from '../types/errors.js';
 import { SubcommandMap, SubcommandStructure } from '../types/subcommandTypes.js';
+import { constructError, Debug, reportErrorToUser } from './errorsUtils.js';
 import { capitalise, length } from './genericsUtils.js';
-import { reportErrorToUser, constructError, Debug } from './errorsUtils.js';
 
 /**
  * Retrieves the full name of a command from a given interaction.
@@ -151,7 +151,7 @@ function _notFoundFunc(input?: ChatInputCommandInteraction) {
 		`Command /${[input?.commandName, input?.options.getSubcommandGroup(), input?.options.getSubcommand()].join(' ')} not found during subcommand search`,
 	);
 	return async (replyInteraction: ChatInputCommandInteraction) => {
-		reportErrorToUser(
+		await reportErrorToUser(
 			replyInteraction,
 			constructError([ErrorReplies.CommandNotFound, ErrorReplies.OutdatedCommand]),
 		);
@@ -186,7 +186,6 @@ export function getSubcommandExec(
 	const command = interaction.options.getSubcommand();
 	const group = interaction.options.getSubcommandGroup();
 	if (group) {
-		if (!(interaction.commandName in subcommands)) return [_notFoundFunc(interaction), false, false];
 		const cmds = subcommands[interaction.commandName as keyof SubcommandStructure];
 		const groupSubcmds = cmds[group as keyof typeof cmds];
 		if (typeof groupSubcmds !== 'object' || groupSubcmds === null)

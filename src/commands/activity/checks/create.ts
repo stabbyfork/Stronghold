@@ -1,14 +1,19 @@
-import { ChatInputCommandInteraction, EmojiIdentifierResolvable, GuildMember, MessageFlags } from 'discord.js';
+import {
+	ChatInputCommandInteraction,
+	EmbedBuilder,
+	EmojiIdentifierResolvable,
+	GuildMember,
+	MessageFlags,
+} from 'discord.js';
 import ms from 'ms';
+import parse from 'parse-duration';
 import { commandOptions } from '../../../cmdOptions.js';
 import { Data } from '../../../data.js';
+import { ActivityCheckEvent, ActivityCheckSequence } from '../../../types/activityChecks.js';
 import { ErrorReplies, Errors } from '../../../types/errors.js';
-import { ActivityCheckSequence, ActivityCheckEvent } from '../../../types/activityChecks.js';
-import { defaultEmbed } from '../../../utils/discordUtils.js';
-import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js';
-import { strToDuration, intDiv } from '../../../utils/genericsUtils.js';
-import { reportErrorIfNotSetup, getOption } from '../../../utils/subcommandsUtils.js';
+import { constructError, reportErrorToUser } from '../../../utils/errorsUtils.js';
 import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
+import { getOption } from '../../../utils/subcommandsUtils.js';
 
 export function getDefaultActivityCheckEmoji(): string {
 	return '✅';
@@ -17,23 +22,30 @@ export function getDefaultActivityCheckEmoji(): string {
 export function createActivityCheckEmbed(emoji: EmojiIdentifierResolvable, maxStrikes = 3) {
 	return {
 		embeds: [
-			defaultEmbed().setTitle('Activity check')
-				.setDescription(`React with ${emoji} to be considered active. If you fail to react before reactions are counted, an inactivity strike\
-					will be added and you will be marked as inactive. After ${maxStrikes} strike${maxStrikes === 1 ? '' : 's'}, you may be kicked.`),
+			new EmbedBuilder()
+				.setTitle('Activity check')
+				.setDescription(
+					`React with ${emoji} to be considered active. If you fail to react before reactions are counted, an inactivity strike will be added and you may be marked as inactive. After ${maxStrikes} strike${maxStrikes === 1 ? '' : 's'}, you may be kicked.`,
+				)
+				.setTimestamp(),
 		],
 	};
 }
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.activity.checks.create) => {
-	if (!(await reportErrorIfNotSetup(interaction))) return;
-	const member = interaction.member as GuildMember | null;
-	if (!member) {
-		await reportErrorToUser(interaction, constructError([ErrorReplies.InteractionHasNoMember]), true);
-		return;
-	}
 	const guild = interaction.guild;
 	if (!guild) {
 		await reportErrorToUser(interaction, constructError([ErrorReplies.InteractionHasNoGuild]), true);
+		return;
+	}
+	const dbGuild = await Data.models.Guild.findOne({ where: { guildId: guild.id } });
+	if (!dbGuild || !dbGuild.ready) {
+		await reportErrorToUser(interaction, constructError([ErrorReplies.NotSetup]), true);
+		return;
+	}
+	const member = interaction.member as GuildMember | null;
+	if (!member) {
+		await reportErrorToUser(interaction, constructError([ErrorReplies.InteractionHasNoMember]), true);
 		return;
 	}
 	if (!(await hasPermissions(member, guild, true, Permission.ManageActivityChecks))) {
@@ -70,7 +82,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	}
 	let durMs: number | null = null;
 	if (interval !== null) {
-		durMs = strToDuration(interval);
+		durMs = parse(interval);
 		if (durMs === null) {
 			reportErrorToUser(interaction, constructError([ErrorReplies.InvalidTimeFormat]), true);
 			return;
@@ -89,8 +101,8 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		guildId: guild.id,
 		channelId: channel.id,
 		sequence: sequence.toString(),
-		interval: interval === null ? undefined : intDiv(durMs!, 1000),
-		lastRun: intDiv(Date.now(), 1000),
+		interval: interval === null ? undefined : Math.floor(durMs! / 1000),
+		lastRun: Math.floor(Date.now() / 1000),
 		maxStrikes,
 	});
 	if (channel.isSendable()) {
@@ -107,13 +119,14 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	await activityCheck.save();
 	await interaction.editReply({
 		embeds: [
-			defaultEmbed()
+			new EmbedBuilder()
 				.setTitle('Activity check started')
 				.setDescription(
 					`Activity check has been successfully created and started,\
 					with sequence (to run) \`${sequence.prettyPrint().sequence}\`\
 					${durMs === null ? '' : ` and an interval of \`${ms(durMs)}\``}`,
-				),
+				)
+				.setTimestamp(),
 		],
 	});
 };

@@ -383,9 +383,7 @@ export default createCommand<typeof commandOptions.setup>({
 				users: [],
 			},
 		});
-		const filter = (i: Interaction) => isSameUser(i, interaction);
 		const collector = resp.resource?.message?.createMessageComponentCollector({
-			filter,
 			time: 5 * 60 * 1000,
 		});
 		if (!collector) {

@@ -51,7 +51,7 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
 	declare nextRankId: number | null;
 
 	@HasOne(() => UserPermission, { foreignKey: 'userId', inverse: 'user' })
-	declare userPermissions?: UserPermission;
+	declare userPermission?: UserPermission;
 
 	declare getUserPermission: HasOneGetAssociationMixin<UserPermission>;
 	declare createUserPermission: HasOneCreateAssociationMixin<UserPermission, 'userId'>;

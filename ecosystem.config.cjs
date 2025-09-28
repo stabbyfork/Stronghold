@@ -8,7 +8,7 @@ module.exports = {
 			instances: 1,
 			wait_ready: true,
 			kill_timeout: 3000,
-			cron_restart: '@daily',
+			cron_restart: '0 0 * * *',
 			env: {
 				NODE_ENV: 'dev',
 			},

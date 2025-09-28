@@ -49,7 +49,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	}
 	const rank = data?.rank;
 	const nextRank = data?.nextRank;
-	const permissions = (await data?.getUserPermissions({ where: { guildId: guild.id } }))?.[0]?.permissions;
+	const permissions = (await data?.getUserPermission({ where: { guildId: guild.id } }))?.permissions;
 	message.addFields(
 		{
 			name: 'Inactivity strikes',

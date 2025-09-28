@@ -9,6 +9,10 @@ import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js
 import { reportErrorIfNotSetup, getOption } from '../../../utils/subcommandsUtils.js';
 import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
 
+const enum MaxSafeUInt32 {
+	Max = 4294967295,
+}
+
 export async function setPointsWithInteraction(
 	interaction: ChatInputCommandInteraction,
 	users: string,
@@ -56,7 +60,10 @@ export async function setPointsWithInteraction(
 					transaction,
 				});
 				let data: User;
-				const newPoints = Math.min(Math.max(0, setPointsFunc(prevData?.points ?? 0, points)), 2 ** 32 - 1);
+				const newPoints = Math.min(
+					Math.max(0, setPointsFunc(prevData?.points ?? 0, points)),
+					MaxSafeUInt32.Max,
+				);
 				if (prevData) {
 					await prevData.update({ points: newPoints }, { transaction });
 					data = prevData;

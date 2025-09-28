@@ -148,7 +148,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	let submitted: ModalSubmitInteraction | undefined;
 	try {
 		submitted = await interaction.awaitModalSubmit({
-			time: 60 * 1000,
+			time: 15 * 60 * 1000,
 			filter: (i) => i.customId === CustomIds.DetailsModal,
 		});
 	} catch {

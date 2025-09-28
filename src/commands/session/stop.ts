@@ -2,6 +2,7 @@ import {
 	channelMention,
 	ChatInputCommandInteraction,
 	GuildMember,
+	MessageFlags,
 	time,
 	TimestampStyles,
 	userMention,
@@ -84,7 +85,7 @@ export default async (interaction: ChatInputCommandInteraction) => {
 		const dbGuild = await Data.models.Guild.findOne({ where: { guildId: guild.id } });
 		const roleId = dbGuild?.inSessionRoleId;
 		if (roleId) {
-			const prevInSession = guild.roles.cache.get(roleId) ?? (await guild.roles.fetch(roleId));
+			const prevInSession = await guild.roles.fetch(roleId);
 			if (prevInSession) {
 				embed.addFields({
 					name: 'Participants',
@@ -94,7 +95,9 @@ export default async (interaction: ChatInputCommandInteraction) => {
 							: 'None',
 					inline: true,
 				});
-				await Promise.all(prevInSession.members.map((m) => m.roles.remove(prevInSession, 'Session ended')));
+				await Promise.all(
+					prevInSession.members.map(async (m) => await m.roles.remove(prevInSession, 'Session ended')),
+				);
 			} else {
 				Logging.log({
 					data: interaction,
@@ -123,5 +126,6 @@ export default async (interaction: ChatInputCommandInteraction) => {
 					`Stopped session and replied to message in ${channelMention(session.channelId)} successfully.`,
 				),
 		],
+		flags: MessageFlags.Ephemeral,
 	});
 };

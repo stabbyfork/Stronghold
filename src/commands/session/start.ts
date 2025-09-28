@@ -216,6 +216,6 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		data: interaction,
 		logType: Logging.Type.Info,
 		extents: [GuildFlag.LogInfo],
-		formatData: `Started session by ${userMention(interaction.user.id)}`,
+		formatData: `Session started by ${userMention(interaction.user.id)}`,
 	});
 };

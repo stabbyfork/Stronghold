@@ -198,7 +198,7 @@ export default createEvent({
 						return;
 					}
 					if (member.roles.cache.has(inSessionRole.id)) {
-						await member.roles.remove(inSessionRole);
+						await member.roles.remove(inSessionRole, 'Left session');
 						await interaction.reply({
 							content: '✅ Successfully left session',
 							flags: MessageFlags.Ephemeral,
@@ -210,7 +210,7 @@ export default createEvent({
 							extents: [GuildFlag.LogInfo],
 						});
 					} else {
-						await member.roles.add(inSessionRole);
+						await member.roles.add(inSessionRole, 'Joined session');
 						await interaction.reply({
 							content: '✅ Successfully joined session',
 							flags: MessageFlags.Ephemeral,
@@ -222,6 +222,7 @@ export default createEvent({
 							extents: [GuildFlag.LogInfo],
 						});
 					}
+					break;
 			}
 		}
 	},

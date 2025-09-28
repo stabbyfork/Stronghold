@@ -77,7 +77,7 @@ export namespace Data {
 			throw new Error(`Error while connecting to database: ${error}`);
 		}
 
-		await mainDb.sync({ force: true }).catch((err) => {
+		await mainDb.sync().catch((err) => {
 			throw new Error(`Error while syncing database: ${err}`);
 		});
 		process.on('SIGTERM', handleShutdown);

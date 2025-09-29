@@ -404,10 +404,10 @@ export class Pages {
 					this.setCurrentPage(0);
 					break;
 				case CustomIds.PagePrevious:
-					this.setCurrentPage(this.currentPageI - 1);
+					this.setCurrentPage(currentPage - 1);
 					break;
 				case CustomIds.PageNext:
-					this.setCurrentPage(this.currentPageI + 1);
+					this.setCurrentPage(currentPage + 1);
 					break;
 				case CustomIds.PageLast:
 					this.setCurrentPage(this.maxPage);
@@ -415,7 +415,8 @@ export class Pages {
 				default:
 					throw new Errors.ValueError(`Unknown customId: ${i.customId}`);
 			}
-			await i.update({ components: [await this.getFormattedPage()] });
+			await interaction.editReply({ components: [await this.getFormattedPage()] });
+			await i.deferUpdate();
 		});
 	}
 }

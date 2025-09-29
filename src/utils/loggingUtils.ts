@@ -1,6 +1,7 @@
 //#region Logging
 
 import {
+	EmbedBuilder,
 	ForumChannel,
 	ForumThreadChannel,
 	Interaction,
@@ -33,7 +34,7 @@ export namespace Logging {
 		[Type.Warning]: (data: ActionBlame & { msg: string }) => ({
 			allowedMentions: { users: [], roles: [] },
 			embeds: [
-				defaultEmbed()
+				new EmbedBuilder()
 					.setTitle(':warning: Warning')
 					.setDescription(data.msg)
 					.setColor('Yellow')
@@ -41,13 +42,14 @@ export namespace Logging {
 						{ name: 'Action', value: data.action ?? 'Unknown' },
 						{ name: 'Cause', value: data.cause ?? 'Unknown' },
 						{ name: 'User', value: data.userId ? userMention(data.userId) : 'Unknown' },
-					]),
+					])
+					.setTimestamp(),
 			],
 		}),
 		[Type.Error]: (data: ActionBlame & { msg: string }) => ({
 			allowedMentions: { users: [], roles: [] },
 			embeds: [
-				defaultEmbed()
+				new EmbedBuilder()
 					.setTitle('❌ Error')
 					.setDescription(data.msg)
 					.setColor('Red')
@@ -55,12 +57,19 @@ export namespace Logging {
 						{ name: 'Action', value: data.action ?? 'Unknown' },
 						{ name: 'Cause', value: data.cause ?? 'Unknown' },
 						{ name: 'User', value: data.userId ? userMention(data.userId) : 'Unknown' },
-					]),
+					])
+					.setTimestamp(),
 			],
 		}),
 		[Type.Info]: (msg: string) => ({
 			allowedMentions: { users: [], roles: [] },
-			embeds: [defaultEmbed().setTitle(':information_source: Info').setDescription(msg).setColor('Blue')],
+			embeds: [
+				new EmbedBuilder()
+					.setTitle(':information_source: Info')
+					.setDescription(msg)
+					.setColor('Blue')
+					.setTimestamp(),
+			],
 		}),
 	} as const satisfies {
 		[t in Type]: (data: any) => MessageCreateOptions | string;

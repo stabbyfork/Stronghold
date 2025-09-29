@@ -51,7 +51,7 @@ export default async (interaction: ChatInputCommandInteraction) => {
 				.setColor('Green')
 				.setDescription(
 					users.size === 0
-						? 'No users have marked themselves as in the session'
+						? 'No users have marked themselves as in the session.'
 						: `The following users have marked themselves as in the session: ${users.map((u) => userMention(u.id)).join(', ')}`,
 				),
 		],

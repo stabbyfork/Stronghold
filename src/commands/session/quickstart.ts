@@ -78,5 +78,6 @@ export default async (interaction: ChatInputCommandInteraction) => {
 					`Started session and sent message to ${channelMention(channel.id)} successfully (${sentMessage.url}).`,
 				),
 		],
+		flags: MessageFlags.Ephemeral,
 	});
 };

@@ -21,7 +21,7 @@ import {
 import { client } from '../../client.js';
 import { commandOptions } from '../../cmdOptions.js';
 import { Data } from '../../data.js';
-import { ErrorReplies } from '../../types/errors.js';
+import { ErrorReplies, Errors } from '../../types/errors.js';
 import { GlobalCustomIds } from '../../types/eventTypes.js';
 import { defaultEmbed } from '../../utils/discordUtils.js';
 import { constructError, reportErrorToUser } from '../../utils/errorsUtils.js';
@@ -29,6 +29,7 @@ import { GuildFlag } from '../../utils/guildFlagsUtils.js';
 import { Logging } from '../../utils/loggingUtils.js';
 import { hasPermissions, Permission } from '../../utils/permissionsUtils.js';
 import { getOption, reportErrorIfNotSetup } from '../../utils/subcommandsUtils.js';
+import { GuildAssociations } from '../../models/guild.js';
 
 export function createSessionMessage(title: string, message: string, imageUrls: string[], userId: string) {
 	const msg = new ContainerBuilder().setAccentColor([255, 255, 255]).addTextDisplayComponents(
@@ -105,6 +106,17 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		);
 		return;
 	}
+	const session = await Data.models.GuildSession.findOne({
+		where: { guildId: guild.id },
+	});
+	if (session?.active) {
+		await reportErrorToUser(
+			interaction,
+			'There is already an active session. Use `/session stop` to end the existing session.',
+			true,
+		);
+		return;
+	}
 	const [image, messageLink] = [getOption(interaction, args, 'image'), getOption(interaction, args, 'message_link')];
 	if (image && messageLink) {
 		await reportErrorToUser(interaction, 'You cannot provide both an image and a link to a message.', true);
@@ -167,34 +179,27 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	const toSend = createSessionMessage(title, message, imageUrls, interaction.user.id);
 	const channel = getOption(interaction, args, 'channel');
 	let sentMessage: Message | undefined;
-	if (channel.isSendable()) {
-		sentMessage = await channel.send({
-			components: [toSend],
-			flags: MessageFlags.IsComponentsV2,
-			allowedMentions: { roles: [], users: [] },
-		});
-		await interaction.followUp({
-			embeds: [
-				defaultEmbed()
-					.setTitle('Started session')
-					.setColor('Green')
-					.setDescription(
-						`Started session and sent message to ${channelMention(channel.id)} successfully (${sentMessage.url}).`,
-					),
-			],
-		});
-	} else {
-		await reportErrorToUser(
-			interaction,
-			constructError(
-				[ErrorReplies.OnlySubstitute, ErrorReplies.ReportToOwner],
-				'Channel must be a regular text channel.',
-			),
-			true,
-		);
-		return;
-	}
 	await Data.mainDb.transaction(async (transaction) => {
+		if (channel.isSendable()) {
+			sentMessage = await channel.send({
+				components: [toSend],
+				flags: MessageFlags.IsComponentsV2,
+				allowedMentions: { roles: [], users: [] },
+			});
+			await interaction.followUp({
+				embeds: [
+					defaultEmbed()
+						.setTitle('Started session')
+						.setColor('Green')
+						.setDescription(
+							`Started session and sent message to ${channelMention(channel.id)} successfully (${sentMessage.url}).`,
+						),
+				],
+				flags: MessageFlags.Ephemeral,
+			});
+		} else {
+			throw new Error('Channel must be a regular text channel.');
+		}
 		const [data, built] = await Data.models.GuildSession.findOrBuild({
 			where: { guildId: guild.id },
 			defaults: {

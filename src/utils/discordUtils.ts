@@ -219,16 +219,16 @@ export class Pages {
 				content: `### Page ${this.currentPageI + 1}${this.maxPage !== Infinity ? `/${this.maxPage + 1}` : ''}${this.cachePages ? ' (cached)' : ''}`,
 			}),
 		);
-		page.addActionRowComponents(this.navButtons);
+		page.addActionRowComponents(this.getNavButtons());
 		return page;
 	}
 
 	private navButtons: ActionRowBuilder<MessageActionRowComponentBuilder>;
 	private getNavButtons() {
-		const buttons = new ActionRowBuilder<MessageActionRowComponentBuilder>();
+		const buttons = this.navButtons;
 		const currentPage = this.currentPageI;
 		const maxPage = this.maxPage;
-		buttons.addComponents(
+		/*buttons.addComponents(
 			new ButtonBuilder()
 				.setCustomId(CustomIds.PageFirst)
 				.setLabel('⏮')
@@ -249,7 +249,11 @@ export class Pages {
 				.setLabel('⏭')
 				.setStyle(ButtonStyle.Secondary)
 				.setDisabled(currentPage === maxPage || maxPage === Infinity),
-		);
+		);*/
+		buttons.components[0].setDisabled(currentPage === 0);
+		buttons.components[1].setDisabled(currentPage === 0);
+		buttons.components[2].setDisabled(currentPage === maxPage);
+		buttons.components[3].setDisabled(currentPage === maxPage || maxPage === Infinity);
 		return buttons;
 	}
 
@@ -281,7 +285,14 @@ export class Pages {
 			return createPage(index, this.itemsPerPage);
 		};
 		this.cachePages = cachePages;
-		this.navButtons = this.getNavButtons();
+		const buttons = new ActionRowBuilder<MessageActionRowComponentBuilder>();
+		buttons.addComponents(
+			new ButtonBuilder().setCustomId(CustomIds.PageFirst).setLabel('⏮').setStyle(ButtonStyle.Secondary),
+			new ButtonBuilder().setCustomId(CustomIds.PagePrevious).setLabel('◀').setStyle(ButtonStyle.Primary),
+			new ButtonBuilder().setCustomId(CustomIds.PageNext).setLabel('▶').setStyle(ButtonStyle.Primary),
+			new ButtonBuilder().setCustomId(CustomIds.PageLast).setLabel('⏭').setStyle(ButtonStyle.Secondary),
+		);
+		this.navButtons = buttons;
 	}
 
 	setTotalItems(totalItems?: number) {

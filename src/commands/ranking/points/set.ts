@@ -43,6 +43,9 @@ export async function setPointsWithInteraction(
 		return;
 	}
 	const userIds = Array.from(users.matchAll(/<@(\d+)>/g)).map((match) => match[1]);
+	if (userIds.length === 0) {
+		await reportErrorToUser(interaction, 'You must provide at least one user.', true);
+	}
 	try {
 		await Data.mainDb.transaction(async (transaction: Transaction) => {
 			for (const userId of userIds) {

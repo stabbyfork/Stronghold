@@ -75,7 +75,7 @@ export async function hasPermissions(
 			userId: user.id,
 		},
 	});
-	const userPerms = (await dbUser?.getUserPermissions({ where: { guildId: guild.id } }))?.[0]?.permissions ?? 0;
+	const userPerms = (await dbUser?.getUserPermission({ where: { guildId: guild.id } }))?.permissions ?? 0;
 	if (
 		includesAllPermissions(userPerms, ...permissions) ||
 		(allowAdmin && includesAllPermissions(userPerms, Permission.Administrator))

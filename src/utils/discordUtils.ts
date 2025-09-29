@@ -219,32 +219,33 @@ export class Pages {
 				content: `### Page ${this.currentPageI + 1}${this.maxPage !== Infinity ? `/${this.maxPage + 1}` : ''}${this.cachePages ? ' (cached)' : ''}`,
 			}),
 		);
-		page.addActionRowComponents(this.getNavButtons());
+		page.addActionRowComponents(this.navButtons);
 		return page;
 	}
 
+	private navButtons: ActionRowBuilder<MessageActionRowComponentBuilder>;
 	private getNavButtons() {
 		const buttons = new ActionRowBuilder<MessageActionRowComponentBuilder>();
 		const currentPage = this.currentPageI;
 		const maxPage = this.maxPage;
 		buttons.addComponents(
 			new ButtonBuilder()
-				.setCustomId(CustomIds.PageFirst + currentPage.toString())
+				.setCustomId(CustomIds.PageFirst)
 				.setLabel('⏮')
 				.setStyle(ButtonStyle.Secondary)
 				.setDisabled(currentPage === 0),
 			new ButtonBuilder()
-				.setCustomId(CustomIds.PagePrevious + currentPage.toString())
+				.setCustomId(CustomIds.PagePrevious)
 				.setLabel('◀')
 				.setStyle(ButtonStyle.Primary)
 				.setDisabled(currentPage === 0),
 			new ButtonBuilder()
-				.setCustomId(CustomIds.PageNext + currentPage.toString())
+				.setCustomId(CustomIds.PageNext)
 				.setLabel('▶')
 				.setStyle(ButtonStyle.Primary)
 				.setDisabled(currentPage === maxPage),
 			new ButtonBuilder()
-				.setCustomId(CustomIds.PageLast + currentPage.toString())
+				.setCustomId(CustomIds.PageLast)
 				.setLabel('⏭')
 				.setStyle(ButtonStyle.Secondary)
 				.setDisabled(currentPage === maxPage || maxPage === Infinity),
@@ -280,6 +281,7 @@ export class Pages {
 			return createPage(index, this.itemsPerPage);
 		};
 		this.cachePages = cachePages;
+		this.navButtons = this.getNavButtons();
 	}
 
 	setTotalItems(totalItems?: number) {
@@ -387,22 +389,22 @@ export class Pages {
 			}
 			const currentPage = this.currentPageI;
 			switch (i.customId) {
-				case CustomIds.PageFirst + currentPage.toString():
+				case CustomIds.PageFirst:
 					this.setCurrentPage(0);
 					break;
-				case CustomIds.PagePrevious + currentPage.toString():
+				case CustomIds.PagePrevious:
 					this.setCurrentPage(this.currentPageI - 1);
 					break;
-				case CustomIds.PageNext + currentPage.toString():
+				case CustomIds.PageNext:
 					this.setCurrentPage(this.currentPageI + 1);
 					break;
-				case CustomIds.PageLast + currentPage.toString():
+				case CustomIds.PageLast:
 					this.setCurrentPage(this.maxPage);
 					break;
 				default:
 					throw new Errors.ValueError(`Unknown customId: ${i.customId}`);
 			}
-			await i.message.edit({ components: [await this.getFormattedPage()] });
+			await i.update({ components: [await this.getFormattedPage()] });
 		});
 	}
 }

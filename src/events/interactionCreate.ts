@@ -287,7 +287,6 @@ export default createEvent({
 							});
 						}
 					}
-
 					break;
 			}
 		}

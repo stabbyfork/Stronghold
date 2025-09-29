@@ -400,7 +400,7 @@ export class Pages {
 				default:
 					throw new Errors.ValueError(`Unknown customId: ${i.customId}`);
 			}
-			await i.update({ components: [await this.getFormattedPage()] });
+			await i.editReply({ components: [await this.getFormattedPage()] });
 		});
 	}
 }

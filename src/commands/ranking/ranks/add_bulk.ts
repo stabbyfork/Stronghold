@@ -145,6 +145,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		return;
 	}
 	let replyStr = 'Added:\n';
+	json.sort((a, b) => a.points - b.points);
 	await Data.mainDb
 		.transaction(async (transaction) => {
 			for (const rank of json) {
@@ -179,6 +180,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 							name: rank.name,
 							permissions: [],
 							reason: `Created by /ranking ranks add_bulk, by: ${interaction.user.id}`,
+
 							color,
 						});
 				if (!role) {

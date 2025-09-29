@@ -25,7 +25,9 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			defaultEmbed()
 				.setTitle(`Users in ${rank.name}`)
 				.setColor('Green')
-				.setDescription(users.map((user) => `${userMention(user.userId)} (${user.points}) points`).join('\n')),
+				.setDescription(
+					users.map((user) => `${userMention(user.userId)} (\`${user.points}\` points)`).join('\n'),
+				),
 		],
 		allowedMentions: {
 			users: [],

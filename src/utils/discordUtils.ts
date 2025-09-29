@@ -14,6 +14,7 @@ import {
 	RepliableInteraction,
 	MessageFlags,
 	ComponentType,
+	InteractionReplyOptions,
 } from 'discord.js';
 import { client } from '../client.js';
 import { Config } from '../config.js';
@@ -357,7 +358,7 @@ export class Pages {
 				roles: [],
 				users: [],
 			},
-		} as const;
+		} as const satisfies InteractionReplyOptions;
 		const resp =
 			interaction.replied || interaction.deferred
 				? await interaction.followUp(toReply)
@@ -400,7 +401,7 @@ export class Pages {
 				default:
 					throw new Errors.ValueError(`Unknown customId: ${i.customId}`);
 			}
-			await i.editReply({ components: [await this.getFormattedPage()] });
+			await i.message.edit({ components: [await this.getFormattedPage()] });
 		});
 	}
 }

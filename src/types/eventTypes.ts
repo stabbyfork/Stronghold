@@ -3,7 +3,8 @@
 import { ClientEvents } from 'discord.js';
 
 export enum GlobalCustomIds {
-	InSessionButton = 'in-session-button',
+	InSessionJoin = 'in-session-join',
+	InSessionLeave = 'in-session-leave',
 }
 
 /**

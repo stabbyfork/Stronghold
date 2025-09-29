@@ -8,6 +8,8 @@ import { defaultEmbed } from '../../../utils/discordUtils.js';
 import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js';
 import { reportErrorIfNotSetup, getOption } from '../../../utils/subcommandsUtils.js';
 import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
+import { Logging } from '../../../utils/loggingUtils.js';
+import { GuildFlag } from '../../../utils/guildFlagsUtils.js';
 
 const enum MaxSafeUInt32 {
 	Max = 4294967295,
@@ -111,4 +113,10 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 					`Set point count to ${points} for ${userIds.map(userMention).join(', ')} successfully.`,
 				),
 	);
+	/*Logging.log({
+		data: interaction,
+		formatData: `Set points for ${userIds.map(userMention).join(', ')} to ${points}`,
+		logType: Logging.Type.Info,
+		extents: [GuildFlag.LogInfo],
+	});*/
 };

@@ -48,8 +48,12 @@ export function createSessionMessage(title: string, message: string, imageUrls: 
 		row.addComponents(
 			new ButtonBuilder()
 				.setLabel('Join')
-				.setCustomId(GlobalCustomIds.InSessionButton)
-				.setStyle(ButtonStyle.Primary),
+				.setCustomId(GlobalCustomIds.InSessionJoin)
+				.setStyle(ButtonStyle.Success),
+			new ButtonBuilder()
+				.setLabel('Leave')
+				.setCustomId(GlobalCustomIds.InSessionLeave)
+				.setStyle(ButtonStyle.Danger),
 		),
 	);
 	return msg;

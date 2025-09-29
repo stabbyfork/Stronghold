@@ -21,6 +21,7 @@ export enum GuildAssociations {
 	Ranks = 'ranks',
 	UserPermissions = 'userPermissions',
 	RolePermissions = 'rolePermissions',
+	Session = 'session',
 }
 
 export class Guild extends Model<InferAttributes<Guild>, InferCreationAttributes<Guild>> {

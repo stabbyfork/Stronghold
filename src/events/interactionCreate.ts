@@ -17,6 +17,7 @@ import {
 	Usages,
 	UsageScope,
 } from '../utils/usageLimitsUtils.js';
+import { GuildAssociations } from '../models/guild.js';
 
 export default createEvent({
 	name: Events.InteractionCreate,
@@ -155,61 +156,59 @@ export default createEvent({
 			}
 		} else if (interaction.isMessageComponent()) {
 			switch (interaction.customId) {
-				case GlobalCustomIds.InSessionButton:
-					const guild = interaction.guild;
-					if (!guild) {
-						Debug.error(`Interaction for ${GlobalCustomIds.InSessionButton} is not in a guild`);
-						return;
-					}
-					const member = interaction.member as GuildMember | null;
-					if (!member) {
-						Debug.error(`Interaction for ${GlobalCustomIds.InSessionButton} has no member`);
-						return;
-					}
-					const dbGuild = await Data.models.Guild.findOne({ where: { guildId: guild.id } });
-					if (!dbGuild) {
-						Debug.error(`Interaction for ${GlobalCustomIds.InSessionButton} has no guild data`);
-						return;
-					}
-					const session = await dbGuild.getSession();
-					if (!session || !session.active) {
-						await interaction.reply({
-							content: '❌ No session is currently active',
-							flags: MessageFlags.Ephemeral,
+				case GlobalCustomIds.InSessionJoin:
+					{
+						const guild = interaction.guild;
+						if (!guild) {
+							Debug.error(`Interaction for ${GlobalCustomIds.InSessionJoin} is not in a guild`);
+							return;
+						}
+						const member = interaction.member as GuildMember | null;
+						if (!member) {
+							Debug.error(`Interaction for ${GlobalCustomIds.InSessionJoin} has no member`);
+							return;
+						}
+						const dbGuild = await Data.models.Guild.findOne({
+							where: { guildId: guild.id },
+							include: [GuildAssociations.Session],
 						});
-						return;
-					}
-					const inSessionRole = dbGuild.inSessionRoleId
-						? (guild.roles.cache.get(dbGuild.inSessionRoleId) ??
-							(await guild.roles.fetch(dbGuild.inSessionRoleId)))
-						: null;
-					if (!inSessionRole) {
-						await Logging.log({
-							data: interaction,
-							formatData: {
-								msg: 'No in-session role found of id: ' + dbGuild.inSessionRoleId,
-								action: "Interaction for session 'Join' button",
-								userId: member.id,
-								cause: 'Could not get or fetch in-session role',
-							},
-							logType: Logging.Type.Warning,
-							extents: [GuildFlag.LogWarnings],
-						});
-						return;
-					}
-					if (member.roles.cache.has(inSessionRole.id)) {
-						await member.roles.remove(inSessionRole, 'Left session');
-						await interaction.reply({
-							content: '✅ Successfully left session',
-							flags: MessageFlags.Ephemeral,
-						});
-						await Logging.log({
-							data: interaction,
-							formatData: `User ${userMention(member.id)} left the session`,
-							logType: Logging.Type.Info,
-							extents: [GuildFlag.LogInfo],
-						});
-					} else {
+						if (!dbGuild) {
+							Debug.error(`Interaction for ${GlobalCustomIds.InSessionJoin} has no guild data`);
+							return;
+						}
+						const session = dbGuild?.session;
+						if (!session || !session.active) {
+							await interaction.reply({
+								content: '❌ No session is currently active',
+								flags: MessageFlags.Ephemeral,
+							});
+							return;
+						}
+						const inSessionRole = dbGuild.inSessionRoleId
+							? (guild.roles.cache.get(dbGuild.inSessionRoleId) ??
+								(await guild.roles.fetch(dbGuild.inSessionRoleId)))
+							: null;
+						if (!inSessionRole) {
+							await Logging.log({
+								data: interaction,
+								formatData: {
+									msg: 'No in-session role found of id: ' + dbGuild.inSessionRoleId,
+									action: "Interaction for session 'Join' button",
+									userId: member.id,
+									cause: 'Could not get or fetch in-session role',
+								},
+								logType: Logging.Type.Warning,
+								extents: [GuildFlag.LogWarnings],
+							});
+							return;
+						}
+						if (member.roles.cache.has(inSessionRole.id)) {
+							await interaction.reply({
+								content: '❌ You are already in the session',
+								flags: MessageFlags.Ephemeral,
+							});
+							return;
+						}
 						await member.roles.add(inSessionRole, 'Joined session');
 						await interaction.reply({
 							content: '✅ Successfully joined session',
@@ -222,6 +221,73 @@ export default createEvent({
 							extents: [GuildFlag.LogInfo],
 						});
 					}
+					break;
+				case GlobalCustomIds.InSessionLeave:
+					{
+						const guild = interaction.guild;
+						if (!guild) {
+							Debug.error(`Interaction for ${GlobalCustomIds.InSessionJoin} is not in a guild`);
+							return;
+						}
+						const member = interaction.member as GuildMember | null;
+						if (!member) {
+							Debug.error(`Interaction for ${GlobalCustomIds.InSessionJoin} has no member`);
+							return;
+						}
+						const dbGuild = await Data.models.Guild.findOne({
+							where: { guildId: guild.id },
+							include: [GuildAssociations.Session],
+						});
+						if (!dbGuild) {
+							Debug.error(`Interaction for ${GlobalCustomIds.InSessionJoin} has no guild data`);
+							return;
+						}
+						const session = dbGuild?.session;
+						if (!session || !session.active) {
+							await interaction.reply({
+								content: '❌ No session is currently active',
+								flags: MessageFlags.Ephemeral,
+							});
+							return;
+						}
+						const inSessionRole = dbGuild.inSessionRoleId
+							? (guild.roles.cache.get(dbGuild.inSessionRoleId) ??
+								(await guild.roles.fetch(dbGuild.inSessionRoleId)))
+							: null;
+						if (!inSessionRole) {
+							await Logging.log({
+								data: interaction,
+								formatData: {
+									msg: 'No in-session role found of id: ' + dbGuild.inSessionRoleId,
+									action: "Interaction for session 'Join' button",
+									userId: member.id,
+									cause: 'Could not get or fetch in-session role',
+								},
+								logType: Logging.Type.Warning,
+								extents: [GuildFlag.LogWarnings],
+							});
+							return;
+						}
+						if (member.roles.cache.has(inSessionRole.id)) {
+							await member.roles.remove(inSessionRole, 'Left session');
+							await interaction.reply({
+								content: '✅ Successfully left session',
+								flags: MessageFlags.Ephemeral,
+							});
+							await Logging.log({
+								data: interaction,
+								formatData: `User ${userMention(member.id)} left the session`,
+								logType: Logging.Type.Info,
+								extents: [GuildFlag.LogInfo],
+							});
+						} else {
+							await interaction.reply({
+								content: '❌ You are not in the session',
+								flags: MessageFlags.Ephemeral,
+							});
+						}
+					}
+
 					break;
 			}
 		}

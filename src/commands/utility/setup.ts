@@ -369,10 +369,6 @@ export default createCommand<typeof commandOptions.setup>({
 		);
 		if (!existingInactiveId) setupConfig.createInactive = true;
 		if (!existingInSessionId) setupConfig.createInSession = true;
-		await Data.models.Guild.upsert({
-			guildId: guild.id,
-			ready: false,
-		});
 
 		const resp = await interaction.reply({
 			components: [message],
@@ -683,6 +679,10 @@ export default createCommand<typeof commandOptions.setup>({
 
 		await Data.mainDb
 			.transaction(async (transaction) => {
+				await Data.models.Guild.upsert({
+					guildId: guild.id,
+					ready: false,
+				});
 				if (setupConfig.createInactive) {
 					const role = await createInactiveRoleIfMissing(guild, transaction);
 					if (!role) {
@@ -723,45 +723,32 @@ export default createCommand<typeof commandOptions.setup>({
 					})),
 					{ ignoreDuplicates: true, transaction },
 				);
-				/*const prevPerms = await Data.models.UserPermission.findAll({
+				const admUsers = await Data.models.User.findAll({
 					where: {
 						guildId: guild.id,
 						userId: setupConfig.adminUsers,
 					},
+					include: [UserAssociations.UserPermission],
 					transaction,
-					include: [UserPermissionAssociations.User],
-				});*/
-				for (const admUsr of setupConfig.adminUsers) {
-					const prevPerms = await Data.models.UserPermission.findOne({
-						where: {
-							guildId: guild.id,
-							userId: admUsr,
-						},
-						transaction,
-					});
-					if (prevPerms) {
-						prevPerms.permissions |= PermissionBits[Permission.Administrator];
-						await prevPerms.save({ transaction });
-					} else {
-						const dbUser = await Data.models.User.findOne({
-							where: { userId: admUsr, guildId: guild.id },
-							transaction,
-						});
-						if (!dbUser) {
-							throw new Errors.ThirdPartyError('Failed to create admin user');
+				});
+				await Promise.all(
+					admUsers.map(async (usr) => {
+						if (usr.userPermission) {
+							usr.userPermission.permissions |= PermissionBits[Permission.Administrator];
+							await usr.userPermission.save({ transaction });
+						} else {
+							await usr.createUserPermission(
+								{
+									guildId: guild.id,
+									permissions: PermissionBits[Permission.Administrator],
+								},
+								{
+									transaction,
+								},
+							);
 						}
-						await dbUser.createUserPermission(
-							{
-								guildId: guild.id,
-								permissions: PermissionBits[Permission.Administrator],
-							},
-							{
-								transaction,
-								destroyPrevious: true,
-							},
-						);
-					}
-				}
+					}),
+				);
 
 				endReplyMsg.addTextDisplayComponents((text) => {
 					const users = new Set([user.id, ...setupConfig.adminUsers]);

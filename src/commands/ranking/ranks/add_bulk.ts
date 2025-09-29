@@ -83,19 +83,8 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		return;
 	}
 	let json = [] as RankData[];
-	if (text) {
-		try {
-			json = JSON.parse(text);
-		} catch (e) {
-			if (!(e instanceof SyntaxError)) throw e;
-			await reportErrorToUser(
-				interaction,
-				constructError([ErrorReplies.InvalidFileFormatSeeHelp, ErrorReplies.OnlySubstitute], e),
-				true,
-			);
-			return;
-		}
-	} else if (file) {
+	let textToParse = text;
+	if (file) {
 		if (!file.contentType?.includes('application/json') && !file.contentType?.includes('text/plain')) {
 			await reportErrorToUser(
 				interaction,
@@ -109,7 +98,22 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			await reportErrorToUser(interaction, constructError([ErrorReplies.CouldNotFetch]), true);
 			return;
 		}
-		json = JSON.parse(await data.text());
+		textToParse = await data.text();
+	}
+	if (!textToParse) {
+		throw new Errors.ThirdPartyError('Failed to get text from file');
+	}
+
+	try {
+		json = JSON.parse(textToParse);
+	} catch (e) {
+		if (!(e instanceof SyntaxError)) throw e;
+		await reportErrorToUser(
+			interaction,
+			constructError([ErrorReplies.InvalidFileFormatSeeHelp, ErrorReplies.OnlySubstitute], e),
+			true,
+		);
+		return;
 	}
 
 	if (!Array.isArray(json)) {

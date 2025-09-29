@@ -186,6 +186,7 @@ export default createCommand<{}, 'ranking'>({
 			edit: { usesPerInterval: 4, useCooldown: 12 * 1000, intervalMs: 60 * 1000 },
 			list: { usesPerInterval: 3, useCooldown: 10 * 1000, intervalMs: 40 * 1000 },
 			add_bulk: { usesPerInterval: 3, useCooldown: 15 * 1000, intervalMs: 120 * 1000 },
+			in: { usesPerInterval: 3, useCooldown: 10 * 1000, intervalMs: 40 * 1000 },
 		},
 	},
 });

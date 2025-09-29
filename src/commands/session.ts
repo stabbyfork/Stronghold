@@ -61,6 +61,9 @@ export default createCommand<{}, 'session'>({
 						.setDescription('Link to a message with images to display')
 						.setRequired(false),
 				),
+		)
+		.addSubcommand((cmd) =>
+			cmd.setName('participants').setDescription('List the participants of the current session'),
 		),
 	description: {
 		start: 'You can either attach an image to the image option, or provide a message link to get images from. A message link can be obtained by right-clicking on a message and clicking "Copy Message Link".',
@@ -94,6 +97,12 @@ export default createCommand<{}, 'session'>({
 			intervalMs: 40 * 1000,
 			usesPerInterval: 2,
 			useCooldown: 15 * 1000,
+			scope: UsageScope.GuildAll,
+		},
+		participants: {
+			intervalMs: 25 * 1000,
+			usesPerInterval: 3,
+			useCooldown: 5 * 1000,
 			scope: UsageScope.GuildAll,
 		},
 	},

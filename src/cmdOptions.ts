@@ -1,4 +1,6 @@
-// AUTO-GENERATED ON SAT, 27 SEP 2025 16:13:45 GMT WITH 7 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON MON, 29 SEP 2025 19:47:22 GMT WITH 7 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+
+import type { CommandConstruct } from "./types/commandTypes.js";
 
 export const commandOptions = {
 activity: {
@@ -216,6 +218,12 @@ ranking: {
         "type": "string",
         "required": true
       }
+    },
+    "in": {
+      "rank": {
+        "type": "string",
+        "required": true
+      }
     }
   }
 },
@@ -268,7 +276,9 @@ setup: {
     "required": false
   }
 },
-} as const
+} as const satisfies {
+	[key: string]: CommandConstruct['options'];
+}
 
 export type CommandList<T> = {
 activity: {
@@ -312,7 +322,8 @@ ranking: {
     add: T,
     add_bulk: T,
     edit: T,
-    remove: T
+    remove: T,
+    in: T
   }
 },
 session: {
@@ -321,6 +332,7 @@ session: {
   quickstart: T,
   stop: T,
   edit: T,
-  edit_default: T
+  edit_default: T,
+  participants: T
 },	
 };

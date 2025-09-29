@@ -34,7 +34,7 @@ export namespace Logging {
 			allowedMentions: { users: [], roles: [] },
 			embeds: [
 				defaultEmbed()
-					.setTitle('⚠ Warning')
+					.setTitle(':warning: Warning')
 					.setDescription(data.msg)
 					.setColor('Yellow')
 					.addFields([

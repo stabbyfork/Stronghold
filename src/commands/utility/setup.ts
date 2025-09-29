@@ -855,24 +855,12 @@ export default createCommand<typeof commandOptions.setup>({
 				}
 
 				if (setupConfig.useExistingInactive && setupConfig.inactiveRole) {
-					await Data.models.Guild.update(
-						{
-							inactiveRoleId: setupConfig.inactiveRole.id,
-						},
-						{ transaction, where: { guildId: guild.id } },
-					);
 					endReplyMsg.addTextDisplayComponents((text) =>
 						text.setContent(`Inactive role set to ${roleMention(setupConfig.inactiveRole!.id)}`),
 					);
 				}
 
 				if (setupConfig.useExistingInSession && setupConfig.inSessionRole) {
-					await Data.models.Guild.update(
-						{
-							inSessionRoleId: setupConfig.inSessionRole.id,
-						},
-						{ transaction, where: { guildId: guild.id } },
-					);
 					endReplyMsg.addTextDisplayComponents((text) =>
 						text.setContent(`In-session role set to ${roleMention(setupConfig.inSessionRole!.id)}`),
 					);
@@ -881,6 +869,8 @@ export default createCommand<typeof commandOptions.setup>({
 				await Data.models.Guild.update(
 					{
 						ready: true,
+						inactiveRoleId: setupConfig.inactiveRole?.id,
+						inSessionRoleId: setupConfig.inSessionRole?.id,
 					},
 					{
 						where: {

@@ -1,3 +1,3 @@
 import { Client, GatewayIntentBits } from 'discord.js';
 
-export const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
+export const client = new Client({ intents: [GatewayIntentBits.Guilds] });

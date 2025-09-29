@@ -99,7 +99,7 @@ export namespace Data {
 	async function _promoteUser(user: User, transaction: Transaction) {
 		const guildId = user.guildId;
 		const userPoints = user.points ?? 0;
-		const currentRank = await user.getRank();
+		const currentRank = await user.getRank({ transaction, include: [RankAssociations.RankUsage] });
 
 		// 1. Fetch all ranks the user qualifies for (highest to lowest)
 		const ranks = await Data.models.Rank.findAll({
@@ -136,12 +136,16 @@ export namespace Data {
 		await user.setNextRank(nextRank as any, { transaction });
 		const guild = client.guilds.cache.get(guildId) ?? (await client.guilds.fetch(guildId));
 		const member = guild.members.cache.get(user.userId) ?? (await guild.members.fetch(user.userId));
+
 		// 3. If no available rank then set to null
 		if (!bestRank) {
 			if (member && currentRank) {
 				await member.roles.remove(currentRank.roleId);
 			}
 			await user.setRank(null as any, { transaction });
+			if (currentRank) {
+				await currentRank.rankUsage?.decrement('userCount', { by: 1, transaction });
+			}
 			return null;
 		}
 

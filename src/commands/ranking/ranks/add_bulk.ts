@@ -93,6 +93,10 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			);
 			return;
 		}
+		if (file.size > 2_000_000) {
+			await reportErrorToUser(interaction, 'The file is too large. It must be less than 2MB in size.', true);
+			return;
+		}
 		const data = await fetch(file.url);
 		if (!data.ok) {
 			await reportErrorToUser(interaction, constructError([ErrorReplies.CouldNotFetch]), true);
@@ -143,9 +147,12 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	if (json.length === 0) {
 		await reportErrorToUser(interaction, 'You must provide at least one rank.', true);
 		return;
+	} else if (json.length > 25) {
+		await reportErrorToUser(interaction, 'You can only add up to 25 ranks at once.', true);
+		return;
 	}
 	let replyStr = 'Added:\n';
-	json.sort((a, b) => a.points - b.points);
+	json.sort((a, b) => b.points - a.points);
 	await Data.mainDb
 		.transaction(async (transaction) => {
 			for (const rank of json) {

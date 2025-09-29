@@ -229,22 +229,22 @@ export class Pages {
 		const maxPage = this.maxPage;
 		buttons.addComponents(
 			new ButtonBuilder()
-				.setCustomId(CustomIds.PageFirst)
+				.setCustomId(CustomIds.PageFirst + currentPage.toString())
 				.setLabel('⏮')
 				.setStyle(ButtonStyle.Secondary)
 				.setDisabled(currentPage === 0),
 			new ButtonBuilder()
-				.setCustomId(CustomIds.PagePrevious)
+				.setCustomId(CustomIds.PagePrevious + currentPage.toString())
 				.setLabel('◀')
 				.setStyle(ButtonStyle.Primary)
 				.setDisabled(currentPage === 0),
 			new ButtonBuilder()
-				.setCustomId(CustomIds.PageNext)
+				.setCustomId(CustomIds.PageNext + currentPage.toString())
 				.setLabel('▶')
 				.setStyle(ButtonStyle.Primary)
 				.setDisabled(currentPage === maxPage),
 			new ButtonBuilder()
-				.setCustomId(CustomIds.PageLast)
+				.setCustomId(CustomIds.PageLast + currentPage.toString())
 				.setLabel('⏭')
 				.setStyle(ButtonStyle.Secondary)
 				.setDisabled(currentPage === maxPage || maxPage === Infinity),
@@ -385,17 +385,18 @@ export class Pages {
 				await reportErrorToUser(i, constructError([ErrorReplies.NotOwnerOfInteraction]), true);
 				return;
 			}
+			const currentPage = this.currentPageI;
 			switch (i.customId) {
-				case CustomIds.PageFirst:
+				case CustomIds.PageFirst + currentPage.toString():
 					this.setCurrentPage(0);
 					break;
-				case CustomIds.PagePrevious:
+				case CustomIds.PagePrevious + currentPage.toString():
 					this.setCurrentPage(this.currentPageI - 1);
 					break;
-				case CustomIds.PageNext:
+				case CustomIds.PageNext + currentPage.toString():
 					this.setCurrentPage(this.currentPageI + 1);
 					break;
-				case CustomIds.PageLast:
+				case CustomIds.PageLast + currentPage.toString():
 					this.setCurrentPage(this.maxPage);
 					break;
 				default:

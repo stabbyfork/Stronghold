@@ -252,6 +252,8 @@ export class Pages {
 		return buttons;
 	}
 
+	private readonly onExpire?: () => Promise<void>;
+
 	/**
 	 * Creates a new pagination instance.
 	 * @param itemsPerPage The number of items to show per page.
@@ -266,12 +268,14 @@ export class Pages {
 		createPage,
 		startingPage = 0,
 		cachePages = false,
+		onExpire,
 	}: {
 		itemsPerPage: number;
 		totalItems?: number;
 		createPage: CreatePageFunction;
 		startingPage?: number;
 		cachePages?: boolean;
+		onExpire?: () => Promise<void>;
 	}) {
 		this.itemsPerPage = itemsPerPage;
 		this.totalItems = totalItems;
@@ -285,6 +289,7 @@ export class Pages {
 			);
 		}
 		this.cachePages = cachePages;
+		this.onExpire = onExpire;
 	}
 
 	setTotalItems(totalItems?: number) {
@@ -384,6 +389,7 @@ export class Pages {
 		collector.on('end', async () => {
 			collector.removeAllListeners();
 			this.pages.clear();
+			await this.onExpire?.();
 		});
 		collector.on('collect', async (i) => {
 			if (i.user.id !== interaction.user.id) {

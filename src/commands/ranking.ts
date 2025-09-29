@@ -159,6 +159,14 @@ export default createCommand<{}, 'ranking'>({
 								.setRequired(true)
 								.setMaxLength(100),
 						),
+				)
+				.addSubcommand((cmd) =>
+					cmd
+						.setName('in')
+						.setDescription('Get a list of users in a rank')
+						.addStringOption((option) =>
+							option.setName('rank').setDescription('Name of the rank').setRequired(true),
+						),
 				),
 		),
 	description: {

@@ -223,12 +223,11 @@ export class Pages {
 		return page;
 	}
 
-	private navButtons: ActionRowBuilder<MessageActionRowComponentBuilder>;
 	private getNavButtons() {
-		const buttons = this.navButtons;
+		const buttons = new ActionRowBuilder<MessageActionRowComponentBuilder>();
 		const currentPage = this.currentPageI;
 		const maxPage = this.maxPage;
-		/*buttons.addComponents(
+		buttons.addComponents(
 			new ButtonBuilder()
 				.setCustomId(CustomIds.PageFirst)
 				.setLabel('⏮')
@@ -249,11 +248,7 @@ export class Pages {
 				.setLabel('⏭')
 				.setStyle(ButtonStyle.Secondary)
 				.setDisabled(currentPage === maxPage || maxPage === Infinity),
-		);*/
-		buttons.components[0].setDisabled(currentPage === 0);
-		buttons.components[1].setDisabled(currentPage === 0);
-		buttons.components[2].setDisabled(currentPage === maxPage);
-		buttons.components[3].setDisabled(currentPage === maxPage || maxPage === Infinity);
+		);
 		return buttons;
 	}
 
@@ -284,15 +279,12 @@ export class Pages {
 		this.createPage = (index) => {
 			return createPage(index, this.itemsPerPage);
 		};
+		if (cachePages) {
+			throw new Errors.NotAllowedError(
+				'Caching pages is currently unsupported due to discord not allowing duplicate custom ids',
+			);
+		}
 		this.cachePages = cachePages;
-		const buttons = new ActionRowBuilder<MessageActionRowComponentBuilder>();
-		buttons.addComponents(
-			new ButtonBuilder().setCustomId(CustomIds.PageFirst).setLabel('⏮').setStyle(ButtonStyle.Secondary),
-			new ButtonBuilder().setCustomId(CustomIds.PagePrevious).setLabel('◀').setStyle(ButtonStyle.Primary),
-			new ButtonBuilder().setCustomId(CustomIds.PageNext).setLabel('▶').setStyle(ButtonStyle.Primary),
-			new ButtonBuilder().setCustomId(CustomIds.PageLast).setLabel('⏭').setStyle(ButtonStyle.Secondary),
-		);
-		this.navButtons = buttons;
 	}
 
 	setTotalItems(totalItems?: number) {
@@ -415,8 +407,7 @@ export class Pages {
 				default:
 					throw new Errors.ValueError(`Unknown customId: ${i.customId}`);
 			}
-			await interaction.editReply({ components: [await this.getFormattedPage()] });
-			await i.deferUpdate();
+			await i.update({ components: [await this.getFormattedPage()] });
 		});
 	}
 }

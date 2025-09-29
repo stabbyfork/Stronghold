@@ -25,7 +25,6 @@ export default async (interaction: ChatInputCommandInteraction) => {
 	const pages = new Pages({
 		itemsPerPage: 20,
 		totalItems: ranks.count,
-		cachePages: true,
 		createPage: async (index, perPage) => {
 			const start = index * perPage;
 			return new ContainerBuilder().addTextDisplayComponents(

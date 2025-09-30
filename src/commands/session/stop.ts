@@ -87,7 +87,6 @@ export default async (interaction: ChatInputCommandInteraction) => {
 		}
 		const dbGuild = await Data.models.Guild.findOne({
 			where: { guildId: guild.id },
-			include: [{ association: GuildAssociations.Session, include: [GuildSessionAssociations.TotalUsers] }],
 		});
 		const roleId = dbGuild?.inSessionRoleId;
 		if (roleId) {
@@ -110,7 +109,7 @@ export default async (interaction: ChatInputCommandInteraction) => {
 				joinedSession.members.map(async (m) => await m.roles.remove(joinedSession, 'Session ended')),
 			);
 		}
-		const joinedSession = session?.totalUsers;
+		const joinedSession = session.totalUsers;
 		if (joinedSession) {
 			embed.addFields({
 				name: 'Participants',
@@ -134,6 +133,13 @@ export default async (interaction: ChatInputCommandInteraction) => {
 			embeds: [embed],
 			allowedMentions: { roles: [], users: [] },
 		});
+	} else {
+		await reportErrorToUser(
+			interaction,
+			constructError([ErrorReplies.OnlySubstitute, ErrorReplies.ReportToOwner], 'No session message'),
+			true,
+		);
+		return;
 	}
 	await Data.mainDb.transaction(async (transaction) => {
 		await session.update({ endedAt: new Date(), sessionMessageId: null, active: false }, { transaction });

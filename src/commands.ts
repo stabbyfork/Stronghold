@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON MON, 29 SEP 2025 19:47:22 GMT WITH 7 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON TUE, 30 SEP 2025 18:30:33 GMT WITH 8 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct, CommandExecute } from './types/commandTypes.js';
 
@@ -7,6 +7,7 @@ import permissions from './commands/permissions.js';
 import ranking from './commands/ranking.js';
 import session from './commands/session.js';
 import help from './commands/utility/help.js';
+import invite from './commands/utility/invite.js';
 import ping from './commands/utility/ping.js';
 import setup from './commands/utility/setup.js';
 
@@ -53,6 +54,7 @@ export const commands = {
   'ranking': ranking,
   'session': session,
   'help': help,
+  'invite': invite,
   'ping': ping,
   'setup': setup,
 } as const satisfies { [key: string]: CommandConstruct<boolean, any> };

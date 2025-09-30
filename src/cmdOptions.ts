@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON MON, 29 SEP 2025 19:47:22 GMT WITH 7 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON TUE, 30 SEP 2025 18:30:33 GMT WITH 8 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct } from "./types/commandTypes.js";
 
@@ -269,6 +269,7 @@ help: {
     "required": false
   }
 },
+invite: {},
 ping: {},
 setup: {
   "force": {

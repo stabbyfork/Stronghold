@@ -5,6 +5,7 @@ import {
 	HasManyCreateAssociationMixin,
 	HasManyHasAssociationMixin,
 	HasManyRemoveAssociationMixin,
+	HasManySetAssociationsMixin,
 	HasOneCreateAssociationMixin,
 	HasOneGetAssociationMixin,
 	InferAttributes,
@@ -63,6 +64,7 @@ export class GuildSession extends Model<InferAttributes<GuildSession>, InferCrea
 	declare addTotalUser: HasManyAddAssociationMixin<User, User['id']>;
 	declare hasTotalUser: HasManyHasAssociationMixin<User, User['id']>;
 	declare removeTotalUser: HasManyRemoveAssociationMixin<User, User['id']>;
+	declare setTotalUsers: HasManySetAssociationsMixin<User, User['id']>;
 
 	@Attribute({ type: DataTypes.DATE, allowNull: false })
 	declare createdAt: CreationOptional<Date>;

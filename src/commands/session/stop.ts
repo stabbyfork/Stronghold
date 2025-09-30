@@ -116,7 +116,10 @@ export default async (interaction: ChatInputCommandInteraction) => {
 			embeds: [embed],
 		});
 	}
-	await session.update({ endedAt: new Date(), sessionMessageId: null, active: false });
+	await Data.mainDb.transaction(async (transaction) => {
+		await session.update({ endedAt: new Date(), sessionMessageId: null, active: false }, { transaction });
+		await session.setTotalUsers([], { transaction });
+	});
 	await interaction.reply({
 		embeds: [
 			defaultEmbed()

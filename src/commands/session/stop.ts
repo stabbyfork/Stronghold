@@ -16,6 +16,9 @@ import { GuildFlag } from '../../utils/guildFlagsUtils.js';
 import { Logging } from '../../utils/loggingUtils.js';
 import { hasPermissions, Permission } from '../../utils/permissionsUtils.js';
 import { reportErrorIfNotSetup } from '../../utils/subcommandsUtils.js';
+import { GuildAssociations } from '../../models/guild.js';
+import { GuildSessionAssociations } from '../../models/session.js';
+import { join } from 'path';
 
 export default async (interaction: ChatInputCommandInteraction) => {
 	if (!(await reportErrorIfNotSetup(interaction))) return;
@@ -82,38 +85,54 @@ export default async (interaction: ChatInputCommandInteraction) => {
 				}*/
 			);
 		}
-		const dbGuild = await Data.models.Guild.findOne({ where: { guildId: guild.id } });
+		const dbGuild = await Data.models.Guild.findOne({
+			where: { guildId: guild.id },
+			include: [{ association: GuildAssociations.Session, include: [GuildSessionAssociations.TotalUsers] }],
+		});
 		const roleId = dbGuild?.inSessionRoleId;
 		if (roleId) {
-			const prevInSession = await guild.roles.fetch(roleId);
-			if (prevInSession) {
-				embed.addFields({
-					name: 'Participants',
-					value:
-						prevInSession.members.size > 0
-							? prevInSession.members.map((m) => userMention(m.id)).join(', ')
-							: 'None',
-					inline: true,
-				});
-				await Promise.all(
-					prevInSession.members.map(async (m) => await m.roles.remove(prevInSession, 'Session ended')),
-				);
-			} else {
-				Logging.log({
+			const joinedSession = await guild.roles.fetch(roleId);
+			if (!joinedSession) {
+				await Logging.log({
 					data: interaction,
 					extents: [GuildFlag.LogWarnings],
 					formatData: {
 						userId: interaction.user.id,
-						action: 'Session ended with no in-session role',
-						cause: 'Role not found with ID: ' + roleId,
-						msg: `Could not find in-session role`,
+						action: 'Session ended with no in session role',
+						cause: 'In session role not found',
+						msg: `Could not find in session role`,
 					},
 					logType: Logging.Type.Warning,
 				});
+				return;
 			}
+			await Promise.all(
+				joinedSession.members.map(async (m) => await m.roles.remove(joinedSession, 'Session ended')),
+			);
+		}
+		const joinedSession = session?.totalUsers;
+		if (joinedSession) {
+			embed.addFields({
+				name: 'Participants',
+				value: joinedSession.length > 0 ? joinedSession.map((m) => userMention(m.userId)).join(', ') : 'None',
+				inline: true,
+			});
+		} else {
+			Logging.log({
+				data: interaction,
+				extents: [GuildFlag.LogWarnings],
+				formatData: {
+					userId: interaction.user.id,
+					action: 'Session ended with no total users association',
+					cause: 'Total users association not found',
+					msg: `Could not find total users association for session`,
+				},
+				logType: Logging.Type.Warning,
+			});
 		}
 		await message.reply({
 			embeds: [embed],
+			allowedMentions: { roles: [], users: [] },
 		});
 	}
 	await Data.mainDb.transaction(async (transaction) => {

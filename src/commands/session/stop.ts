@@ -9,6 +9,7 @@ import {
 } from 'discord.js';
 import ms from 'ms';
 import { Data } from '../../data.js';
+import { GuildSessionAssociations } from '../../models/session.js';
 import { ErrorReplies } from '../../types/errors.js';
 import { defaultEmbed } from '../../utils/discordUtils.js';
 import { constructError, reportErrorToUser } from '../../utils/errorsUtils.js';
@@ -16,9 +17,6 @@ import { GuildFlag } from '../../utils/guildFlagsUtils.js';
 import { Logging } from '../../utils/loggingUtils.js';
 import { hasPermissions, Permission } from '../../utils/permissionsUtils.js';
 import { reportErrorIfNotSetup } from '../../utils/subcommandsUtils.js';
-import { GuildAssociations } from '../../models/guild.js';
-import { GuildSessionAssociations } from '../../models/session.js';
-import { join } from 'path';
 
 export default async (interaction: ChatInputCommandInteraction) => {
 	if (!(await reportErrorIfNotSetup(interaction))) return;

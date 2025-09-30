@@ -1,6 +1,7 @@
 import {
 	channelMention,
 	ChatInputCommandInteraction,
+	ContainerBuilder,
 	GuildMember,
 	MessageFlags,
 	ModalSubmitInteraction,
@@ -82,25 +83,31 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		message.attachments.map((a) => imageUrls.push(a.url));
 	}
 
-	await interaction.showModal(
-		createSessionModal(CustomIds.DetailsModal, CustomIds.SessionTitle, CustomIds.SessionMessage),
-	);
-	let submitted: ModalSubmitInteraction | undefined;
-	try {
-		submitted = await interaction.awaitModalSubmit({
-			time: 60 * 1000,
-			filter: (i) => i.customId === CustomIds.DetailsModal,
-		});
-		await submitted.deferUpdate();
-	} catch {
-		await reportErrorToUser(interaction, constructError([ErrorReplies.InteractionTimedOut]), true);
-		return;
+	const editMessage = getOption(interaction, args, 'edit_message') ?? true;
+	let toSend: ContainerBuilder | undefined;
+	if (editMessage) {
+		await interaction.showModal(
+			createSessionModal(CustomIds.DetailsModal, CustomIds.SessionTitle, CustomIds.SessionMessage),
+		);
+		let submitted: ModalSubmitInteraction | undefined;
+		try {
+			submitted = await interaction.awaitModalSubmit({
+				time: 15 * 60 * 1000,
+				filter: (i) => i.customId === CustomIds.DetailsModal,
+			});
+			await submitted.deferUpdate();
+		} catch {
+			await reportErrorToUser(interaction, constructError([ErrorReplies.InteractionTimedOut]), true);
+			return;
+		}
+		const title = submitted.fields.getTextInputValue(CustomIds.SessionTitle);
+		const message = submitted.fields.getTextInputValue(CustomIds.SessionMessage);
+		toSend = createSessionMessage(title, message, imageUrls, interaction.user.id);
+	} else {
+		toSend = createSessionMessage(session.title, session.message, imageUrls, interaction.user.id);
 	}
+	console.log(imageUrls);
 
-	const title = submitted.fields.getTextInputValue(CustomIds.SessionTitle);
-	const message = submitted.fields.getTextInputValue(CustomIds.SessionMessage);
-
-	const toSend = createSessionMessage(title, message, imageUrls, interaction.user.id);
 	const channel = guild.channels.cache.get(session.channelId) ?? (await guild.channels.fetch(session.channelId));
 	if (!channel) {
 		await reportErrorToUser(interaction, 'Session channel no longer exists.', true);

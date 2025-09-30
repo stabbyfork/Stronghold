@@ -208,6 +208,8 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				startedAt: new Date(),
 				sessionMessageId: sentMessage.id,
 				active: true,
+				title,
+				message,
 			},
 			transaction,
 		});
@@ -217,6 +219,8 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				startedAt: new Date(),
 				sessionMessageId: sentMessage.id,
 				active: true,
+				title,
+				message,
 			});
 		}
 		await data.save({ transaction });

@@ -69,7 +69,7 @@ export default async (interaction: ChatInputCommandInteraction) => {
 						: (users.size === 0
 								? 'Nobody is currently in the session.'
 								: `The following users are currently in the session: ${users.map((u) => userMention(u.id)).join(', ')}\n`) +
-								`The following users have joined the session at least once: ${totalUsers.map((u) => userMention(u.userId)).join(', ')}`,
+								`\nThe following users have joined the session at least once: ${totalUsers.map((u) => userMention(u.userId)).join(', ')}`,
 				),
 		],
 	});

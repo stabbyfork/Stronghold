@@ -50,6 +50,11 @@ export class GuildSession extends Model<InferAttributes<GuildSession>, InferCrea
 
 	declare getOptions: HasOneGetAssociationMixin<SessionOptions>;
 	declare createOptions: HasOneCreateAssociationMixin<SessionOptions, 'sessionId'>;*/
+	@Attribute({ type: DataTypes.STRING(64), allowNull: false })
+	declare title: string;
+
+	@Attribute({ type: DataTypes.STRING(256), allowNull: false })
+	declare message: string;
 
 	@HasOne(() => SessionOptions, { foreignKey: { name: 'id', onUpdate: 'RESTRICT', onDelete: 'CASCADE' } })
 	declare defaultOptions?: NonAttribute<SessionOptions>;

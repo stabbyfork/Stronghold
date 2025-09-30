@@ -34,6 +34,12 @@ export default createCommand<{}, 'session'>({
 			cmd
 				.setName('edit')
 				.setDescription('Edit the current session')
+				.addBooleanOption((option) =>
+					option
+						.setName('edit_message')
+						.setDescription('Edit the session title and message (defaults to true)')
+						.setRequired(false),
+				)
 				.addAttachmentOption((option) =>
 					option.setName('image').setDescription('Image to display').setRequired(false),
 				)

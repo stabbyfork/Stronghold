@@ -83,7 +83,10 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		message.attachments.map((a) => imageUrls.push(a.url));
 	}
 
-	const editMessage = getOption(interaction, args, 'edit_message') ?? true;
+	let editMessage = getOption(interaction, args, 'edit_message');
+	if (editMessage === null) {
+		editMessage = true;
+	}
 	let toSend: ContainerBuilder | undefined;
 	if (editMessage) {
 		await interaction.showModal(
@@ -107,7 +110,6 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		toSend = createSessionMessage(session.title, session.message, imageUrls, interaction.user.id);
 	}
 	console.log(imageUrls);
-
 	const channel = guild.channels.cache.get(session.channelId) ?? (await guild.channels.fetch(session.channelId));
 	if (!channel) {
 		await reportErrorToUser(interaction, 'Session channel no longer exists.', true);

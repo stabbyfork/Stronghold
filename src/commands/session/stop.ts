@@ -90,7 +90,7 @@ export default async (interaction: ChatInputCommandInteraction) => {
 		});
 		const roleId = dbGuild?.inSessionRoleId;
 		if (roleId) {
-			const joinedSession = await guild.roles.fetch(roleId);
+			const joinedSession = await guild.roles.fetch(roleId, { force: true });
 			if (!joinedSession) {
 				await Logging.log({
 					data: interaction,

@@ -1,6 +1,10 @@
 import {
 	CreationOptional,
 	DataTypes,
+	HasManyAddAssociationMixin,
+	HasManyCreateAssociationMixin,
+	HasManyHasAssociationMixin,
+	HasManyRemoveAssociationMixin,
 	HasOneCreateAssociationMixin,
 	HasOneGetAssociationMixin,
 	InferAttributes,
@@ -8,11 +12,13 @@ import {
 	Model,
 	NonAttribute,
 } from '@sequelize/core';
-import { Attribute, HasOne } from '@sequelize/core/decorators-legacy';
+import { Attribute, HasMany, HasOne } from '@sequelize/core/decorators-legacy';
 import { SessionOptions } from './sessionOptions.js';
+import { User } from './user.js';
 
 export enum GuildSessionAssociations {
 	DefaultOptions = 'defaultOptions',
+	TotalUsers = 'totalUsers',
 }
 
 export class GuildSession extends Model<InferAttributes<GuildSession>, InferCreationAttributes<GuildSession>> {
@@ -48,6 +54,15 @@ export class GuildSession extends Model<InferAttributes<GuildSession>, InferCrea
 	declare defaultOptions?: NonAttribute<SessionOptions>;
 	declare createDefaultOptions: HasOneCreateAssociationMixin<SessionOptions, 'sessionId'>;
 	declare getDefaultOptions: HasOneGetAssociationMixin<SessionOptions>;
+
+	/** Users that have ever joined (even if currently not in) this session */
+	@HasMany(() => User, { foreignKey: { name: 'sessionId', onUpdate: 'CASCADE', onDelete: 'SET NULL' } })
+	declare totalUsers?: NonAttribute<User[]>;
+
+	declare createTotalUser: HasManyCreateAssociationMixin<User, 'sessionId'>;
+	declare addTotalUser: HasManyAddAssociationMixin<User, User['id']>;
+	declare hasTotalUser: HasManyHasAssociationMixin<User, User['id']>;
+	declare removeTotalUser: HasManyRemoveAssociationMixin<User, User['id']>;
 
 	@Attribute({ type: DataTypes.DATE, allowNull: false })
 	declare createdAt: CreationOptional<Date>;

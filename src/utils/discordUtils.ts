@@ -203,7 +203,7 @@ export class Pages {
 		return Math.max(Math.ceil(this.totalItems / this.itemsPerPage) - 1, 0);
 	}
 
-	async getFormattedPage() {
+	async getFormattedPage(includeNavButtons = true) {
 		const page = this.cachePages
 			? (this.pages.get(this.currentPageI) ??
 				(await (async () => {
@@ -219,7 +219,9 @@ export class Pages {
 				content: `### Page ${this.currentPageI + 1}${this.maxPage !== Infinity ? `/${this.maxPage + 1}` : ''}${this.cachePages ? ' (cached)' : ''}`,
 			}),
 		);
-		page.addActionRowComponents(this.getNavButtons());
+		if (includeNavButtons) {
+			page.addActionRowComponents(this.getNavButtons());
+		}
 		return page;
 	}
 
@@ -390,6 +392,10 @@ export class Pages {
 			collector.removeAllListeners();
 			this.pages.clear();
 			await this.onExpire?.();
+			await resp.edit({
+				components: [await this.getFormattedPage(false)],
+				allowedMentions: { roles: [], users: [] },
+			});
 		});
 		collector.on('collect', async (i) => {
 			if (i.user.id !== interaction.user.id) {

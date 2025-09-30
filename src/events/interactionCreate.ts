@@ -209,14 +209,55 @@ export default createEvent({
 							});
 							return;
 						}
-						await member.roles.add(inSessionRole, 'Joined session');
-						await interaction.reply({
-							content: '✅ Successfully joined session',
-							flags: MessageFlags.Ephemeral,
-						});
+						try {
+							await Data.mainDb.transaction(async (transaction) => {
+								await member.roles.add(inSessionRole, 'Joined session');
+								const usr = await Data.models.User.findOne({
+									where: { userId: member.id, guildId: guild.id },
+									transaction,
+								});
+								if (usr) {
+									await session.addTotalUser(usr, { transaction });
+								} else {
+									await session.createTotalUser(
+										{
+											userId: member.id,
+											guildId: guild.id,
+										},
+										{
+											transaction,
+										},
+									);
+								}
+								await interaction.reply({
+									content: '✅ Successfully joined session',
+									flags: MessageFlags.Ephemeral,
+								});
+							});
+						} catch (e) {
+							Debug.error(e);
+							await interaction.reply({
+								content: '❌ Failed to join session',
+								flags: MessageFlags.Ephemeral,
+							});
+							if (e instanceof Error || typeof e === 'string') {
+								await Logging.log({
+									data: interaction,
+									formatData: {
+										msg: 'Failed to join session: ' + e.toString(),
+										action: "Interaction for session 'Join' button",
+										userId: member.id,
+										cause: 'Transaction threw error',
+									},
+									logType: Logging.Type.Error,
+									extents: [GuildFlag.LogErrors],
+								});
+							}
+							break;
+						}
 						await Logging.log({
 							data: interaction,
-							formatData: `User ${userMention(member.id)} joined the session`,
+							formatData: `${userMention(member.id)} joined the session`,
 							logType: Logging.Type.Info,
 							extents: [GuildFlag.LogInfo],
 						});
@@ -270,13 +311,9 @@ export default createEvent({
 						}
 						if (member.roles.cache.has(inSessionRole.id)) {
 							await member.roles.remove(inSessionRole, 'Left session');
-							await interaction.reply({
-								content: '✅ Successfully left session',
-								flags: MessageFlags.Ephemeral,
-							});
 							await Logging.log({
 								data: interaction,
-								formatData: `User ${userMention(member.id)} left the session`,
+								formatData: `${userMention(member.id)} left the session`,
 								logType: Logging.Type.Info,
 								extents: [GuildFlag.LogInfo],
 							});

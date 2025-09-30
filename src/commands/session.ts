@@ -66,7 +66,7 @@ export default createCommand<{}, 'session'>({
 			cmd.setName('participants').setDescription('List the participants of the current session'),
 		),
 	description: {
-		start: 'You can either attach an image to the image option, or provide a message link to get images from. A message link can be obtained by right-clicking on a message and clicking "Copy Message Link".',
+		start: 'You can either attach an image to the image option, or provide a message link to get images from. A message link can be obtained by right-clicking on a message and clicking "Copy Message Link".\nClicking "Join" just marks the user as in the session.',
 	},
 	limits: {
 		start: {

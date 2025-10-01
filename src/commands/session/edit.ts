@@ -9,6 +9,7 @@ import {
 	ModalSubmitInteraction,
 	TextDisplayComponent,
 	TextInputComponent,
+	userMention,
 } from 'discord.js';
 import { client } from '../../client.js';
 import { commandOptions } from '../../cmdOptions.js';
@@ -19,6 +20,7 @@ import { constructError, reportErrorToUser } from '../../utils/errorsUtils.js';
 import { hasPermissions, Permission } from '../../utils/permissionsUtils.js';
 import { getOption, reportErrorIfNotSetup } from '../../utils/subcommandsUtils.js';
 import { createSessionMessage, createSessionModal } from './start.js';
+import { Logging } from '../../utils/loggingUtils.js';
 
 const enum CustomIds {
 	DetailsModal = 'session-edit-modal',
@@ -169,4 +171,5 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		],
 		flags: MessageFlags.Ephemeral,
 	});
+	Logging.quickInfo(interaction, 'Edited session by ' + userMention(interaction.user.id));
 };

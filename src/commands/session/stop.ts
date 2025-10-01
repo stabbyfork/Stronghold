@@ -1,7 +1,11 @@
 import {
+	ActionRow,
 	channelMention,
 	ChatInputCommandInteraction,
+	ComponentType,
+	ContainerComponent,
 	GuildMember,
+	MessageActionRowComponent,
 	MessageFlags,
 	time,
 	TimestampStyles,
@@ -59,7 +63,7 @@ export default async (interaction: ChatInputCommandInteraction) => {
 	}
 	let endTime: Date | null = null;
 	if (session.sessionMessageId) {
-		const message = await channel.messages.fetch(session.sessionMessageId);
+		const message = await channel.messages.fetch({ message: session.sessionMessageId, force: true });
 		if (!message) {
 			await reportErrorToUser(interaction, constructError([ErrorReplies.MessageNotFoundSubstitute]), true);
 			return;
@@ -131,6 +135,12 @@ export default async (interaction: ChatInputCommandInteraction) => {
 				logType: Logging.Type.Warning,
 			});
 		}
+		// Removes last component (action row for buttons)
+		(message.components[0] as ContainerComponent).components.pop();
+		await message.edit({
+			components: [...message.components],
+			allowedMentions: { roles: [], users: [] },
+		});
 		await message.reply({
 			embeds: [embed],
 			allowedMentions: { roles: [], users: [] },

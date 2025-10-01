@@ -21,7 +21,7 @@ import {
 import { client } from '../../client.js';
 import { commandOptions } from '../../cmdOptions.js';
 import { Data } from '../../data.js';
-import { ErrorReplies, Errors } from '../../types/errors.js';
+import { ErrorReplies } from '../../types/errors.js';
 import { GlobalCustomIds } from '../../types/eventTypes.js';
 import { defaultEmbed } from '../../utils/discordUtils.js';
 import { constructError, reportErrorToUser } from '../../utils/errorsUtils.js';
@@ -29,7 +29,6 @@ import { GuildFlag } from '../../utils/guildFlagsUtils.js';
 import { Logging } from '../../utils/loggingUtils.js';
 import { hasPermissions, Permission } from '../../utils/permissionsUtils.js';
 import { getOption, reportErrorIfNotSetup } from '../../utils/subcommandsUtils.js';
-import { GuildAssociations } from '../../models/guild.js';
 
 export function createSessionMessage(
 	title: string,
@@ -39,7 +38,7 @@ export function createSessionMessage(
 	addFormatting: boolean = true,
 ) {
 	const msg = new ContainerBuilder().setAccentColor([255, 255, 255]).addTextDisplayComponents(
-		(text) => text.setContent(addFormatting ? `## ${title}` : title),
+		(text) => text.setContent(addFormatting ? `# ${title}` : title),
 		(text) => text.setContent(message),
 	);
 	if (imageUrls.length > 0) {

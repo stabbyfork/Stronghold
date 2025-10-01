@@ -105,6 +105,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 
 	const editMessage = getOption(interaction, args, 'edit_message') ?? true;
 	let toSend: ContainerBuilder | undefined;
+	await interaction.deferReply();
 	if (editMessage) {
 		await interaction.showModal(
 			createSessionModal(CustomIds.DetailsModal, CustomIds.SessionTitle, CustomIds.SessionMessage),
@@ -171,15 +172,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		flags: MessageFlags.IsComponentsV2,
 		allowedMentions: { roles: [], users: [] },
 	});
-	let replyFunc: typeof interaction.reply | typeof interaction.followUp | undefined;
-	if (editMessage) {
-		// Modal shown
-		replyFunc = interaction.followUp;
-	} else {
-		// Modal not shown
-		replyFunc = interaction.reply;
-	}
-	await replyFunc({
+	await interaction.followUp({
 		embeds: [
 			defaultEmbed()
 				.setTitle('Session edited')

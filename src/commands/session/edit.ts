@@ -106,27 +106,6 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 
 	const editMessage = getOption(interaction, args, 'edit_message') ?? true;
 	let toSend: ContainerBuilder | undefined;
-	if (editMessage) {
-		await interaction.showModal(
-			createSessionModal(CustomIds.DetailsModal, CustomIds.SessionTitle, CustomIds.SessionMessage),
-		);
-		let submitted: ModalSubmitInteraction | undefined;
-		try {
-			submitted = await interaction.awaitModalSubmit({
-				time: 15 * 60 * 1000,
-				filter: (i) => i.customId === CustomIds.DetailsModal,
-			});
-			await submitted.deferUpdate();
-		} catch {
-			await reportErrorToUser(interaction, constructError([ErrorReplies.InteractionTimedOut]), true);
-			return;
-		}
-		const title = submitted.fields.getTextInputValue(CustomIds.SessionTitle);
-		const message = submitted.fields.getTextInputValue(CustomIds.SessionMessage);
-		toSend = createSessionMessage(title, message, imageUrls, interaction.user.id);
-	} else {
-		await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-	}
 	if (!(editMessage || editAttachments)) {
 		await reportErrorToUser(interaction, 'You must choose to edit the message, the attachments, or both.', true);
 		return;
@@ -156,6 +135,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		return;
 	}
 	const sentMessage = await channel.messages.fetch({ message: session.sessionMessageId, force: true });
+
 	if (!editAttachments || !editMessage) {
 		const container = sentMessage.components[0] as ContainerComponent;
 		if (!editAttachments) {
@@ -170,6 +150,27 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			const message = (container.components[1] as TextDisplayComponent).content;
 			toSend = createSessionMessage(title, message, imageUrls, interaction.user.id, false);
 		}
+	}
+	if (editMessage) {
+		await interaction.showModal(
+			createSessionModal(CustomIds.DetailsModal, CustomIds.SessionTitle, CustomIds.SessionMessage),
+		);
+		let submitted: ModalSubmitInteraction | undefined;
+		try {
+			submitted = await interaction.awaitModalSubmit({
+				time: 15 * 60 * 1000,
+				filter: (i) => i.customId === CustomIds.DetailsModal,
+			});
+			await submitted.deferUpdate();
+		} catch {
+			await reportErrorToUser(interaction, constructError([ErrorReplies.InteractionTimedOut]), true);
+			return;
+		}
+		const title = submitted.fields.getTextInputValue(CustomIds.SessionTitle);
+		const message = submitted.fields.getTextInputValue(CustomIds.SessionMessage);
+		toSend = createSessionMessage(title, message, imageUrls, interaction.user.id);
+	} else {
+		await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 	}
 
 	await sentMessage.edit({

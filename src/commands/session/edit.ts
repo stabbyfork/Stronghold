@@ -143,7 +143,6 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			if (mediaComp instanceof MediaGalleryComponent) {
 				mediaComp.items.map((i) => imageUrls.push(i.media.data.url));
 			}
-			console.log(imageUrls, mediaComp, container);
 		}
 		if (!editMessage) {
 			const title = (container.components[0] as TextDisplayComponent).content;

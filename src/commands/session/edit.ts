@@ -124,6 +124,10 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		const message = submitted.fields.getTextInputValue(CustomIds.SessionMessage);
 		toSend = createSessionMessage(title, message, imageUrls, interaction.user.id);
 	}
+	if (!(editMessage || editAttachments)) {
+		await reportErrorToUser(interaction, 'You must choose to edit the message, the attachments, or both.', true);
+		return;
+	}
 	console.log(imageUrls);
 	const channel = guild.channels.cache.get(session.channelId) ?? (await guild.channels.fetch(session.channelId));
 	if (!channel) {
@@ -168,7 +172,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		flags: MessageFlags.IsComponentsV2,
 		allowedMentions: { roles: [], users: [] },
 	});
-	let replyFunc: typeof interaction.reply | typeof interaction.followUp;
+	let replyFunc: typeof interaction.reply | typeof interaction.followUp | undefined;
 	if (editMessage) {
 		// Modal shown
 		replyFunc = interaction.followUp;

@@ -65,7 +65,12 @@ export function createSessionMessage(
 	return msg;
 }
 
-export function createSessionModal(customId: string, titleId: string, messageId: string) {
+export function createSessionModal(
+	customId: string,
+	titleId: string,
+	messageId: string,
+	defaults?: { title: string; message: string },
+) {
 	return new ModalBuilder()
 		.setTitle('Session details')
 		.setCustomId(customId)
@@ -76,7 +81,8 @@ export function createSessionModal(customId: string, titleId: string, messageId:
 					.setLabel('Title')
 					.setStyle(TextInputStyle.Short)
 					.setMaxLength(64)
-					.setRequired(true),
+					.setRequired(true)
+					.setValue(defaults?.title ?? ''),
 			),
 			new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
 				new TextInputBuilder()
@@ -85,7 +91,8 @@ export function createSessionModal(customId: string, titleId: string, messageId:
 					.setStyle(TextInputStyle.Paragraph)
 					.setMaxLength(256)
 					.setPlaceholder('Host: John Discord\nGame: ...')
-					.setRequired(true),
+					.setRequired(true)
+					.setValue(defaults?.message ?? ''),
 			),
 		);
 }

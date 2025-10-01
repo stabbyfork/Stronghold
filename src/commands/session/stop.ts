@@ -93,6 +93,7 @@ export default async (interaction: ChatInputCommandInteraction) => {
 		if (roleId) {
 			const joinedSession = await guild.roles.fetch(roleId, { force: true });
 			if (!joinedSession) {
+				await reportErrorToUser(interaction, 'Could not get in session role.', true);
 				await Logging.log({
 					data: interaction,
 					extents: [GuildFlag.LogWarnings],
@@ -118,7 +119,7 @@ export default async (interaction: ChatInputCommandInteraction) => {
 				inline: true,
 			});
 		} else {
-			Logging.log({
+			await Logging.log({
 				data: interaction,
 				extents: [GuildFlag.LogWarnings],
 				formatData: {

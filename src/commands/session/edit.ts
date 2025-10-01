@@ -155,7 +155,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		);
 		return;
 	}
-	const sentMessage = await channel.messages.fetch(session.sessionMessageId);
+	const sentMessage = await channel.messages.fetch({ message: session.sessionMessageId, force: true });
 	if (!editAttachments || !editMessage) {
 		const container = sentMessage.components[0] as ContainerComponent;
 		if (!editAttachments) {

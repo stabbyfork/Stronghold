@@ -428,7 +428,11 @@ export class Pages {
 export async function getMessageFromLink(messageLink: string, interaction: ChatInputCommandInteraction, force = false) {
 	const match = messageLink.match(/(\d+)\/(\d+)\/(\d+)/);
 	if (!match) {
-		await reportErrorToUser(interaction, 'You must provide a valid message link.', true);
+		await reportErrorToUser(
+			interaction,
+			'You must provide a valid message link. Make sure to mention the bot (@user).',
+			true,
+		);
 		return;
 	}
 	const [_, guildId, channelId, messageId] = match;
@@ -436,7 +440,11 @@ export async function getMessageFromLink(messageLink: string, interaction: ChatI
 	const sendGuild = client.guilds.cache.get(guildId) ?? (await client.guilds.fetch(guildId));
 	const channel = sendGuild.channels.cache.get(channelId) ?? (await sendGuild.channels.fetch(channelId));
 	if (!channel) {
-		await reportErrorToUser(interaction, 'You must provide a valid message link.', true);
+		await reportErrorToUser(
+			interaction,
+			'You must provide a valid message link. Make sure to mention the bot (@user).',
+			true,
+		);
 		return;
 	}
 	if (!channel.isTextBased()) {

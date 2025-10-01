@@ -65,7 +65,6 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			const message = await getMessageFromLink(messageLink, interaction, true);
 			// Already handled in function
 			if (!message) return;
-			console.log(message);
 			if (message.attachments.size === 0) {
 				await reportErrorToUser(
 					interaction,

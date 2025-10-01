@@ -136,7 +136,7 @@ async function createSetupMessage(
 				(text) => text.setContent('## Setup'),
 				(text) =>
 					text.setContent(
-						`This will set up the bot for this server. You (the server owner) will be made a bot administrator automatically. Only you (the server owner) can add or remove bot administrators. This will create an \`Inactive\` role if one has not been added yet.`,
+						`This will set up the bot for this server. You (the server owner) will be made a bot administrator automatically. Only you (the server owner) can add or remove bot administrators. This will create the \`${RoleNames.InSession}\` and \`${RoleNames.Inactive}\` roles if they have not been added yet.`,
 					),
 				(text) => text.setContent(`All choices are applied when you click \`Start setup\`.`),
 			)

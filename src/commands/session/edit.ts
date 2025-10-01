@@ -2,9 +2,12 @@ import {
 	channelMention,
 	ChatInputCommandInteraction,
 	ContainerBuilder,
+	ContainerComponent,
 	GuildMember,
 	MessageFlags,
 	ModalSubmitInteraction,
+	TextDisplayComponent,
+	TextInputComponent,
 } from 'discord.js';
 import { client } from '../../client.js';
 import { commandOptions } from '../../cmdOptions.js';
@@ -42,45 +45,62 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		await reportErrorToUser(interaction, constructError([ErrorReplies.NoExistingSession]), true);
 		return;
 	}
-	const [image, messageLink] = [getOption(interaction, args, 'image'), getOption(interaction, args, 'message_link')];
-	if (image && messageLink) {
-		await reportErrorToUser(interaction, 'You cannot provide both an image and a link to a message.', true);
-		return;
-	}
 	let imageUrls: string[] = [];
-	if (image) {
-		if (image.contentType?.includes('image')) {
-			imageUrls = [image.url];
-		} else {
-			await reportErrorToUser(interaction, 'You must provide an image attachment.', true);
+	const editAttachments = getOption(interaction, args, 'edit_attachments');
+	const [image, messageLink] = [getOption(interaction, args, 'image'), getOption(interaction, args, 'message_link')];
+	if (editAttachments) {
+		if (image && messageLink) {
+			await reportErrorToUser(interaction, 'You cannot provide both an image and a link to a message.', true);
 			return;
 		}
-	} else if (messageLink) {
-		const match = messageLink.match(/(\d+)\/(\d+)\/(\d+)/);
-		if (!match) {
-			await reportErrorToUser(interaction, 'You must provide a valid message link.', true);
-			return;
+
+		if (image) {
+			if (image.contentType?.includes('image')) {
+				imageUrls = [image.url];
+			} else {
+				await reportErrorToUser(interaction, 'You must provide an image attachment.', true);
+				return;
+			}
+		} else if (messageLink) {
+			const match = messageLink.match(/(\d+)\/(\d+)\/(\d+)/);
+			if (!match) {
+				await reportErrorToUser(interaction, 'You must provide a valid message link.', true);
+				return;
+			}
+			const [_, guildId, channelId, messageId] = match;
+			const sendGuild = client.guilds.cache.get(guildId) ?? (await client.guilds.fetch(guildId));
+			const channel = sendGuild.channels.cache.get(channelId) ?? (await sendGuild.channels.fetch(channelId));
+			if (!channel) {
+				await reportErrorToUser(interaction, 'You must provide a valid message link.', true);
+				return;
+			}
+			if (!channel.isTextBased()) {
+				await reportErrorToUser(
+					interaction,
+					'You must provide a link to a message in a text-based channel.',
+					true,
+				);
+				return;
+			}
+			const message = await channel.messages.fetch(messageId);
+			if (message.attachments.size === 0) {
+				await reportErrorToUser(
+					interaction,
+					'You must provide a link to a message with at least one image.',
+					true,
+				);
+				return;
+			}
+			if (message.attachments.size > 4) {
+				await reportErrorToUser(
+					interaction,
+					'You must provide a link to a message with at most 4 images.',
+					true,
+				);
+				return;
+			}
+			message.attachments.map((a) => imageUrls.push(a.url));
 		}
-		const [_, guildId, channelId, messageId] = match;
-		const channel = await client.guilds.fetch(guildId).then((g) => g?.channels.fetch(channelId));
-		if (!channel) {
-			await reportErrorToUser(interaction, 'You must provide a valid message link.', true);
-			return;
-		}
-		if (!channel.isTextBased()) {
-			await reportErrorToUser(interaction, 'You must provide a link to a message in a text-based channel.', true);
-			return;
-		}
-		const message = await channel.messages.fetch(messageId);
-		if (message.attachments.size === 0) {
-			await reportErrorToUser(interaction, 'You must provide a link to a message with at least one image.', true);
-			return;
-		}
-		if (message.attachments.size > 4) {
-			await reportErrorToUser(interaction, 'You must provide a link to a message with at most 4 images.', true);
-			return;
-		}
-		message.attachments.map((a) => imageUrls.push(a.url));
 	}
 
 	let editMessage = getOption(interaction, args, 'edit_message');
@@ -106,8 +126,6 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		const title = submitted.fields.getTextInputValue(CustomIds.SessionTitle);
 		const message = submitted.fields.getTextInputValue(CustomIds.SessionMessage);
 		toSend = createSessionMessage(title, message, imageUrls, interaction.user.id);
-	} else {
-		toSend = createSessionMessage(session.title, session.message, imageUrls, interaction.user.id);
 	}
 	console.log(imageUrls);
 	const channel = guild.channels.cache.get(session.channelId) ?? (await guild.channels.fetch(session.channelId));
@@ -137,8 +155,18 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	const sentMessage =
 		channel.messages.cache.get(session.sessionMessageId) ??
 		(await channel.messages.fetch(session.sessionMessageId));
+	if (!editAttachments) {
+		const attchs = sentMessage.attachments.map((a) => a.url);
+		imageUrls = imageUrls.concat(attchs);
+	}
+	if (!editMessage) {
+		const container = sentMessage.components[0] as ContainerComponent;
+		const title = (container.components[0] as TextDisplayComponent).content;
+		const message = (container.components[1] as TextDisplayComponent).content;
+		toSend = createSessionMessage(title, message, imageUrls, interaction.user.id);
+	}
 	await sentMessage.edit({
-		components: [toSend],
+		components: [toSend!],
 		flags: MessageFlags.IsComponentsV2,
 		allowedMentions: { roles: [], users: [] },
 	});

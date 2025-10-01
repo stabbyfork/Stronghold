@@ -40,6 +40,12 @@ export default createCommand<{}, 'session'>({
 						.setDescription('Edit the session title and message (defaults to true)')
 						.setRequired(false),
 				)
+				.addBooleanOption((option) =>
+					option
+						.setName('edit_attachments')
+						.setDescription('Edit the session attachments (defaults to true)')
+						.setRequired(false),
+				)
 				.addAttachmentOption((option) =>
 					option.setName('image').setDescription('Image to display').setRequired(false),
 				)

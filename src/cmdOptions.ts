@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON TUE, 30 SEP 2025 19:28:01 GMT WITH 8 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON WED, 01 OCT 2025 15:45:09 GMT WITH 8 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct } from "./types/commandTypes.js";
 
@@ -244,6 +244,10 @@ session: {
   },
   "edit": {
     "edit_message": {
+      "type": "boolean",
+      "required": false
+    },
+    "edit_attachments": {
       "type": "boolean",
       "required": false
     },

@@ -188,6 +188,25 @@ export namespace Logging {
 		const formatted = formatters[logType](formatData as any);
 		await todayThread.send(formatted);
 	}
+
+	/**
+	 * Logs a quick info message to the appropriate log channel for the given interaction.
+	 *
+	 * This is a shorthand for calling `Logging.log` with the given interaction and message.
+	 *
+	 * The message will be logged with the `Logging.Type.Info` type and the `GuildFlag.logInfo` extent.
+	 *
+	 * @param interaction The interaction to get the log channel from.
+	 * @param message The message to be logged.
+	 */
+	export function quickInfo(interaction: Interaction, message: string) {
+		Logging.log({
+			data: interaction,
+			extents: [GuildFlag.LogInfo],
+			formatData: message,
+			logType: Logging.Type.Info,
+		});
+	}
 }
 
 //#endregion

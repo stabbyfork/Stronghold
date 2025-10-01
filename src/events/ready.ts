@@ -25,6 +25,7 @@ export default createEvent({
 				if (guild.logChannelId) yield guild;
 			}
 		})();
+		console.log('Started with', dbGuilds.length, 'guilds');
 		for await (const _ of setInterval(10000)) {
 			const next = gen.next();
 			if (next.done) return;

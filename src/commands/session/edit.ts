@@ -154,12 +154,13 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		(await channel.messages.fetch(session.sessionMessageId));
 	if (!editAttachments) {
 		const attchs = sentMessage.attachments.map((a) => a.url);
-		imageUrls = imageUrls.concat(attchs);
+		imageUrls.push(...attchs);
 	}
 	if (!editMessage) {
 		const container = sentMessage.components[0] as ContainerComponent;
 		const title = (container.components[0] as TextDisplayComponent).content;
 		const message = (container.components[1] as TextDisplayComponent).content;
+		console.log(container);
 		toSend = createSessionMessage(title, message, imageUrls, interaction.user.id);
 	}
 	await sentMessage.edit({
@@ -167,7 +168,15 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		flags: MessageFlags.IsComponentsV2,
 		allowedMentions: { roles: [], users: [] },
 	});
-	await interaction.reply({
+	let replyFunc: typeof interaction.reply | typeof interaction.followUp;
+	if (editMessage) {
+		// Modal shown
+		replyFunc = interaction.followUp;
+	} else {
+		// Modal not shown
+		replyFunc = interaction.reply;
+	}
+	await replyFunc({
 		embeds: [
 			defaultEmbed()
 				.setTitle('Session edited')

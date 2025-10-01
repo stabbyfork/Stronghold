@@ -160,7 +160,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	if (!editAttachments) {
 		const attchs = sentMessage.attachments.map((a) => a.url);
 		imageUrls.push(...attchs);
-		console.log(imageUrls);
+		console.log(imageUrls, sentMessage.attachments, sentMessage);
 	}
 	if (!editMessage) {
 		const container = sentMessage.components[0] as ContainerComponent;

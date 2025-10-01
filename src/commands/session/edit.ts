@@ -154,9 +154,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		);
 		return;
 	}
-	const sentMessage =
-		channel.messages.cache.get(session.sessionMessageId) ??
-		(await channel.messages.fetch(session.sessionMessageId));
+	const sentMessage = await channel.messages.fetch(session.sessionMessageId);
 	if (!editAttachments) {
 		const attchs = sentMessage.attachments.map((a) => a.url);
 		imageUrls.push(...attchs);

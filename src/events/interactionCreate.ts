@@ -189,6 +189,10 @@ export default createEvent({
 								(await guild.roles.fetch(dbGuild.inSessionRoleId)))
 							: null;
 						if (!inSessionRole) {
+							await interaction.reply({
+								content: '❌ No in-session role found',
+								flags: MessageFlags.Ephemeral,
+							});
 							await Logging.log({
 								data: interaction,
 								formatData: {
@@ -296,6 +300,10 @@ export default createEvent({
 								(await guild.roles.fetch(dbGuild.inSessionRoleId)))
 							: null;
 						if (!inSessionRole) {
+							await interaction.reply({
+								content: '❌ No in-session role found',
+								flags: MessageFlags.Ephemeral,
+							});
 							await Logging.log({
 								data: interaction,
 								formatData: {

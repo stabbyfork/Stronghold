@@ -46,7 +46,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		return;
 	}
 	let imageUrls: string[] = [];
-	const editAttachments = getOption(interaction, args, 'edit_attachments');
+	const editAttachments = getOption(interaction, args, 'edit_attachments') ?? true;
 	const [image, messageLink] = [getOption(interaction, args, 'image'), getOption(interaction, args, 'message_link')];
 	if (editAttachments) {
 		if (image && messageLink) {
@@ -103,10 +103,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		}
 	}
 
-	let editMessage = getOption(interaction, args, 'edit_message');
-	if (editMessage === null) {
-		editMessage = true;
-	}
+	const editMessage = getOption(interaction, args, 'edit_message') ?? true;
 	let toSend: ContainerBuilder | undefined;
 	if (editMessage) {
 		await interaction.showModal(
@@ -170,7 +167,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		flags: MessageFlags.IsComponentsV2,
 		allowedMentions: { roles: [], users: [] },
 	});
-	await interaction.followUp({
+	await interaction.reply({
 		embeds: [
 			defaultEmbed()
 				.setTitle('Session edited')

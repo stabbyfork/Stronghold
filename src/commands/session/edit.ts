@@ -124,7 +124,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		const message = submitted.fields.getTextInputValue(CustomIds.SessionMessage);
 		toSend = createSessionMessage(title, message, imageUrls, interaction.user.id);
 	} else {
-		await interaction.deferReply();
+		await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 	}
 	if (!(editMessage || editAttachments)) {
 		await reportErrorToUser(interaction, 'You must choose to edit the message, the attachments, or both.', true);
@@ -160,6 +160,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	if (!editAttachments) {
 		const attchs = sentMessage.attachments.map((a) => a.url);
 		imageUrls.push(...attchs);
+		console.log(imageUrls);
 	}
 	if (!editMessage) {
 		const container = sentMessage.components[0] as ContainerComponent;

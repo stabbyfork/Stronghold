@@ -22,7 +22,7 @@ export default createEvent({
 		});
 		const gen = (function* () {
 			for (const guild of dbGuilds) {
-				if (guild.logChannelId) yield guild;
+				yield guild;
 			}
 		})();
 		console.log('Started with', dbGuilds.length, 'guilds');

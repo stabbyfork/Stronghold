@@ -161,7 +161,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		if (!editAttachments) {
 			const mediaComp = container.components[2];
 			if (mediaComp instanceof MediaGalleryComponent) {
-				mediaComp.items.map((i) => imageUrls.push(i.media.url));
+				mediaComp.items.map((i) => imageUrls.push(i.media.data.url));
 			}
 			console.log(imageUrls, mediaComp, container);
 		}

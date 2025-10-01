@@ -105,7 +105,6 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 
 	const editMessage = getOption(interaction, args, 'edit_message') ?? true;
 	let toSend: ContainerBuilder | undefined;
-	await interaction.deferReply();
 	if (editMessage) {
 		await interaction.showModal(
 			createSessionModal(CustomIds.DetailsModal, CustomIds.SessionTitle, CustomIds.SessionMessage),
@@ -124,12 +123,13 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		const title = submitted.fields.getTextInputValue(CustomIds.SessionTitle);
 		const message = submitted.fields.getTextInputValue(CustomIds.SessionMessage);
 		toSend = createSessionMessage(title, message, imageUrls, interaction.user.id);
+	} else {
+		await interaction.deferReply();
 	}
 	if (!(editMessage || editAttachments)) {
 		await reportErrorToUser(interaction, 'You must choose to edit the message, the attachments, or both.', true);
 		return;
 	}
-	console.log(imageUrls);
 	const channel = guild.channels.cache.get(session.channelId) ?? (await guild.channels.fetch(session.channelId));
 	if (!channel) {
 		await reportErrorToUser(interaction, 'Session channel no longer exists.', true);

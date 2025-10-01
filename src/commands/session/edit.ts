@@ -4,6 +4,7 @@ import {
 	ContainerBuilder,
 	ContainerComponent,
 	GuildMember,
+	MediaGalleryComponent,
 	MessageFlags,
 	ModalSubmitInteraction,
 	TextDisplayComponent,
@@ -155,17 +156,21 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		return;
 	}
 	const sentMessage = await channel.messages.fetch(session.sessionMessageId);
-	if (!editAttachments) {
-		const attchs = sentMessage.attachments.map((a) => a.url);
-		imageUrls.push(...attchs);
-		console.log(imageUrls, sentMessage.attachments, sentMessage);
-	}
-	if (!editMessage) {
+	if (!editAttachments || !editMessage) {
 		const container = sentMessage.components[0] as ContainerComponent;
-		const title = (container.components[0] as TextDisplayComponent).content;
-		const message = (container.components[1] as TextDisplayComponent).content;
-		toSend = createSessionMessage(title, message, imageUrls, interaction.user.id, false);
+		if (!editAttachments) {
+			const mediaComp = container.components[2];
+			if (mediaComp instanceof MediaGalleryComponent) {
+				mediaComp.items.map((i) => imageUrls.push(i.media.url));
+			}
+		}
+		if (!editMessage) {
+			const title = (container.components[0] as TextDisplayComponent).content;
+			const message = (container.components[1] as TextDisplayComponent).content;
+			toSend = createSessionMessage(title, message, imageUrls, interaction.user.id, false);
+		}
 	}
+
 	await sentMessage.edit({
 		components: [toSend!],
 		flags: MessageFlags.IsComponentsV2,

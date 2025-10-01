@@ -31,9 +31,15 @@ import { hasPermissions, Permission } from '../../utils/permissionsUtils.js';
 import { getOption, reportErrorIfNotSetup } from '../../utils/subcommandsUtils.js';
 import { GuildAssociations } from '../../models/guild.js';
 
-export function createSessionMessage(title: string, message: string, imageUrls: string[], userId: string) {
+export function createSessionMessage(
+	title: string,
+	message: string,
+	imageUrls: string[],
+	userId: string,
+	addFormatting: boolean = true,
+) {
 	const msg = new ContainerBuilder().setAccentColor([255, 255, 255]).addTextDisplayComponents(
-		(text) => text.setContent(`## ${title}`),
+		(text) => text.setContent(addFormatting ? `## ${title}` : title),
 		(text) => text.setContent(message),
 	);
 	if (imageUrls.length > 0) {

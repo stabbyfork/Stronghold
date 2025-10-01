@@ -164,8 +164,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		const container = sentMessage.components[0] as ContainerComponent;
 		const title = (container.components[0] as TextDisplayComponent).content;
 		const message = (container.components[1] as TextDisplayComponent).content;
-		console.log(container);
-		toSend = createSessionMessage(title, message, imageUrls, interaction.user.id);
+		toSend = createSessionMessage(title, message, imageUrls, interaction.user.id, false);
 	}
 	await sentMessage.edit({
 		components: [toSend!],

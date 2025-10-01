@@ -15,6 +15,7 @@ import {
 	MessageFlags,
 	ComponentType,
 	InteractionReplyOptions,
+	ChatInputCommandInteraction,
 } from 'discord.js';
 import { client } from '../client.js';
 import { Config } from '../config.js';
@@ -423,4 +424,27 @@ export class Pages {
 		});
 	}
 }
+
+export async function getMessageFromLink(messageLink: string, interaction: ChatInputCommandInteraction, force = false) {
+	const match = messageLink.match(/(\d+)\/(\d+)\/(\d+)/);
+	if (!match) {
+		await reportErrorToUser(interaction, 'You must provide a valid message link.', true);
+		return;
+	}
+	const [_, guildId, channelId, messageId] = match;
+	// May throw
+	const sendGuild = client.guilds.cache.get(guildId) ?? (await client.guilds.fetch(guildId));
+	const channel = sendGuild.channels.cache.get(channelId) ?? (await sendGuild.channels.fetch(channelId));
+	if (!channel) {
+		await reportErrorToUser(interaction, 'You must provide a valid message link.', true);
+		return;
+	}
+	if (!channel.isTextBased()) {
+		await reportErrorToUser(interaction, 'You must provide a link to a message in a text-based channel.', true);
+		return;
+	}
+	// May throw
+	return await channel.messages.fetch({ message: messageId, force });
+}
+
 //#endregion

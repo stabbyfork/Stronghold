@@ -14,7 +14,7 @@ import { client } from '../../client.js';
 import { commandOptions } from '../../cmdOptions.js';
 import { Data } from '../../data.js';
 import { ErrorReplies } from '../../types/errors.js';
-import { defaultEmbed } from '../../utils/discordUtils.js';
+import { defaultEmbed, getMessageFromLink } from '../../utils/discordUtils.js';
 import { constructError, reportErrorToUser } from '../../utils/errorsUtils.js';
 import { hasPermissions, Permission } from '../../utils/permissionsUtils.js';
 import { getOption, reportErrorIfNotSetup } from '../../utils/subcommandsUtils.js';
@@ -54,7 +54,6 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			await reportErrorToUser(interaction, 'You cannot provide both an image and a link to a message.', true);
 			return;
 		}
-
 		if (image) {
 			if (image.contentType?.includes('image')) {
 				imageUrls = [image.url];
@@ -63,27 +62,10 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				return;
 			}
 		} else if (messageLink) {
-			const match = messageLink.match(/(\d+)\/(\d+)\/(\d+)/);
-			if (!match) {
-				await reportErrorToUser(interaction, 'You must provide a valid message link.', true);
-				return;
-			}
-			const [_, guildId, channelId, messageId] = match;
-			const sendGuild = client.guilds.cache.get(guildId) ?? (await client.guilds.fetch(guildId));
-			const channel = sendGuild.channels.cache.get(channelId) ?? (await sendGuild.channels.fetch(channelId));
-			if (!channel) {
-				await reportErrorToUser(interaction, 'You must provide a valid message link.', true);
-				return;
-			}
-			if (!channel.isTextBased()) {
-				await reportErrorToUser(
-					interaction,
-					'You must provide a link to a message in a text-based channel.',
-					true,
-				);
-				return;
-			}
-			const message = await channel.messages.fetch(messageId);
+			const message = await getMessageFromLink(messageLink, interaction, true);
+			// Already handled in function
+			if (!message) return;
+			console.log(message);
 			if (message.attachments.size === 0) {
 				await reportErrorToUser(
 					interaction,
@@ -141,7 +123,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		if (!editAttachments) {
 			const mediaComp = container.components[2];
 			if (mediaComp instanceof MediaGalleryComponent) {
-				mediaComp.items.map((i) => imageUrls.push(i.media.data.url));
+				mediaComp.items.map((i) => imageUrls.push(i.media.url));
 			}
 		}
 		if (!editMessage) {

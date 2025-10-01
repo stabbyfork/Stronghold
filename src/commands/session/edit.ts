@@ -135,7 +135,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	}
 	if (editMessage) {
 		const container = sentMessage.components[0] as ContainerComponent;
-		const prevTitle = (container.components[0] as TextDisplayComponent).content;
+		const prevTitle = (container.components[0] as TextDisplayComponent).content.split(' ').slice(1).join(' ');
 		const prevMessage = (container.components[1] as TextDisplayComponent).content;
 		await interaction.showModal(
 			createSessionModal(CustomIds.DetailsModal, CustomIds.SessionTitle, CustomIds.SessionMessage, {

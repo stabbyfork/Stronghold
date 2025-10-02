@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON WED, 01 OCT 2025 15:45:09 GMT WITH 8 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON THU, 02 OCT 2025 18:35:49 GMT WITH 9 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct, CommandExecute } from './types/commandTypes.js';
 
@@ -17,6 +17,7 @@ import activity_checks_cancel from './commands/activity/checks/cancel.js';
 import activity_checks_pause from './commands/activity/checks/pause.js';
 import activity_checks_resume from './commands/activity/checks/resume.js';
 import activity_checks_info from './commands/activity/checks/info.js';
+import fun_wordle from './commands/fun/wordle.js';
 import permissions_roles_add from './commands/permissions/roles/add.js';
 import permissions_roles_remove from './commands/permissions/roles/remove.js';
 import permissions_roles_list from './commands/permissions/roles/list.js';
@@ -49,71 +50,73 @@ import session_edit_default from './commands/session/edit_default.js';
 import session_participants from './commands/session/participants.js';
 
 export const commands = {
-  'activity': activity,
-  'permissions': permissions,
-  'ranking': ranking,
-  'session': session,
-  'help': help,
-  'invite': invite,
-  'ping': ping,
-  'setup': setup,
+	activity: activity,
+	permissions: permissions,
+	ranking: ranking,
+	session: session,
+	help: help,
+	invite: invite,
+	ping: ping,
+	setup: setup,
 } as const satisfies { [key: string]: CommandConstruct<boolean, any> };
 
 export const subcommands = {
-activity: {
-  checks: {
-    create: activity_checks_create,
-    execute: activity_checks_execute,
-    cancel: activity_checks_cancel,
-    pause: activity_checks_pause,
-    resume: activity_checks_resume,
-    info: activity_checks_info
-  }
-},
-permissions: {
-  roles: {
-    add: permissions_roles_add,
-    remove: permissions_roles_remove,
-    list: permissions_roles_list,
-    clear: permissions_roles_clear,
-    set: permissions_roles_set
-  },
-  users: {
-    add: permissions_users_add,
-    remove: permissions_users_remove,
-    list: permissions_users_list,
-    clear: permissions_users_clear,
-    set: permissions_users_set
-  },
-  list: permissions_list,
-  get: permissions_get
-},
-ranking: {
-  view: ranking_view,
-  points: {
-    lb: ranking_points_lb,
-    add: ranking_points_add,
-    remove: ranking_points_remove,
-    set: ranking_points_set
-  },
-  ranks: {
-    list: ranking_ranks_list,
-    add: ranking_ranks_add,
-    add_bulk: ranking_ranks_add_bulk,
-    edit: ranking_ranks_edit,
-    remove: ranking_ranks_remove,
-    in: ranking_ranks_in
-  }
-},
-session: {
-  status: session_status,
-  start: session_start,
-  quickstart: session_quickstart,
-  stop: session_stop,
-  edit: session_edit,
-  edit_default: session_edit_default,
-  participants: session_participants
-},
+	activity: {
+		checks: {
+			create: activity_checks_create,
+			execute: activity_checks_execute,
+			cancel: activity_checks_cancel,
+			pause: activity_checks_pause,
+			resume: activity_checks_resume,
+			info: activity_checks_info,
+		},
+	},
+	permissions: {
+		roles: {
+			add: permissions_roles_add,
+			remove: permissions_roles_remove,
+			list: permissions_roles_list,
+			clear: permissions_roles_clear,
+			set: permissions_roles_set,
+		},
+		users: {
+			add: permissions_users_add,
+			remove: permissions_users_remove,
+			list: permissions_users_list,
+			clear: permissions_users_clear,
+			set: permissions_users_set,
+		},
+		list: permissions_list,
+		get: permissions_get,
+	},
+	ranking: {
+		view: ranking_view,
+		points: {
+			lb: ranking_points_lb,
+			add: ranking_points_add,
+			remove: ranking_points_remove,
+			set: ranking_points_set,
+		},
+		ranks: {
+			list: ranking_ranks_list,
+			add: ranking_ranks_add,
+			add_bulk: ranking_ranks_add_bulk,
+			edit: ranking_ranks_edit,
+			remove: ranking_ranks_remove,
+			in: ranking_ranks_in,
+		},
+	},
+	session: {
+		status: session_status,
+		start: session_start,
+		quickstart: session_quickstart,
+		stop: session_stop,
+		edit: session_edit,
+		edit_default: session_edit_default,
+		participants: session_participants,
+	},
 } as const satisfies {
-	[K in keyof Partial<typeof commands>]: { [key: string]: CommandExecute<any> | { [key: string]: CommandExecute<any> } };
+	[K in keyof Partial<typeof commands>]: {
+		[key: string]: CommandExecute<any> | { [key: string]: CommandExecute<any> };
+	};
 };

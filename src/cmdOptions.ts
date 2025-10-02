@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON WED, 01 OCT 2025 15:45:09 GMT WITH 8 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON THU, 02 OCT 2025 18:35:49 GMT WITH 9 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct } from "./types/commandTypes.js";
 
@@ -28,6 +28,14 @@ activity: {
         "type": "string",
         "required": false
       }
+    }
+  }
+},
+fun: {
+  "wordle": {
+    "word": {
+      "type": "string",
+      "required": true
     }
   }
 },
@@ -299,6 +307,9 @@ activity: {
     resume: T,
     info: T
   }
+},
+fun: {
+  wordle: T
 },
 permissions: {
   roles: {

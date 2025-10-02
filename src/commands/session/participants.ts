@@ -72,5 +72,6 @@ export default async (interaction: ChatInputCommandInteraction) => {
 								`\nThe following users have joined the session at least once: ${totalUsers.map((u) => userMention(u.userId)).join(', ')}`,
 				),
 		],
+		allowedMentions: { roles: [], users: [] },
 	});
 };

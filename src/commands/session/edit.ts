@@ -44,7 +44,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		return;
 	}
 	const session = await Data.models.GuildSession.findOne({ where: { guildId: guild.id } });
-	if (!session) {
+	if (!session || !session.active) {
 		await reportErrorToUser(interaction, constructError([ErrorReplies.NoExistingSession]), true);
 		return;
 	}

@@ -41,7 +41,7 @@ export default async (interaction: ChatInputCommandInteraction) => {
 		where: { guildId: guild.id },
 		include: [GuildSessionAssociations.TotalUsers],
 	});
-	if (!session) {
+	if (!session || !session.active) {
 		await reportErrorToUser(interaction, constructError([ErrorReplies.NoExistingSession]), true);
 		return;
 	}

@@ -40,7 +40,7 @@ async function runActivityChecks() {
 				[Op.ne]: null,
 			},
 			paused: false,
-			[Op.and]: sql`"lastRun" + "interval" <= ${intDiv(Date.now(), 1000)}`,
+			[Op.and]: sql`(${sql.identifier('lastRun')} + ${sql.identifier('interval')}) <= ${intDiv(Date.now(), 1000)}`,
 		},
 	});
 	const gen = (function* () {

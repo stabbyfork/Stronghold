@@ -97,7 +97,6 @@ export default async (interaction: ChatInputCommandInteraction) => {
 		if (roleId) {
 			const joinedSession = await guild.roles.fetch(roleId, { force: true });
 			if (!joinedSession) {
-				await reportErrorToUser(interaction, 'Could not get in session role.', true);
 				await Logging.log({
 					data: interaction,
 					extents: [GuildFlag.LogWarnings],
@@ -109,11 +108,11 @@ export default async (interaction: ChatInputCommandInteraction) => {
 					},
 					logType: Logging.Type.Warning,
 				});
-				return;
+			} else {
+				await Promise.all(
+					joinedSession.members.map(async (m) => await m.roles.remove(joinedSession, 'Session ended')),
+				);
 			}
-			await Promise.all(
-				joinedSession.members.map(async (m) => await m.roles.remove(joinedSession, 'Session ended')),
-			);
 		}
 		const joinedSession = session.totalUsers;
 		if (joinedSession) {

@@ -4,6 +4,7 @@ import { Data } from '../../../data.js';
 import { defaultEmbed } from '../../../utils/discordUtils.js';
 import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js';
 import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
+import { Logging } from '../../../utils/loggingUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction) => {
 	await interaction.deferReply();
@@ -43,4 +44,5 @@ export default async (interaction: ChatInputCommandInteraction) => {
 		],
 		ephemeral: true,
 	});
+	Logging.quickInfo(interaction, 'Paused the ongoing activity check.');
 };

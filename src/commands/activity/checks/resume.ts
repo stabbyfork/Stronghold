@@ -4,6 +4,7 @@ import { ErrorReplies } from '../../../types/errors.js';
 import { defaultEmbed } from '../../../utils/discordUtils.js';
 import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js';
 import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
+import { Logging } from '../../../utils/loggingUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction) => {
 	await interaction.deferReply();
@@ -37,7 +38,11 @@ export default async (interaction: ChatInputCommandInteraction) => {
 	if (paused) {
 		const [affected] = await Data.models.ActivityCheck.update({ paused: false }, { where: { guildId: guild.id } });
 		if (affected === 0) {
-			await reportErrorToUser(interaction, constructError([ErrorReplies.UnknownError]), true);
+			await reportErrorToUser(
+				interaction,
+				constructError([ErrorReplies.UnknownError, ErrorReplies.ReportToOwner]),
+				true,
+			);
 			return;
 		}
 		await interaction.followUp({
@@ -45,9 +50,10 @@ export default async (interaction: ChatInputCommandInteraction) => {
 				defaultEmbed()
 					.setTitle('Activity check resumed')
 					.setColor('Green')
-					.setDescription('The activity check has successfully been resumed.'),
+					.setDescription('The activity check has been resumed.'),
 			],
 		});
+		Logging.quickInfo(interaction, 'Resumed the activity check.');
 	} else {
 		await interaction.followUp({
 			embeds: [

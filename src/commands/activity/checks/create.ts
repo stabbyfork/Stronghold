@@ -1,4 +1,5 @@
 import {
+	channelMention,
 	ChatInputCommandInteraction,
 	EmbedBuilder,
 	EmojiIdentifierResolvable,
@@ -14,6 +15,7 @@ import { ErrorReplies, Errors } from '../../../types/errors.js';
 import { constructError, reportErrorToUser } from '../../../utils/errorsUtils.js';
 import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
 import { getOption } from '../../../utils/subcommandsUtils.js';
+import { Logging } from '../../../utils/loggingUtils.js';
 
 export function getDefaultActivityCheckEmoji(): string {
 	return '✅';
@@ -137,4 +139,5 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				.setTimestamp(),
 		],
 	});
+	Logging.quickInfo(interaction, `Started activity check in ${channelMention(channel.id)}.`);
 };

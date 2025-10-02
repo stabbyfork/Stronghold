@@ -4,6 +4,7 @@ import { ErrorReplies } from '../../../types/errors.js';
 import { defaultEmbed } from '../../../utils/discordUtils.js';
 import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js';
 import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
+import { Logging } from '../../../utils/loggingUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction) => {
 	await interaction.deferReply();
@@ -46,4 +47,5 @@ export default async (interaction: ChatInputCommandInteraction) => {
 				.setDescription('Activity check cancelled and deleted successfully.'),
 		],
 	});
+	Logging.quickInfo(interaction, 'Deleted activity check');
 };

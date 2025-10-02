@@ -8,6 +8,7 @@ import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js
 import { getOption } from '../../../utils/subcommandsUtils.js';
 import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
 import { Usages, UsageEnum, UsageDefaults } from '../../../utils/usageLimitsUtils.js';
+import { Logging } from '../../../utils/loggingUtils.js';
 
 export default async (
 	interaction: ChatInputCommandInteraction,
@@ -72,4 +73,5 @@ export default async (
 		],
 		ephemeral: true,
 	});
+	Logging.quickInfo(interaction, `Ran \`${sequence.prettyPrint().sequence}\` with the ongoing activity check.`);
 };

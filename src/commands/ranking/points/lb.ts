@@ -35,7 +35,7 @@ export default async (interaction: ChatInputCommandInteraction) => {
 									.slice(start, start + perPage)
 									.map((d, i) => {
 										const ind = i + 1 + start;
-										return `${ind === 1 ? '## ' : ind === 2 || ind === 3 ? '### ' : ''}${ind}. ${userMention(d.userId)}: \`${d.points}\` (${d.rank ? roleMention(d.rank.roleId) : '\`No rank\`'}) `;
+										return `${ind === 1 ? '## ** **' : ind === 2 || ind === 3 ? '### ** ** ' : ''}${ind}. ${userMention(d.userId)}: \`${d.points}\` (${d.rank ? roleMention(d.rank.roleId) : '\`No rank\`'}) `;
 									})
 									.join('\n'),
 					),

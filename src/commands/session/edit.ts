@@ -169,13 +169,13 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	await interaction.followUp({
 		embeds: [
 			defaultEmbed()
-				.setTitle('Session edited')
+				.setTitle('Success')
 				.setColor('Green')
 				.setDescription(
-					`Edited session and message in ${channelMention(session.channelId)} successfully (${sentMessage.url}).`,
+					`Edited session and message in ${channelMention(session.channelId)} (${sentMessage.url}).`,
 				),
 		],
 		flags: MessageFlags.Ephemeral,
 	});
-	Logging.quickInfo(interaction, 'Edited session by ' + userMention(interaction.user.id));
+	Logging.quickInfo(interaction, 'Edited session.');
 };

@@ -902,12 +902,7 @@ export default createCommand<typeof commandOptions.setup>({
 				if (!(e instanceof Errors.ExpectedError)) throw e;
 				return;
 			});
-		await Logging.log({
-			data: interaction,
-			logType: Logging.Type.Info,
-			extents: [GuildFlag.LogInfo],
-			formatData: 'Setup completed by ' + userMention(interaction.user.id),
-		});
+		Logging.quickInfo(interaction, 'Setup completed.');
 	},
 	limits: {
 		usesPerInterval: 5,

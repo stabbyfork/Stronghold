@@ -6,6 +6,7 @@ import { defaultEmbed } from '../../../utils/discordUtils.js';
 import { constructError, reportErrorToUser } from '../../../utils/errorsUtils.js';
 import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
 import { getOption, reportErrorIfNotSetup } from '../../../utils/subcommandsUtils.js';
+import { Logging } from '../../../utils/loggingUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.ranking.ranks.remove) => {
 	if (!(await reportErrorIfNotSetup(interaction))) return;
@@ -28,7 +29,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	}
 	const roleId = rank.roleId;
 	// May error
-	Data.mainDb.transaction(async (t) => {
+	await Data.mainDb.transaction(async (t) => {
 		for (const user of await Data.models.User.findAll({ where: { rankId: rank.rankId }, transaction: t })) {
 			await Data.promoteUser(user);
 		}
@@ -39,8 +40,9 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		embeds: [
 			defaultEmbed()
 				.setTitle('Success')
-				.setDescription(`Removed rank ${roleMention(roleId)} successfully.`)
+				.setDescription(`Removed rank ${roleMention(roleId)}.`)
 				.setColor('Green'),
 		],
 	});
+	Logging.quickInfo(interaction, `Removed rank ${roleMention(roleId)}.`);
 };

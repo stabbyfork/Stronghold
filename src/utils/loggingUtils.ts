@@ -1,6 +1,7 @@
 //#region Logging
 
 import {
+	ChatInputCommandInteraction,
 	EmbedBuilder,
 	ForumChannel,
 	ForumThreadChannel,
@@ -61,18 +62,28 @@ export namespace Logging {
 					.setTimestamp(),
 			],
 		}),
-		[Type.Info]: (msg: string) => ({
+		[Type.Info]: (msg: string, interaction?: ChatInputCommandInteraction) => ({
 			allowedMentions: { users: [], roles: [] },
 			embeds: [
 				new EmbedBuilder()
 					.setTitle(':information_source: Info')
 					.setDescription(msg)
+					.addFields(
+						interaction
+							? [
+									{
+										name: 'User',
+										value: userMention(interaction.user.id),
+									},
+								]
+							: [],
+					)
 					.setColor('Blue')
 					.setTimestamp(),
 			],
 		}),
 	} as const satisfies {
-		[t in Type]: (data: any) => MessageCreateOptions | string;
+		[t in Type]: (data: any, interaction?: ChatInputCommandInteraction) => MessageCreateOptions | string;
 	};
 
 	export const Extents = {
@@ -140,14 +151,14 @@ export namespace Logging {
 		return getThreadAtDay(logChannel, new Date(), true);
 	}
 	/**
-	 * Logs a message to the appropriate log channel for the given guild.
+	 * Logs a message to the specified log channel.
 	 *
-	 * @param data The interaction or guild data to get the log channel from.
-	 * @param logType The type of log message to send.
-	 * @param message The message to be logged.
-	 * @param extents The log extents to check for before logging.
+	 * @param data The interaction or guild to log from.
+	 * @param logType The type of log to create.
+	 * @param formatData The data to format with the log type.
+	 * @param extents The log extents to log with.
 	 *
-	 * @returns A Promise that resolves when the message has been logged.
+	 * @returns A promise that resolves when the log message is sent.
 	 */
 	export async function log<T extends Type>({
 		data,
@@ -185,7 +196,8 @@ export namespace Logging {
 		if ((logExtents & exts) !== exts) return;
 		if (!logChannel) return;
 		const todayThread = await getTodayThread(logChannel);
-		const formatted = formatters[logType](formatData as any);
+		const intr = data instanceof ChatInputCommandInteraction ? data : undefined;
+		const formatted = formatters[logType](formatData as any, intr);
 		await todayThread.send(formatted);
 	}
 

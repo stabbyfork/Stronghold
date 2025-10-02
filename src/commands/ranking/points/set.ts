@@ -21,6 +21,7 @@ export async function setPointsWithInteraction(
 	points: number,
 	setPointsFunc: (prevPoints: number, givenPoints: number) => number,
 	successEmbed: (userIds: string[], points: number) => EmbedBuilder,
+	logText: (userIds: string[], points: number) => string,
 ) {
 	if (!(await reportErrorIfNotSetup(interaction))) return;
 	const guild = interaction.guild;
@@ -97,6 +98,7 @@ export async function setPointsWithInteraction(
 	await interaction.reply({
 		embeds: [successEmbed(userIds, points)],
 	});
+	Logging.quickInfo(interaction, logText(userIds, points));
 }
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.ranking.points.set) => {
@@ -109,14 +111,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			defaultEmbed()
 				.setColor('Green')
 				.setTitle('Success')
-				.setDescription(
-					`Set point count to ${points} for ${userIds.map(userMention).join(', ')} successfully.`,
-				),
+				.setDescription(`Set point count to ${points} for ${userIds.map(userMention).join(', ')}.`),
+		(userIds, points) => `Set points of ${userIds.map(userMention).join(', ')} to ${points}`,
 	);
-	/*Logging.log({
-		data: interaction,
-		formatData: `Set points for ${userIds.map(userMention).join(', ')} to ${points}`,
-		logType: Logging.Type.Info,
-		extents: [GuildFlag.LogInfo],
-	});*/
 };

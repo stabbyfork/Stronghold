@@ -6,6 +6,7 @@ import { defaultEmbed } from '../../../utils/discordUtils.js';
 import { constructError, reportErrorToUser } from '../../../utils/errorsUtils.js';
 import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
 import { getOption, reportErrorIfNotSetup } from '../../../utils/subcommandsUtils.js';
+import { Logging } from '../../../utils/loggingUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.ranking.ranks.edit) => {
 	if (!(await reportErrorIfNotSetup(interaction))) return;
@@ -73,4 +74,5 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		],
 		flags: MessageFlags.Ephemeral,
 	});
+	Logging.quickInfo(interaction, `Edited rank ${roleMention(rank.roleId)}.`);
 };

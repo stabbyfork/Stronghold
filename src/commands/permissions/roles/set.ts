@@ -6,6 +6,7 @@ import { defaultEmbed } from '../../../utils/discordUtils.js';
 import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js';
 import { reportErrorIfNotSetup, getOption } from '../../../utils/subcommandsUtils.js';
 import { hasPermissions, Permission, PermissionBits } from '../../../utils/permissionsUtils.js';
+import { Logging } from '../../../utils/loggingUtils.js';
 
 export async function setPermissionsWithInteractionRoles({
 	interaction,
@@ -13,12 +14,14 @@ export async function setPermissionsWithInteractionRoles({
 	permissions,
 	setPermFunc,
 	createSuccessEmbed,
+	logString,
 }: {
 	interaction: ChatInputCommandInteraction;
 	roleIds: string;
 	permissions: string;
 	setPermFunc: (prevPerms: number, givenPerms: number) => number;
 	createSuccessEmbed?: (roles: string[], permissions: string[]) => EmbedBuilder;
+	logString: (roles: string[], permissions: string[]) => string;
 }) {
 	if (!(await reportErrorIfNotSetup(interaction))) return;
 	const guild = interaction.guild;
@@ -142,6 +145,7 @@ export async function setPermissionsWithInteractionRoles({
 		});
 		return;
 	}
+	Logging.quickInfo(interaction, logString(roles, splitPerms));
 }
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.permissions.roles.set) => {
@@ -159,5 +163,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 						? 'No permissions set.'
 						: `Set granted permissions to ${permissions.map((perm) => `\`${perm}\``).join(', ')} for ${roles.map(roleMention).join(', ')} successfully.`,
 				),
+		logString: (roles, permissions) =>
+			`Set granted permissions to ${permissions.map((perm) => `\`${perm}\``).join(', ')} for ${roles.map(roleMention).join(', ')}.`,
 	});
 };

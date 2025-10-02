@@ -22,5 +22,7 @@ export default async (
 						: `Removed ${permissions.map((perm) => `\`${perm}\``).join(', ')} from ${users.map(userMention).join(', ')}`,
 				)
 				.setColor('Green'),
+		logString: (users, permissions) =>
+			`Removed ${permissions.map((perm) => `\`${perm}\``).join(', ')} from ${users.map(userMention).join(', ')}.`,
 	});
 };

@@ -19,5 +19,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 						? 'No permissions added.'
 						: `Granted ${permissions.map((perm) => `\`${perm}\``).join(', ')} to ${userIds.map(userMention).join(', ')} successfully.`,
 				),
+		logString: (userIds, permissions) =>
+			`Granted ${permissions.map((perm) => `\`${perm}\``).join(', ')} to ${userIds.map(userMention).join(', ')}.`,
 	});
 };

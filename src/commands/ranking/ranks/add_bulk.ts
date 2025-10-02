@@ -8,6 +8,7 @@ import { defaultEmbed } from '../../../utils/discordUtils.js';
 import { constructError, reportErrorToUser } from '../../../utils/errorsUtils.js';
 import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
 import { getOption, reportErrorIfNotSetup } from '../../../utils/subcommandsUtils.js';
+import { Logging } from '../../../utils/loggingUtils.js';
 
 const ajv = new Ajv();
 
@@ -252,4 +253,5 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	await interaction.followUp({
 		embeds: [defaultEmbed().setTitle('Successfully added ranks').setDescription(replyStr).setColor('Green')],
 	});
+	Logging.quickInfo(interaction, `Added ranks:\n${replyStr}`);
 };

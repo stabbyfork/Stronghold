@@ -20,5 +20,6 @@ export default async (
 				.setDescription(
 					`Cleared all (bot-specific) permissions from ${userIds.map(userMention).join(', ')} successfully.`,
 				),
+		logString: (userIds) => `Cleared all (bot-specific) permissions from ${userIds.map(userMention).join(', ')}.`,
 	});
 };

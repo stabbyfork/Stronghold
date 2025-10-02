@@ -7,6 +7,7 @@ import { defaultEmbed } from '../../utils/discordUtils.js';
 import { reportErrorToUser, constructError } from '../../utils/errorsUtils.js';
 import { reportErrorIfNotSetup } from '../../utils/subcommandsUtils.js';
 import { hasPermissions, Permission } from '../../utils/permissionsUtils.js';
+import { Logging } from '../../utils/loggingUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction) => {
 	if (!(await reportErrorIfNotSetup(interaction))) return;
@@ -80,4 +81,5 @@ export default async (interaction: ChatInputCommandInteraction) => {
 		],
 		flags: MessageFlags.Ephemeral,
 	});
+	Logging.quickInfo(interaction, 'Started session.');
 };

@@ -21,5 +21,7 @@ export default async (
 						? 'No permissions removed.'
 						: `Removed permission${permissions.length === 1 ? '' : 's'} ${permissions.map((perm) => `\`${perm}\``).join(', ')} from ${roles.map(roleMention).join(', ')} successfully.`,
 				),
+		logString: (roles, permissions) =>
+			`Removed permission${permissions.length === 1 ? '' : 's'} ${permissions.map((perm) => `\`${perm}\``).join(', ')} from ${roles.map(roleMention).join(', ')}.`,
 	});
 };

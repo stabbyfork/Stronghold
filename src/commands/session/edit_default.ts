@@ -8,6 +8,7 @@ import { constructError, reportErrorToUser } from '../../utils/errorsUtils.js';
 import { hasPermissions, Permission } from '../../utils/permissionsUtils.js';
 import { getOption, reportErrorIfNotSetup } from '../../utils/subcommandsUtils.js';
 import { createSessionModal } from './start.js';
+import { Logging } from '../../utils/loggingUtils.js';
 
 const enum CustomIds {
 	DetailsModal = 'session-edit_default-modal',
@@ -154,4 +155,5 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		],
 		flags: MessageFlags.Ephemeral,
 	});
+	Logging.quickInfo(interaction, 'Edited session defaults.');
 };

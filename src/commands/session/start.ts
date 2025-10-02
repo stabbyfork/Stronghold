@@ -233,10 +233,5 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		}
 		await data.save({ transaction });
 	});
-	await Logging.log({
-		data: interaction,
-		logType: Logging.Type.Info,
-		extents: [GuildFlag.LogInfo],
-		formatData: `Session started by ${userMention(interaction.user.id)}`,
-	});
+	Logging.quickInfo(interaction, `Started session in ${channelMention(channel.id)}.`);
 };

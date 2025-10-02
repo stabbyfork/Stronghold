@@ -6,6 +6,7 @@ import { defaultEmbed } from '../../../utils/discordUtils.js';
 import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js';
 import { reportErrorIfNotSetup, getOption } from '../../../utils/subcommandsUtils.js';
 import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
+import { Logging } from '../../../utils/loggingUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.ranking.ranks.add) => {
 	if (!(await reportErrorIfNotSetup(interaction))) return;
@@ -69,9 +70,10 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				.setTitle('Rank added')
 				.setColor('Green')
 				.setDescription(
-					`Added rank ${roleMention(role.roleId)} (${role.roleId}) successfully. You may change the role colour in the server's roles menu.`,
+					`Added rank ${roleMention(role.roleId)} (${role.roleId}). You may change the role colour in the server's roles menu.`,
 				),
 		],
 		flags: MessageFlags.Ephemeral,
 	});
+	Logging.quickInfo(interaction, `Added rank ${roleMention(role.roleId)} (${role.roleId}).`);
 };

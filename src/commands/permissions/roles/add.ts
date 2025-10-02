@@ -18,5 +18,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 						? 'No permissions added.'
 						: `Added permission${permissions.length === 1 ? '' : 's'} ${permissions.map((perm) => `\`${perm}\``).join(', ')} to ${roles.map(roleMention).join(', ')} successfully.`,
 				),
+		logString: (roles, permissions) =>
+			`Added permission${permissions.length === 1 ? '' : 's'} ${permissions.map((perm) => `\`${perm}\``).join(', ')} to ${roles.map(roleMention).join(', ')}.`,
 	});
 };

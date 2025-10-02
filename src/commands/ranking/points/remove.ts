@@ -17,5 +17,6 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				.setDescription(
 					`Removed \`${points}\` points from ${userIds.map(userMention).join(', ')} successfully.`,
 				),
+		(userIds, points) => `Removed ${points} points from ${userIds.map(userMention).join(', ')}`,
 	);
 };

@@ -48,6 +48,7 @@ async function runActivityChecks() {
 			yield check;
 		}
 	})();
+	console.log(checks);
 	for await (const _ of yieldInterval(10 * 1000)) {
 		const nextVal = gen.next();
 		if (nextVal.done) return;

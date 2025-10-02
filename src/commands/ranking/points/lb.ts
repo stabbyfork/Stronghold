@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, ContainerBuilder, userMention } from 'discord.js';
+import { ChatInputCommandInteraction, ContainerBuilder, roleMention, userMention } from 'discord.js';
 import { ErrorReplies } from '../../../types/errors.js';
 import { Data } from '../../../data.js';
 import { Op } from '@sequelize/core';
@@ -33,10 +33,10 @@ export default async (interaction: ChatInputCommandInteraction) => {
 							? 'No one has any points.'
 							: data.rows
 									.slice(start, start + perPage)
-									.map(
-										(d, i) =>
-											`${i === 0 ? '##' : i === 1 || i === 2 ? '###' : ''}${i + 1}. ${userMention(d.userId)}: \`${d.points}\` (\`${d.rank?.name ?? 'No rank'}\`) `,
-									)
+									.map((d, i) => {
+										const ind = i + 1 + start;
+										return `${ind === 1 ? '## ' : ind === 2 || ind === 3 ? '### ' : ''}${ind}. ${userMention(d.userId)}: \`${d.points}\` (${d.rank ? roleMention(d.rank.roleId) : '\`No rank\`'}) `;
+									})
 									.join('\n'),
 					),
 			);

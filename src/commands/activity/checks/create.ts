@@ -59,6 +59,11 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		);
 		return;
 	}
+
+	if (await Data.models.ActivityCheck.findOne({ where: { guildId: guild.id } })) {
+		await reportErrorToUser(interaction, 'There is already an activity check ongoing in this server.', true);
+		return;
+	}
 	await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 	const channel = getOption(interaction, args, 'channel');
 	const maxStrikes = getOption(interaction, args, 'max-strikes') ?? 3;
@@ -105,18 +110,21 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		lastRun: Math.floor(Date.now() / 1000),
 		maxStrikes,
 	});
-	if (channel.isSendable()) {
-		const msg = await channel.send(createActivityCheckEmbed(getDefaultActivityCheckEmoji(), maxStrikes));
-		await msg.react(getDefaultActivityCheckEmoji());
-		activityCheck.currentMessageId = msg.id;
-	} else {
-		await reportErrorToUser(
-			interaction,
-			constructError([ErrorReplies.OnlySubstitute, ErrorReplies.ReportToOwner]),
-			true,
-		);
-	}
-	await activityCheck.save();
+	await Data.mainDb.transaction(async (transaction) => {
+		if (channel.isSendable()) {
+			const msg = await channel.send(createActivityCheckEmbed(getDefaultActivityCheckEmoji(), maxStrikes));
+			await msg.react(getDefaultActivityCheckEmoji());
+			activityCheck.currentMessageId = msg.id;
+		} else {
+			await reportErrorToUser(
+				interaction,
+				constructError([ErrorReplies.OnlySubstitute, ErrorReplies.ReportToOwner]),
+				true,
+			);
+		}
+		await activityCheck.save({ transaction });
+	});
+
 	await interaction.editReply({
 		embeds: [
 			new EmbedBuilder()

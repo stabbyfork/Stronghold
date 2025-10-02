@@ -48,7 +48,6 @@ async function runActivityChecks() {
 			yield check;
 		}
 	})();
-	console.log(checks);
 	for await (const _ of yieldInterval(10 * 1000)) {
 		const nextVal = gen.next();
 		if (nextVal.done) return;
@@ -56,10 +55,8 @@ async function runActivityChecks() {
 		check.lastRun = intDiv(Date.now(), 1000);
 
 		if (!check.currentMessageId) continue;
-		console.log('Running activity check for', check.guildId, check.lastRun);
 		await runActivityCheckExecute(check.guildId, check.channelId, check.currentMessageId, check.sequence);
 		await check.save();
-		console.log('Finished activity check for', check.guildId);
 	}
 }
 
@@ -68,7 +65,7 @@ await Data.setup();
 console.log('Registering events');
 await registerEvents('src/events', 'src');
 console.log('Registering activity checks');
-activityChecksId = setInterval(runActivityChecks, 60);
+activityChecksId = setInterval(runActivityChecks, 60 * 60 * 1000);
 
 process
 	.on('SIGINT', async (signal) => await safeShutdown(signal))

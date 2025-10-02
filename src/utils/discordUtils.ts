@@ -88,7 +88,7 @@ export async function runActivityCheckExecute(
 		);
 
 		const inactiveUsers = new Set<string>();
-		const allUsers = (await guild.members.fetch()).filter(
+		const allUsers = (await guild.members.fetch({ time: 10000 })).filter(
 			(u) => !(u.id === client.user?.id || u.id === guild.ownerId || u.user.bot),
 		);
 		allUsers.forEach((u) => {

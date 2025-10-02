@@ -34,8 +34,8 @@ export default async (interaction: ChatInputCommandInteraction) => {
 							: data.rows
 									.slice(start, start + perPage)
 									.map(
-										(d) =>
-											`${userMention(d.userId)}: \`${d.points}\` (\`${d.rank?.name ?? 'No rank'}\`) `,
+										(d, i) =>
+											`${i === 0 ? '##' : i === 1 || i === 2 ? '###' : ''}${i + 1}. ${userMention(d.userId)}: \`${d.points}\` (\`${d.rank?.name ?? 'No rank'}\`) `,
 									)
 									.join('\n'),
 					),

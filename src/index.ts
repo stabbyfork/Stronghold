@@ -40,9 +40,7 @@ async function runActivityChecks() {
 				[Op.ne]: null,
 			},
 			paused: false,
-			[Op.and]: Sequelize.where(sql`"lastRun" + "interval"`, {
-				[Op.lt]: Math.ceil(Date.now() / 1000),
-			}),
+			[Op.and]: sql`"lastRun" + "interval" <= ${intDiv(Date.now(), 1000)}`,
 		},
 	});
 	const gen = (function* () {
@@ -57,8 +55,10 @@ async function runActivityChecks() {
 		check.lastRun = intDiv(Date.now(), 1000);
 
 		if (!check.currentMessageId) continue;
+		console.log('Running activity check for', check.guildId, check.lastRun);
 		await runActivityCheckExecute(check.guildId, check.channelId, check.currentMessageId, check.sequence);
 		await check.save();
+		console.log('Finished activity check for', check.guildId);
 	}
 }
 
@@ -67,7 +67,7 @@ await Data.setup();
 console.log('Registering events');
 await registerEvents('src/events', 'src');
 console.log('Registering activity checks');
-activityChecksId = setInterval(runActivityChecks, 1000 * 60 * 60);
+activityChecksId = setInterval(runActivityChecks, 60);
 
 process
 	.on('SIGINT', async (signal) => await safeShutdown(signal))

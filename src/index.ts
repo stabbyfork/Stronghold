@@ -14,6 +14,7 @@ import { exec } from 'child_process';
 import * as Events from './events/*';
 import { GuildFlag } from './utils/guildFlagsUtils.js';
 import { Logging } from './utils/loggingUtils.js';
+import { userMention } from 'discord.js';
 
 let activityChecksId: NodeJS.Timeout;
 
@@ -122,7 +123,7 @@ tx2.action('logUpdate', {}, async (params, reply) => {
 			},
 			logType: Logging.Type.Info,
 			extents: [GuildFlag.LogInfo],
-			formatData: `## ${version}\n${message.replace(/@OWNER/, guild.ownerId)}`,
+			formatData: `## ${version}\n${message.replace(/@OWNER/, userMention(guild.ownerId))}`,
 		});
 	}
 	reply({ success: true });

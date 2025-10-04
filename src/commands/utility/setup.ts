@@ -37,6 +37,7 @@ import { getOption } from '../../utils/subcommandsUtils.js';
 import { Usages, UsageScope } from '../../utils/usageLimitsUtils.js';
 import { UserAssociations } from '../../models/user.js';
 import { UserPermissionAssociations } from '../../models/userPermission.js';
+import { client } from '../../client.js';
 
 const enum RoleNames {
 	InSession = 'In Session',
@@ -130,22 +131,18 @@ async function createSetupMessage(
 	user: User,
 	transaction?: Transaction,
 ): Promise<[message: ContainerBuilder, existingInactiveRoleId: string | null, existingInSessionRoleId: string | null]> {
-	const message = new ContainerBuilder({ accent_color: 0x0033ff }).addSectionComponents((section) => {
-		section.addTextDisplayComponents(
-			(text) => text.setContent('## Setup'),
-			(text) =>
-				text.setContent(
-					`This will set up the bot for this server. You (the server owner) will be made a bot administrator automatically. Only you (the server owner) can add or remove bot administrators. This will create the \`${RoleNames.InSession}\` and \`${RoleNames.Inactive}\` roles if they have not been added yet.`,
-				),
-			(text) => text.setContent(`All choices are applied when you click \`Start setup\`.`),
-		);
-		const url = guild.iconURL();
-		console.log(url);
-		if (url) {
-			section.setThumbnailAccessory((image) => image.setURL(url));
-		}
-		return section;
-	});
+	const message = new ContainerBuilder({ accent_color: 0x0033ff }).addSectionComponents((section) =>
+		section
+			.addTextDisplayComponents(
+				(text) => text.setContent('## Setup'),
+				(text) =>
+					text.setContent(
+						`This will set up the bot for this server. You (the server owner) will be made a bot administrator automatically. Only you (the server owner) can add or remove bot administrators. This will create the \`${RoleNames.InSession}\` and \`${RoleNames.Inactive}\` roles if they have not been added yet.`,
+					),
+				(text) => text.setContent(`All choices are applied when you click \`Start setup\`.`),
+			)
+			.setThumbnailAccessory((image) => image.setURL(guild.iconURL() ?? client.user?.avatarURL()!)),
+	);
 	if (force) {
 		message.addTextDisplayComponents((text) =>
 			text.setContent('**Note**: This will overwrite some features if enabled during the previous setup.'),

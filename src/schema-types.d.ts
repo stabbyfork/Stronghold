@@ -55,6 +55,10 @@ export interface Config {
     name?: string;
   };
   /**
+   * A list of user IDs that are allowed to restart the bot
+   */
+  allowedRestartUsers?: string[];
+  /**
    * Properties and options for the development bot. These are not used in production. Used for testing and debugging purposes.
    */
   dev?: {

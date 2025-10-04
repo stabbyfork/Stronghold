@@ -7,6 +7,7 @@ import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js
 import { reportErrorIfNotSetup, getOption } from '../../../utils/subcommandsUtils.js';
 import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
 import { Logging } from '../../../utils/loggingUtils.js';
+import { report } from 'process';
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.ranking.ranks.add) => {
 	if (!(await reportErrorIfNotSetup(interaction))) return;
@@ -25,6 +26,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	const points = getOption(interaction, args, 'points');
 	const limit = getOption(interaction, args, 'limit') ?? -1;
 	const existing = getOption(interaction, args, 'existing_role');
+	const stack = getOption(interaction, args, 'stackable') ?? false;
 	if (!existing && !name) {
 		await interaction.reply({
 			embeds: [
@@ -38,6 +40,10 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			name,
 			reason: `Renamed by /ranking ranks add, supplied with both an existing role and name. By: ${interaction.user.id}`,
 		});
+	}
+	if (limit !== -1 && stack) {
+		await reportErrorToUser(interaction, constructError([ErrorReplies.CantBeStackableAndLimited]), true);
+		return;
 	}
 	if (await Data.models.Rank.findOne({ where: { guildId: guild.id, name: name ? name : existing!.name } })) {
 		await reportErrorToUser(
@@ -53,6 +59,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		name: name ?? existing!.name,
 		pointsRequired: points,
 		userLimit: limit,
+		stackable: stack,
 		roleId: existing
 			? existing.id
 			: (

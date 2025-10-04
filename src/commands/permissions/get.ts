@@ -25,7 +25,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		where: { guildId: guild.id, userId: member.id },
 		include: [{ association: UserAssociations.UserPermission, where: { guildId: guild.id } }],
 	});
-	const userPerms = dbUser?.userPermissions?.[0];
+	const userPerms = dbUser?.userPermission;
 	if (userPerms) accPerms |= userPerms.permissions;
 	for (const role of await Data.models.RolePermission.findAll({ where: { guildId: guild.id } })) {
 		if (!member.roles.cache.has(role.roleId)) continue;

@@ -233,5 +233,5 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		}
 		await data.save({ transaction });
 	});
-	Logging.quickInfo(interaction, `Started session in ${channelMention(channel.id)}.`);
+	Logging.quickInfo(interaction, `Started session in ${channelMention(channel.id)}`);
 };

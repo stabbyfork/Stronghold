@@ -96,10 +96,47 @@ export namespace Data {
 	async function handleShutdown() {
 		console.log('Shutting down database');
 	}
+
+	function diffRanks(newRanks: Rank[], currentRanks: Rank[]): [added: Rank[], removed: Rank[]] {
+		const newIds = new Set(newRanks.map((r) => r.rankId));
+		const currentIds = new Set(currentRanks.map((r) => r.rankId));
+
+		const added = newRanks.filter((r) => !currentIds.has(r.rankId));
+		const removed = currentRanks.filter((r) => !newIds.has(r.rankId));
+
+		return [added, removed];
+	}
+
 	async function _promoteUser(user: User, transaction: Transaction) {
 		const guildId = user.guildId;
 		const userPoints = user.points ?? 0;
-		const currentRank = await user.getRank({ transaction, include: [RankAssociations.RankUsage] });
+		const guild = client.guilds.cache.get(guildId) ?? (await client.guilds.fetch(guildId));
+		const member = guild.members.cache.get(user.userId) ?? (await guild.members.fetch(user.userId));
+
+		// No include usage because stackables can't have limits
+		const currentRanks = await user.getRanks({ transaction });
+		const newRanks = await Data.models.Rank.findAll({
+			where: { guildId, pointsRequired: { [Op.lte]: userPoints }, stackable: true },
+			order: [['pointsRequired', 'DESC']],
+			transaction,
+		});
+		const [added, removed] = diffRanks(newRanks, currentRanks);
+		if (added.length !== 0) {
+			await member.roles.add(
+				added.map((r) => r.roleId),
+				'Gained enough points for this rank.',
+			);
+			await user.addRanks(added, { transaction });
+		}
+		if (removed.length !== 0) {
+			await member.roles.remove(
+				removed.map((r) => r.roleId),
+				'Lost enough points to lose this rank.',
+			);
+			await user.removeRanks(removed, { transaction });
+		}
+
+		const currentRank = await user.getMainRank({ transaction, include: [RankAssociations.RankUsage] });
 
 		// 1. Fetch all ranks the user qualifies for (highest to lowest)
 		const ranks = await Data.models.Rank.findAll({
@@ -115,8 +152,8 @@ export namespace Data {
 		// 2. Pick the best available rank
 		for (let i = 0; i < ranks.length; i++) {
 			const rank = ranks[i];
-			const usage = rank.rankUsage?.userCount ?? 0;
 			if (rank.userLimit === 0) continue;
+			const usage = rank.rankUsage?.userCount ?? 0;
 			if (rank.userLimit !== -1 && usage >= rank.userLimit) continue;
 
 			bestRank = rank;
@@ -134,15 +171,13 @@ export namespace Data {
 		});
 
 		await user.setNextRank(nextRank as any, { transaction });
-		const guild = client.guilds.cache.get(guildId) ?? (await client.guilds.fetch(guildId));
-		const member = guild.members.cache.get(user.userId) ?? (await guild.members.fetch(user.userId));
 
 		// 3. If no available rank then set to null
 		if (!bestRank) {
 			if (member && currentRank) {
 				await member.roles.remove(currentRank.roleId);
 			}
-			await user.setRank(null as any, { transaction });
+			await user.setMainRank(null as any, { transaction });
 			if (currentRank) {
 				await currentRank.rankUsage?.decrement('userCount', { by: 1, transaction });
 			}
@@ -150,7 +185,7 @@ export namespace Data {
 		}
 
 		// 4. If already in the best rank then nothing to do
-		if (user.rankId === bestRank.rankId) {
+		if (user.mainRankId === bestRank.rankId) {
 			return bestRank;
 		}
 
@@ -168,9 +203,9 @@ export namespace Data {
 		}
 
 		// 6. Decrement old rank usage
-		if (user.rankId) {
+		if (user.mainRankId) {
 			const oldUsage = await Data.models.RankUsage.findOne({
-				where: { rankId: user.rankId },
+				where: { rankId: user.mainRankId },
 				transaction: transaction,
 				lock: Lock.UPDATE,
 			});
@@ -185,12 +220,12 @@ export namespace Data {
 		await usageRow.save({ transaction: transaction });
 
 		// 8. Update user rank
-		user.setRank(bestRank, { transaction });
+		user.setMainRank(bestRank, { transaction });
 		await user.save({ transaction: transaction });
 
 		if (member) {
-			await member.roles.add(bestRank.roleId);
-			if (currentRank) await member.roles.remove(currentRank.roleId);
+			await member.roles.add(bestRank.roleId, 'Promoted to new rank.');
+			if (currentRank) await member.roles.remove(currentRank.roleId, 'Promoted to new rank.');
 		}
 
 		return bestRank;
@@ -220,7 +255,7 @@ export namespace Data {
 	}
 	export async function nextRank(user: User, transaction?: Transaction) {
 		const guildId = user.guildId;
-		const rankId = user.rankId;
+		const rankId = user.mainRankId;
 		const rank = rankId ? await Data.models.Rank.findByPk(rankId, { transaction }) : null;
 		return await Data.models.Rank.findOne({
 			where: {

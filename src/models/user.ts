@@ -1,6 +1,9 @@
 import {
-	Association,
 	BelongsToGetAssociationMixin,
+	BelongsToManyAddAssociationsMixin,
+	BelongsToManyGetAssociationsMixin,
+	BelongsToManyRemoveAssociationsMixin,
+	BelongsToManySetAssociationsMixin,
 	BelongsToSetAssociationMixin,
 	CreationOptional,
 	DataTypes,
@@ -11,18 +14,18 @@ import {
 	InferCreationAttributes,
 	Model,
 	NonAttribute,
-	NormalizedAssociationOptions,
 } from '@sequelize/core';
+import { Attribute, BelongsTo, BelongsToMany, HasOne, Table } from '@sequelize/core/decorators-legacy';
 import { Guild } from './guild.js';
 import { Rank } from './rank.js';
-import { Attribute, BelongsTo, BelongsToMany, HasMany, HasOne, Table } from '@sequelize/core/decorators-legacy';
 import { UserPermission } from './userPermission.js';
 
 export enum UserAssociations {
 	Guilds = 'guilds',
 	UserPermission = 'userPermission',
-	Rank = 'rank',
+	SecondaryRanks = 'ranks',
 	NextRank = 'nextRank',
+	MainRank = 'mainRank',
 }
 
 /** Per guild */
@@ -45,7 +48,7 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
 	declare inactivityStrikes: CreationOptional<number>;
 
 	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, allowNull: true })
-	declare rankId: number | null;
+	declare mainRankId: number | null;
 
 	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, allowNull: true })
 	declare nextRankId: number | null;
@@ -62,10 +65,19 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
 	})
 	declare guilds?: NonAttribute<Guild[]>;
 
-	/** Associated in {@link Rank} */
-	declare rank?: NonAttribute<Rank | null>;
-	declare getRank: BelongsToGetAssociationMixin<Rank>;
-	declare setRank: BelongsToSetAssociationMixin<Rank, Rank['rankId']>;
+	/** The main unstackable rank */
+	@BelongsTo(() => Rank, { foreignKey: { name: 'mainRankId', allowNull: true } })
+	declare mainRank?: NonAttribute<Rank | null>;
+	declare getMainRank: BelongsToGetAssociationMixin<Rank>;
+	declare setMainRank: BelongsToSetAssociationMixin<Rank, Rank['rankId']>;
+
+	/** Secondary stackable ranks */
+	@BelongsToMany(() => Rank, { through: 'UserRank', inverse: 'secondaryUsers' })
+	declare ranks?: NonAttribute<Rank[]>;
+	declare getRanks: BelongsToManyGetAssociationsMixin<Rank>;
+	declare setRanks: BelongsToManySetAssociationsMixin<Rank, Rank['rankId']>;
+	declare addRanks: BelongsToManyAddAssociationsMixin<Rank, Rank['rankId']>;
+	declare removeRanks: BelongsToManyRemoveAssociationsMixin<Rank, Rank['rankId']>;
 
 	@BelongsTo(() => Rank, { foreignKey: { name: 'nextRankId', allowNull: true } })
 	declare nextRank?: NonAttribute<Rank | null>;

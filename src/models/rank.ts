@@ -16,9 +16,9 @@ import { User } from './user.js';
 
 export enum RankAssociations {
 	RankUsage = 'rankUsage',
+	SecondaryUsers = 'secondaryUsers',
 }
 
-@Table({ indexes: [{ unique: true, fields: ['guildId', 'pointsRequired'] }] })
 export class Rank extends Model<InferAttributes<Rank>, InferCreationAttributes<Rank>> {
 	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, primaryKey: true, autoIncrement: true })
 	declare rankId: CreationOptional<number>;
@@ -38,13 +38,15 @@ export class Rank extends Model<InferAttributes<Rank>, InferCreationAttributes<R
 	@Attribute({ type: DataTypes.INTEGER, allowNull: false, defaultValue: -1 })
 	declare userLimit: number;
 
+	@Attribute({ type: DataTypes.BOOLEAN, allowNull: false })
+	declare stackable: boolean;
+
 	@HasOne(() => RankUsage, { foreignKey: { name: 'rankId', onUpdate: 'RESTRICT', onDelete: 'CASCADE' } })
 	declare rankUsage?: NonAttribute<RankUsage>;
 	declare getRankUsage: HasOneGetAssociationMixin<RankUsage>;
 
-	@HasMany(() => User, { foreignKey: 'rankId', inverse: 'rank' })
-	declare users?: NonAttribute<User[]>;
-	declare getUsers: HasManyGetAssociationsMixin<User>;
+	/** Associated in {@link User} */
+	declare secondaryUsers?: NonAttribute<User[]>;
 
 	@Attribute({ type: DataTypes.DATE })
 	declare createdAt: CreationOptional<Date>;

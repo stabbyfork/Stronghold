@@ -32,7 +32,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 
 	const data = await Data.models.User.findOne({
 		where: { guildId: guild.id, userId: userToCheck.id },
-		include: [UserAssociations.Rank, UserAssociations.NextRank, UserAssociations.UserPermission],
+		include: [UserAssociations.MainRank, UserAssociations.NextRank, UserAssociations.UserPermission],
 	});
 	message.addFields({ name: 'Points', value: data?.points.toString() ?? '0', inline: true });
 	const inactiveRoleId = (await Data.models.Guild.findOne({ where: { guildId: guild.id } }))?.inactiveRoleId;
@@ -47,7 +47,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			inline: true,
 		});
 	}
-	const rank = data?.rank;
+	const rank = data?.mainRank;
 	const nextRank = data?.nextRank;
 	const permissions = data?.userPermission?.permissions;
 	message.addFields(
@@ -79,7 +79,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	);
 	if (rank) {
 		const rankRole = guild.roles.cache.get(rank.roleId) ?? (await guild.roles.fetch(rank.roleId));
-		if (rankRole) message.setColor(rankRole.color);
+		if (rankRole && rankRole.color) message.setColor(rankRole.color);
 	}
 
 	await interaction.reply({ embeds: [message] });

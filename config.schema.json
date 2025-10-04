@@ -54,6 +54,14 @@
 			"additionalProperties": false,
 			"required": ["username", "password"]
 		},
+		"allowedRestartUsers": {
+			"type": "array",
+			"description": "A list of user IDs that are allowed to restart the bot",
+			"items": {
+				"type": "string",
+				"pattern": "^[0-9]+$"
+			}
+		},
 		"dev": {
 			"type": "object",
 			"description": "Properties and options for the development bot. These are not used in production. Used for testing and debugging purposes.",

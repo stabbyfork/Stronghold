@@ -1,15 +1,19 @@
-import { Op, Sequelize, sql } from '@sequelize/core';
+import { Op, sql } from '@sequelize/core';
 import { setInterval as yieldInterval } from 'timers/promises';
+import tx2 from 'tx2';
 import { client } from './client.js';
+import { subcommands } from './commands.js';
+import activity_check_create from './commands/activity/checks/create.js';
 import { Config } from './config.js';
 import { Data } from './data.js';
 import { runActivityCheckExecute } from './utils/discordUtils.js';
 import { Debug } from './utils/errorsUtils.js';
 import { intDiv } from './utils/genericsUtils.js';
-import { subcommands } from './commands.js';
-import activity_check_create from './commands/activity/checks/create.js';
+import { exec } from 'child_process';
 //@ts-ignore
 import * as Events from './events/*';
+import { GuildFlag } from './utils/guildFlagsUtils.js';
+import { Logging } from './utils/loggingUtils.js';
 
 let activityChecksId: NodeJS.Timeout;
 
@@ -85,5 +89,42 @@ if (process.env.NODE_ENV !== 'prod') {
 } else {
 	await client.login(Config.get('token'));
 }
+tx2.action('update:production', (reply) => {
+	exec('npm run pullAndRestart:production', (error, stdout, stderr) => {
+		if (error) {
+			console.error(`exec error: ${error}`);
+			console.error(`stderr: ${stderr}`);
+			reply({ success: false });
+		}
+		console.log(`stdout: ${stdout}`);
+		reply({ success: true });
+	});
+});
+
+tx2.action('alterSyncDb', async (reply) => {
+	try {
+		await Data.mainDb.sync({ alter: { drop: false } });
+		reply({ success: true });
+	} catch (e) {
+		console.error('Error while syncing database', e);
+		reply({ success: false, answer: e instanceof Error ? e.message : e });
+	}
+});
+
+tx2.action('logUpdate', {}, async (params, reply) => {
+	const message = (params as string).replace(/\\n/g, '\n');
+	const version = (await import('../package.json')).default.version;
+	for (const guild of await Data.models.Guild.findAll({ where: { logChannelId: { [Op.ne]: null } } })) {
+		await Logging.log({
+			data: {
+				guildId: guild.guildId,
+			},
+			logType: Logging.Type.Info,
+			extents: [GuildFlag.LogInfo],
+			formatData: `## ${version}\n${message}`,
+		});
+	}
+	reply({ success: true });
+});
 
 process.send?.('ready');

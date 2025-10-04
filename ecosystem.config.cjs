@@ -1,7 +1,7 @@
 module.exports = {
 	apps: [
 		{
-			name: 'overseer-bot',
+			name: 'vaelstrom',
 			script: 'dist/index.js',
 			interpreter: 'node',
 			interpreter_args: '--trace-deprecation',

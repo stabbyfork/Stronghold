@@ -35,7 +35,7 @@ export default async (interaction: ChatInputCommandInteraction) => {
 							.slice(start, start + perPage)
 							.map(
 								(rank) =>
-									`${roleMention(rank.roleId)}: \`${rank.pointsRequired}\` points${rank.userLimit === -1 ? '' : `, \`${rank.rankUsage?.userCount ?? 0}\` out of \`${rank.userLimit}\` user(s)`}`,
+									`${roleMention(rank.roleId)}: \`${rank.pointsRequired}\` points${rank.userLimit === -1 ? '' : `, \`${rank.rankUsage?.userCount ?? 0}\`/\`${rank.userLimit}\` user(s)`}${rank.stackable ? ' (stacking)' : ''}`,
 							)
 							.join('\n'),
 					),

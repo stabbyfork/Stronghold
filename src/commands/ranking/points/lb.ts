@@ -16,9 +16,9 @@ export default async (interaction: ChatInputCommandInteraction) => {
 		where: { guildId: guild.id, points: { [Op.gt]: 0 } },
 		order: [
 			['points', 'DESC'],
-			['rankId', 'ASC'],
+			[{ model: Data.models.Rank, as: UserAssociations.MainRank }, 'pointsRequired', 'DESC'],
 		],
-		include: [UserAssociations.Rank],
+		include: [UserAssociations.MainRank],
 	});
 	const pages = new Pages({
 		itemsPerPage: 20,
@@ -35,7 +35,7 @@ export default async (interaction: ChatInputCommandInteraction) => {
 									.slice(start, start + perPage)
 									.map((d, i) => {
 										const ind = i + 1 + start;
-										return `${ind === 1 ? '## ** **' : ind === 2 || ind === 3 ? '### ** ** ' : ''}${ind}. ${userMention(d.userId)}: \`${d.points}\` (${d.rank ? roleMention(d.rank.roleId) : '\`No rank\`'}) `;
+										return `${ind === 1 ? '## ** **' : ind === 2 || ind === 3 ? '### ** ** ' : ''}${ind}. ${userMention(d.userId)}: \`${d.points}\` (${d.mainRank ? roleMention(d.mainRank.roleId) : '\`No rank\`'}) `;
 									})
 									.join('\n'),
 					),

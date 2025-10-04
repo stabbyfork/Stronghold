@@ -29,20 +29,15 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	}
 	const roleId = rank.roleId;
 	// May error
-	await Data.mainDb.transaction(async (t) => {
-		for (const user of await Data.models.User.findAll({ where: { rankId: rank.rankId }, transaction: t })) {
+	await Data.mainDb.transaction(async (transaction) => {
+		for (const user of await Data.models.User.findAll({ where: { mainRankId: rank.rankId }, transaction })) {
 			await Data.promoteUser(user);
 		}
-		await rank.destroy({ transaction: t });
+		await rank.destroy({ transaction });
 	});
 	await guild.roles.delete(roleId, 'Deleted by /ranking ranks remove.');
 	await interaction.reply({
-		embeds: [
-			defaultEmbed()
-				.setTitle('Success')
-				.setDescription(`Removed rank ${roleMention(roleId)}.`)
-				.setColor('Green'),
-		],
+		embeds: [defaultEmbed().setTitle('Success').setDescription(`Removed rank ${rank.name}.`).setColor('Green')],
 	});
-	Logging.quickInfo(interaction, `Removed rank ${roleMention(roleId)}.`);
+	Logging.quickInfo(interaction, `Removed rank ${rank.name}.`);
 };

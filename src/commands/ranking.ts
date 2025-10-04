@@ -8,13 +8,14 @@ const exampleRankObjs = [
 		limit: 10,
 		role_id: '1234567890123456789',
 		color: 'Green',
+		stack: false,
 	},
 	{
 		name: 'Example Rank 2',
 		points: 50,
-		limit: 5,
 		role_id: '405856094017456712',
 		color: '#ff002b',
+		stack: true,
 	},
 ] as const;
 
@@ -112,6 +113,12 @@ export default createCommand<{}, 'ranking'>({
 							option
 								.setName('limit')
 								.setDescription('Maximum number of users with this rank (default = no limit)'),
+						)
+						.addBooleanOption((option) =>
+							option
+								.setName('stackable')
+								.setDescription('Whether this rank can be stacked with other ranks (default = false)')
+								.setRequired(false),
 						),
 				)
 				.addSubcommand((cmd) =>
@@ -128,11 +135,11 @@ export default createCommand<{}, 'ranking'>({
 				.addSubcommand((cmd) =>
 					cmd
 						.setName('edit')
-						.setDescription('Edit a rank. Only modify specified fields')
+						.setDescription('Edit a rank. Only modifies specified fields')
 						.addStringOption((option) =>
 							option
 								.setName('name')
-								.setDescription('Name of the rank')
+								.setDescription('Current name of the rank')
 								.setRequired(true)
 								.setMaxLength(100),
 						)
@@ -171,22 +178,22 @@ export default createCommand<{}, 'ranking'>({
 		),
 	description: {
 		ranks: {
-			add: 'If both a name and an existing role are given, the existing role will be renamed. If only a name is given, a new role will be created. If only an existing role is given, the name will be set to the name of the role.',
-			add_bulk: `The file must contain a valid [JSON](https://www.w3schools.com/Js/js_json_syntax.asp) array, in this format:\n\`\`\`json\n${JSON.stringify(exampleRankObjs, null, 4)}\n\`\`\`\n\`name\` is the name of the rank, and is constrained to 100 characters.\n\`points\` is the number of points required to get this rank, and is required to be specified.\n\`limit\` is the maximum number of people who can have this rank, and is optional (will default to no limit).\n\`role_id\` is the optional ID of the role to use instead of creating a new one.\nIf both \`name\` and \`role_id\` are given, the role and rank will be renamed to \`name\`. If only \`name\` is given, a new role will be created (with that name). If only \`role_id\` is given, the name will be set to the name of the role.\n\`color\` can be the name of a color (e.g. "Red") or a hex number (e.g. "#ff0000").`,
-		}, //[\n  {\n    "name": "Rank 1",\n    "points": 100,\n    "limit": 5,\n    "role_id": "1234568901234567890"\n  },\n  {\n    "name": "Rank 2",\n    "points": 200,\n    "limit": 10,\n    "role_id": "0234568901234567891"\n  }\n]
+			add: 'If both a name and an existing role are given, the existing role will be renamed.\nIf only a name is given, a new role will be created.\nIf only an existing role is given, the name will be set to the name of the role.\nEnabling `stackable` means the role will be kept even if the user reaches the next rank.\nA user can have one non-stacking rank and unlimited stacking ranks.\nOne server can only have 100 ranks.',
+			add_bulk: `The file must contain a valid [JSON](https://www.w3schools.com/Js/js_json_syntax.asp) array, in this format:\n\`\`\`json\n${JSON.stringify(exampleRankObjs, null, 4)}\n\`\`\`\n\`name\` is the name of the rank, and is constrained to 100 characters.\n\`points\` is the number of points required to get this rank, and is required to be specified.\n\`limit\` is the maximum number of people who can have this rank, and is optional (will default to no limit).\n\`role_id\` is the optional ID of the role to use instead of creating a new one.\nIf both \`name\` and \`role_id\` are given, the role and rank will be renamed to \`name\`. If only \`name\` is given, a new role will be created (with that name).\nIf only \`role_id\` is given, the name will be set to the name of the role.\n\`color\` can be the name of a color (e.g. "Red") or a hex number (e.g. "#ff0000").\n\`stack\` and \`limit\` are mutually exclusive; a stacking rank cannot have a user limit. Stacking ranks are also not considered to be main ranks, and will not be shown in point leaderboards.\n-# ||(too much effort to make it work)||\nA server can have a maximum of 100 ranks.`,
+		},
 	},
 	limits: {
 		points: {
-			add: { usesPerInterval: 4, useCooldown: 10 * 1000, intervalMs: 45 * 1000 },
-			set: { usesPerInterval: 4, useCooldown: 10 * 1000, intervalMs: 45 * 1000 },
-			remove: { usesPerInterval: 4, useCooldown: 10 * 1000, intervalMs: 60 * 1000 },
+			add: { usesPerInterval: 3, useCooldown: 10 * 1000, intervalMs: 45 * 1000 },
+			set: { usesPerInterval: 3, useCooldown: 10 * 1000, intervalMs: 45 * 1000 },
+			remove: { usesPerInterval: 3, useCooldown: 10 * 1000, intervalMs: 60 * 1000 },
 		},
 		ranks: {
 			add: { usesPerInterval: 3, useCooldown: 10 * 1000, intervalMs: 60 * 1000 },
 			edit: { usesPerInterval: 4, useCooldown: 12 * 1000, intervalMs: 60 * 1000 },
 			list: { usesPerInterval: 3, useCooldown: 10 * 1000, intervalMs: 40 * 1000 },
-			add_bulk: { usesPerInterval: 3, useCooldown: 15 * 1000, intervalMs: 120 * 1000 },
-			in: { usesPerInterval: 3, useCooldown: 10 * 1000, intervalMs: 40 * 1000 },
+			add_bulk: { usesPerInterval: 2, useCooldown: 15 * 1000, intervalMs: 120 * 1000 },
+			in: { usesPerInterval: 4, useCooldown: 5 * 1000, intervalMs: 40 * 1000 },
 		},
 	},
 });

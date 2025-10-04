@@ -33,7 +33,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	try {
 		await Data.mainDb.transaction(async (transaction) => {
 			const usersInRank = await Data.models.User.findAll({
-				where: { rankId: rank.rankId },
+				where: { mainRankId: rank.rankId },
 				transaction,
 			});
 			if (newLimit) {

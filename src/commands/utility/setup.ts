@@ -130,18 +130,21 @@ async function createSetupMessage(
 	user: User,
 	transaction?: Transaction,
 ): Promise<[message: ContainerBuilder, existingInactiveRoleId: string | null, existingInSessionRoleId: string | null]> {
-	const message = new ContainerBuilder({ accent_color: 0x0033ff }).addSectionComponents((section) =>
-		section
-			.addTextDisplayComponents(
-				(text) => text.setContent('## Setup'),
-				(text) =>
-					text.setContent(
-						`This will set up the bot for this server. You (the server owner) will be made a bot administrator automatically. Only you (the server owner) can add or remove bot administrators. This will create the \`${RoleNames.InSession}\` and \`${RoleNames.Inactive}\` roles if they have not been added yet.`,
-					),
-				(text) => text.setContent(`All choices are applied when you click \`Start setup\`.`),
-			)
-			.setThumbnailAccessory((image) => image.setURL(guild.iconURL() ?? '')),
-	);
+	const message = new ContainerBuilder({ accent_color: 0x0033ff }).addSectionComponents((section) => {
+		section.addTextDisplayComponents(
+			(text) => text.setContent('## Setup'),
+			(text) =>
+				text.setContent(
+					`This will set up the bot for this server. You (the server owner) will be made a bot administrator automatically. Only you (the server owner) can add or remove bot administrators. This will create the \`${RoleNames.InSession}\` and \`${RoleNames.Inactive}\` roles if they have not been added yet.`,
+				),
+			(text) => text.setContent(`All choices are applied when you click \`Start setup\`.`),
+		);
+		const url = guild.iconURL();
+		if (url) {
+			section.setThumbnailAccessory((image) => image.setURL(url));
+		}
+		return section;
+	});
 	if (force) {
 		message.addTextDisplayComponents((text) =>
 			text.setContent('**Note**: This will overwrite some features if enabled during the previous setup.'),

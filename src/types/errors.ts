@@ -59,6 +59,7 @@ export const ErrorReplies = {
 	NoExistingSession: 'There is no session active. See `/session start`.',
 	ChannelNotFoundSubstitute: 'Channel not found (id): !{ERROR}.',
 	MessageNotFoundSubstitute: 'Message not found (id): !{ERROR}.',
+	CantBeStackableAndLimited: 'Role cannot be stackable and limited at the same time.',
 } as const;
 
 export namespace Errors {

@@ -1,16 +1,14 @@
 import { ChatInputCommandInteraction, ComponentBuilder, MessageFlags, TextDisplayBuilder } from 'discord.js';
 import { commandOptions } from '../../cmdOptions.js';
 import { getOption } from '../../utils/subcommandsUtils.js';
-import fetch from 'node-fetch';
 import { Errors } from '../../types/errors.js';
 import { Worker } from 'node:worker_threads';
 
 /** User ID to guesses for wordle */
 const wordleMap = new Map<string, string[]>();
 
-export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.fun.wordle) => {
-	const word = getOption(interaction, args, 'word');
-	const resp = await fetch('https://wordle-api.vercel.app/api/wordle', {
+export default async (interaction: ChatInputCommandInteraction) => {
+	/*const resp = await fetch('https://wordle-api.vercel.app/api/wordle', {
 		body: JSON.stringify({ guess: word }),
 		method: 'POST',
 	});
@@ -72,5 +70,5 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			}),
 		],
 		flags: MessageFlags.Ephemeral,
-	});
+	});*/
 };

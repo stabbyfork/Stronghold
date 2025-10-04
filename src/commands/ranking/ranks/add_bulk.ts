@@ -18,6 +18,7 @@ interface RankData {
 	limit?: number;
 	role_id?: string;
 	color?: string;
+	stack?: boolean;
 }
 
 const schema = {
@@ -47,6 +48,10 @@ const schema = {
 			color: {
 				type: 'string',
 				description: 'Color of the role in hex format (e.g. #ff002b) or name (e.g. "Red")',
+			},
+			stack: {
+				type: 'boolean',
+				description: 'If true, the role will be kept even if the user reaches the next rank',
 			},
 		},
 		additionalProperties: false,
@@ -158,9 +163,11 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		.transaction(async (transaction) => {
 			for (const rank of json) {
 				rank.limit ??= -1;
-				const existing = rank.role_id;
+				const existingId = rank.role_id;
 				const name = rank.name;
-				if (!existing && !name) {
+				const stackable = rank.stack ?? false;
+				const color = rank.color as keyof typeof Colors | undefined | `#${string}`;
+				if (!existingId && !name) {
 					await interaction.reply({
 						embeds: [
 							defaultEmbed()
@@ -172,7 +179,6 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 					throw new Errors.HandledError('Role ID nor name provided');
 				}
 
-				const color = rank.color as keyof typeof Colors | undefined | `#${string}`;
 				if (color && !(color in Colors || color.match(/#[0-9a-f]{6}/i))) {
 					await reportErrorToUser(
 						interaction,
@@ -181,8 +187,24 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 					);
 					throw new Errors.HandledError('Invalid color');
 				}
-				let role = existing
-					? guild.roles.cache.get(existing)
+				if (existingId) {
+					const existingInDb = await Data.models.Rank.findOne({
+						where: { roleId: existingId },
+						transaction,
+					});
+					if (existingInDb) {
+						await reportErrorToUser(
+							interaction,
+							'A role with this ID already exists: ' +
+								existingId +
+								'\nIf you want to update it, use `/ranking ranks edit`.',
+							true,
+						);
+						throw new Errors.HandledError('Role already exists');
+					}
+				}
+				let role = existingId
+					? guild.roles.cache.get(existingId)
 					: await guild.roles.create({
 							hoist: true,
 							name: rank.name,
@@ -194,7 +216,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				if (!role) {
 					await reportErrorToUser(
 						interaction,
-						constructError([ErrorReplies.RoleNotFoundSubstitute], existing),
+						constructError([ErrorReplies.RoleNotFoundSubstitute], existingId),
 						true,
 					);
 					throw new Errors.HandledError('Role not found');
@@ -205,8 +227,8 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 						reason: `Recolored by /ranking ranks add_bulk, supplied with a color, by: ${interaction.user.id}`,
 					});
 				}
-				if (existing && name) {
-					await guild.roles.edit(existing, {
+				if (existingId && name) {
+					await guild.roles.edit(existingId, {
 						name,
 						reason: `Renamed by /ranking ranks add_bulk, supplied with both an existing role and name, by: ${interaction.user.id}`,
 					});
@@ -218,12 +240,13 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 						pointsRequired: rank.points,
 						userLimit: rank.limit,
 						roleId: role.id,
+						stackable,
 					},
 					{
 						transaction,
 					},
 				);
-				replyStr += `${roleMention(role.id)}: \`${rank.points}\` points, ${rank.limit !== -1 ? `limit: \`${rank.limit}\` users` : 'no limit'}\n`;
+				replyStr += `${roleMention(role.id)}: \`${rank.points}\` points, ${rank.limit !== -1 ? `limit: \`${rank.limit}\` users` : 'no limit'}${stackable ? ' (stacking)' : ''}\n`;
 			}
 			const minPointReq = Math.min(...json.map((rank) => rank.points));
 			const usersToPromote = await Data.models.User.findAll({
@@ -253,5 +276,5 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	await interaction.followUp({
 		embeds: [defaultEmbed().setTitle('Successfully added ranks').setDescription(replyStr).setColor('Green')],
 	});
-	Logging.quickInfo(interaction, `Added ranks:\n${replyStr}`);
+	Logging.quickInfo(interaction, replyStr);
 };

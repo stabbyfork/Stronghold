@@ -229,71 +229,57 @@ async function createSetupMessage(
 		);
 
 	let existingInactiveId: string | null = null;
-	if (
-		!(await Data.models.Guild.findOne({
-			where: { guildId: guild.id, inactiveRoleId: { [Op.ne]: null } },
-			transaction,
-		}))
-	) {
-		const existingInactive = await guild.roles
-			.fetch()
-			.then((roles) => roles.find((r) => r.name === RoleNames.Inactive));
-		if (existingInactive) {
-			existingInactiveId = existingInactive.id;
-			message
-				.addSeparatorComponents((separator) => separator.setSpacing(SeparatorSpacingSize.Large))
-				.addTextDisplayComponents((text) =>
-					text.setContent(
-						`:warning: An existing role named \`${existingInactive.name}\` (${roleMention(existingInactive.id)}) was found. Would you like to integrate this role, to be given to members who are marked inactive due to failing to react to an activity check, or create a new role for this purpose?`,
-					),
-				)
-				.addActionRowComponents((actRow) =>
-					actRow.addComponents(
-						new ButtonBuilder()
-							.setCustomId(CustomIds.InactiveUseExisting)
-							.setLabel(`${config.useExistingInactive ? '✔ ' : ''}Use existing`)
-							.setStyle(ButtonStyle.Primary),
-						new ButtonBuilder()
-							.setCustomId(CustomIds.InactiveCreate)
-							.setLabel(`${config.createInactive ? '✔ ' : ''}Create new`)
-							.setStyle(ButtonStyle.Secondary),
-					),
-				);
-		}
+	const existingInactive = await guild.roles
+		.fetch()
+		.then((roles) => roles.find((r) => r.name === RoleNames.Inactive));
+	if (existingInactive) {
+		existingInactiveId = existingInactive.id;
+		message
+			.addSeparatorComponents((separator) => separator.setSpacing(SeparatorSpacingSize.Large))
+			.addTextDisplayComponents((text) =>
+				text.setContent(
+					`:warning: An existing role named \`${existingInactive.name}\` (${roleMention(existingInactive.id)}) was found. Would you like to integrate this role, to be given to members who are marked inactive due to failing to react to an activity check, or create a new role for this purpose?`,
+				),
+			)
+			.addActionRowComponents((actRow) =>
+				actRow.addComponents(
+					new ButtonBuilder()
+						.setCustomId(CustomIds.InactiveUseExisting)
+						.setLabel(`${config.useExistingInactive ? '✔ ' : ''}Use existing`)
+						.setStyle(ButtonStyle.Primary),
+					new ButtonBuilder()
+						.setCustomId(CustomIds.InactiveCreate)
+						.setLabel(`${config.createInactive ? '✔ ' : ''}Create new`)
+						.setStyle(ButtonStyle.Secondary),
+				),
+			);
 	}
 
 	let existingInSessionId: string | null = null;
-	if (
-		!(await Data.models.Guild.findOne({
-			where: { guildId: guild.id, inSessionRoleId: { [Op.ne]: null } },
-			transaction,
-		}))
-	) {
-		const existingInSession = await guild.roles
-			.fetch()
-			.then((roles) => roles.find((r) => r.name === RoleNames.InSession));
-		if (existingInSession) {
-			existingInSessionId = existingInSession.id;
-			message
-				.addSeparatorComponents((separator) => separator.setSpacing(SeparatorSpacingSize.Large))
-				.addTextDisplayComponents((text) =>
-					text.setContent(
-						`:warning: An existing role named \`${existingInSession.name}\` (${roleMention(existingInSession.id)}) was found. Would you like to integrate this role, to be given to members who are in a session, or create a new role for this purpose?`,
-					),
-				)
-				.addActionRowComponents((actRow) =>
-					actRow.addComponents(
-						new ButtonBuilder()
-							.setCustomId(CustomIds.InSessionUseExisting)
-							.setLabel(`${config.useExistingInSession ? '✔ ' : ''}Use existing`)
-							.setStyle(ButtonStyle.Primary),
-						new ButtonBuilder()
-							.setCustomId(CustomIds.InSessionCreate)
-							.setLabel(`${config.createInSession ? '✔ ' : ''}Create new`)
-							.setStyle(ButtonStyle.Secondary),
-					),
-				);
-		}
+	const existingInSession = await guild.roles
+		.fetch()
+		.then((roles) => roles.find((r) => r.name === RoleNames.InSession));
+	if (existingInSession) {
+		existingInSessionId = existingInSession.id;
+		message
+			.addSeparatorComponents((separator) => separator.setSpacing(SeparatorSpacingSize.Large))
+			.addTextDisplayComponents((text) =>
+				text.setContent(
+					`:warning: An existing role named \`${existingInSession.name}\` (${roleMention(existingInSession.id)}) was found. Would you like to integrate this role, to be given to members who are in a session, or create a new role for this purpose?`,
+				),
+			)
+			.addActionRowComponents((actRow) =>
+				actRow.addComponents(
+					new ButtonBuilder()
+						.setCustomId(CustomIds.InSessionUseExisting)
+						.setLabel(`${config.useExistingInSession ? '✔ ' : ''}Use existing`)
+						.setStyle(ButtonStyle.Primary),
+					new ButtonBuilder()
+						.setCustomId(CustomIds.InSessionCreate)
+						.setLabel(`${config.createInSession ? '✔ ' : ''}Create new`)
+						.setStyle(ButtonStyle.Secondary),
+				),
+			);
 	}
 
 	message.addSeparatorComponents((separator) => separator.setSpacing(SeparatorSpacingSize.Large));

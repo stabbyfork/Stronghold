@@ -72,13 +72,14 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
 	declare setMainRank: BelongsToSetAssociationMixin<Rank, Rank['rankId']>;
 
 	/** Secondary stackable ranks */
-	@BelongsToMany(() => Rank, { through: 'UserRank', inverse: 'secondaryUsers' })
+	@BelongsToMany(() => Rank, { through: 'UserRanks', inverse: 'secondaryUsers' })
 	declare ranks?: NonAttribute<Rank[]>;
 	declare getRanks: BelongsToManyGetAssociationsMixin<Rank>;
 	declare setRanks: BelongsToManySetAssociationsMixin<Rank, Rank['rankId']>;
 	declare addRanks: BelongsToManyAddAssociationsMixin<Rank, Rank['rankId']>;
 	declare removeRanks: BelongsToManyRemoveAssociationsMixin<Rank, Rank['rankId']>;
 
+	/** Next main unstackable rank */
 	@BelongsTo(() => Rank, { foreignKey: { name: 'nextRankId', allowNull: true } })
 	declare nextRank?: NonAttribute<Rank | null>;
 	declare getNextRank: BelongsToGetAssociationMixin<Rank>;

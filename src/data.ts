@@ -140,7 +140,7 @@ export namespace Data {
 
 		// 1. Fetch all ranks the user qualifies for (highest to lowest)
 		const ranks = await Data.models.Rank.findAll({
-			where: { guildId, pointsRequired: { [Op.lte]: userPoints } },
+			where: { guildId, pointsRequired: { [Op.lte]: userPoints }, stackable: false },
 			order: [['pointsRequired', 'DESC']],
 			include: [RankAssociations.RankUsage],
 			transaction,

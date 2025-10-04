@@ -114,14 +114,15 @@ tx2.action('alterSyncDb', async (reply) => {
 tx2.action('logUpdate', {}, async (params, reply) => {
 	const message = (params as string).replace(/\\n/g, '\n');
 	const version = (await import('../package.json')).default.version;
-	for (const guild of await Data.models.Guild.findAll({ where: { logChannelId: { [Op.ne]: null } } })) {
+	for (const dbGuild of await Data.models.Guild.findAll({ where: { logChannelId: { [Op.ne]: null } } })) {
+		const guild = client.guilds.cache.get(dbGuild.guildId) ?? (await client.guilds.fetch(dbGuild.guildId));
 		await Logging.log({
 			data: {
-				guildId: guild.guildId,
+				guildId: dbGuild.guildId,
 			},
 			logType: Logging.Type.Info,
 			extents: [GuildFlag.LogInfo],
-			formatData: `## ${version}\n${message}`,
+			formatData: `## ${version}\n${message.replace(/@OWNER/, guild.ownerId)}`,
 		});
 	}
 	reply({ success: true });

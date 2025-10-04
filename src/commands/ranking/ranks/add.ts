@@ -9,6 +9,7 @@ import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
 import { Logging } from '../../../utils/loggingUtils.js';
 import { report } from 'process';
 import { Rank } from '../../../models/rank.js';
+import { Op } from '@sequelize/core';
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.ranking.ranks.add) => {
 	if (!(await reportErrorIfNotSetup(interaction))) return;
@@ -24,7 +25,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	}
 	if (!(await hasPermissions(member, guild, true, Permission.ManageRanks))) return;
 	const name = getOption(interaction, args, 'name');
-	const points = getOption(interaction, args, 'points');
+	const pointsReq = getOption(interaction, args, 'points');
 	const limit = getOption(interaction, args, 'limit') ?? -1;
 	const existing = getOption(interaction, args, 'existing_role');
 	const stack = getOption(interaction, args, 'stackable') ?? false;
@@ -68,32 +69,52 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 					reason: 'Created by /ranking ranks add. By: ' + interaction.user.id,
 				})
 			).id;
-	let createdRank: Rank;
-	try {
-		createdRank = await Data.models.Rank.create({
-			guildId: guild.id,
-			name: name ?? existing!.name,
-			pointsRequired: points,
-			userLimit: limit,
-			stackable: stack,
-			roleId,
-		});
-	} catch (e) {
-		if (!existing) {
-			await guild.roles.delete(roleId);
+	let createdRank: Rank | null = null;
+	await Data.mainDb.transaction(async (transaction) => {
+		try {
+			createdRank = await Data.models.Rank.create(
+				{
+					guildId: guild.id,
+					name: name ?? existing!.name,
+					pointsRequired: pointsReq,
+					userLimit: limit,
+					stackable: stack,
+					roleId,
+				},
+				{
+					transaction,
+				},
+			);
+		} catch (e) {
+			if (!existing) {
+				await guild.roles.delete(roleId);
+			}
+			throw e;
 		}
-		throw e;
+		for (const usr of await Data.models.User.findAll({
+			where: { guildId: guild.id, [Op.or]: [{ mainRankId: null }, { points: { [Op.gte]: pointsReq } }] },
+			transaction,
+		})) {
+			await Data.promoteUser(usr, transaction);
+		}
+	});
+	if (!createdRank) {
+		throw new Error('Failed to create rank');
 	}
+
 	await interaction.reply({
 		embeds: [
 			defaultEmbed()
 				.setTitle('Rank added')
 				.setColor('Green')
 				.setDescription(
-					`Added rank ${roleMention(createdRank.roleId)} (${createdRank.roleId}). You may change the role colour in the server's roles menu.`,
+					`Added rank ${roleMention((createdRank as Rank).roleId)} (${(createdRank as Rank).roleId}). You may change the role colour in the server's roles menu.`,
 				),
 		],
 		flags: MessageFlags.Ephemeral,
 	});
-	Logging.quickInfo(interaction, `Added rank ${roleMention(createdRank.roleId)} (${createdRank.roleId}).`);
+	Logging.quickInfo(
+		interaction,
+		`Added rank ${roleMention((createdRank as Rank).roleId)} (${(createdRank as Rank).roleId}).`,
+	);
 };

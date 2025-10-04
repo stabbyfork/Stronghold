@@ -59,7 +59,11 @@ export async function createInactiveRoleIfMissing(guild: Guild, transaction: Tra
 			transaction,
 		})
 	)?.inactiveRoleId;
-	if (!prevInactiveRole) {
+	let role: Role | null = null;
+	if (prevInactiveRole) {
+		role = guild.roles.cache.get(prevInactiveRole) ?? (await guild.roles.fetch(prevInactiveRole));
+	}
+	if (!prevInactiveRole || !role) {
 		const created = await guild.roles.create({
 			name: RoleNames.Inactive,
 			permissions: [],
@@ -68,9 +72,8 @@ export async function createInactiveRoleIfMissing(guild: Guild, transaction: Tra
 		});
 		if (!created) return undefined;
 		return created;
-	} else {
-		return guild.roles.cache.get(prevInactiveRole);
 	}
+	return role;
 }
 
 export async function createInSessionRoleIfMissing(guild: Guild, transaction: Transaction) {
@@ -83,7 +86,11 @@ export async function createInSessionRoleIfMissing(guild: Guild, transaction: Tr
 			transaction,
 		})
 	)?.inSessionRoleId;
-	if (!prevInSessionRole) {
+	let role: Role | null = null;
+	if (prevInSessionRole) {
+		role = guild.roles.cache.get(prevInSessionRole) ?? (await guild.roles.fetch(prevInSessionRole));
+	}
+	if (!prevInSessionRole || !role) {
 		const created = await guild.roles.create({
 			name: RoleNames.InSession,
 			permissions: [],
@@ -92,9 +99,8 @@ export async function createInSessionRoleIfMissing(guild: Guild, transaction: Tr
 		});
 		if (!created) return undefined;
 		return created;
-	} else {
-		return guild.roles.cache.get(prevInSessionRole);
 	}
+	return role;
 }
 
 const enum CustomIds {

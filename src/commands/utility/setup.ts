@@ -140,6 +140,7 @@ async function createSetupMessage(
 			(text) => text.setContent(`All choices are applied when you click \`Start setup\`.`),
 		);
 		const url = guild.iconURL();
+		console.log(url);
 		if (url) {
 			section.setThumbnailAccessory((image) => image.setURL(url));
 		}

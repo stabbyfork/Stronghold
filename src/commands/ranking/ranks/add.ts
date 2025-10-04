@@ -8,6 +8,7 @@ import { reportErrorIfNotSetup, getOption } from '../../../utils/subcommandsUtil
 import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
 import { Logging } from '../../../utils/loggingUtils.js';
 import { report } from 'process';
+import { Rank } from '../../../models/rank.js';
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.ranking.ranks.add) => {
 	if (!(await reportErrorIfNotSetup(interaction))) return;
@@ -45,42 +46,54 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		await reportErrorToUser(interaction, constructError([ErrorReplies.CantBeStackableAndLimited]), true);
 		return;
 	}
-	if (await Data.models.Rank.findOne({ where: { guildId: guild.id, name: name ? name : existing!.name } })) {
+	if (
+		(await Data.models.Rank.findOne({ where: { guildId: guild.id, name: name ? name : existing!.name } })) ||
+		(existing && (await Data.models.Rank.findOne({ where: { guildId: guild.id, roleId: existing.id } })))
+	) {
 		await reportErrorToUser(
 			interaction,
-			constructError([ErrorReplies.RankExistsSubstitute], name ?? 'no name specified'),
+			constructError([ErrorReplies.RankExistsSubstitute], name ?? existing!.name),
 			true,
 		);
 		return;
 	}
 
-	const role = await Data.models.Rank.create({
-		guildId: guild.id,
-		name: name ?? existing!.name,
-		pointsRequired: points,
-		userLimit: limit,
-		stackable: stack,
-		roleId: existing
-			? existing.id
-			: (
-					await guild.roles.create({
-						name: name!,
-						permissions: [],
-						hoist: true,
-						reason: 'Created by /ranking ranks add. By: ' + interaction.user.id,
-					})
-				).id,
-	});
+	const roleId = existing
+		? existing.id
+		: (
+				await guild.roles.create({
+					name: name!,
+					permissions: [],
+					hoist: true,
+					reason: 'Created by /ranking ranks add. By: ' + interaction.user.id,
+				})
+			).id;
+	let createdRank: Rank;
+	try {
+		createdRank = await Data.models.Rank.create({
+			guildId: guild.id,
+			name: name ?? existing!.name,
+			pointsRequired: points,
+			userLimit: limit,
+			stackable: stack,
+			roleId,
+		});
+	} catch (e) {
+		if (!existing) {
+			await guild.roles.delete(roleId);
+		}
+		throw e;
+	}
 	await interaction.reply({
 		embeds: [
 			defaultEmbed()
 				.setTitle('Rank added')
 				.setColor('Green')
 				.setDescription(
-					`Added rank ${roleMention(role.roleId)} (${role.roleId}). You may change the role colour in the server's roles menu.`,
+					`Added rank ${roleMention(createdRank.roleId)} (${createdRank.roleId}). You may change the role colour in the server's roles menu.`,
 				),
 		],
 		flags: MessageFlags.Ephemeral,
 	});
-	Logging.quickInfo(interaction, `Added rank ${roleMention(role.roleId)} (${role.roleId}).`);
+	Logging.quickInfo(interaction, `Added rank ${roleMention(createdRank.roleId)} (${createdRank.roleId}).`);
 };

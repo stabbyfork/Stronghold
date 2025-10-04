@@ -1,4 +1,4 @@
-import { Op, Transaction } from '@sequelize/core';
+import { Transaction } from '@sequelize/core';
 import {
 	ButtonBuilder,
 	ButtonStyle,
@@ -7,7 +7,6 @@ import {
 	ChannelType,
 	ContainerBuilder,
 	Guild,
-	Interaction,
 	MessageFlags,
 	PermissionFlagsBits,
 	Role,
@@ -24,20 +23,19 @@ import {
 	UserSelectMenuBuilder,
 } from 'discord.js';
 import _ from 'lodash';
+import { client } from '../../client.js';
 import { commandOptions } from '../../cmdOptions.js';
 import { Data } from '../../data.js';
+import { UserAssociations } from '../../models/user.js';
 import { createCommand } from '../../types/commandTypes.js';
 import { ErrorReplies, Errors } from '../../types/errors.js';
-import { defaultEmbed, isSameUser } from '../../utils/discordUtils.js';
+import { defaultEmbed } from '../../utils/discordUtils.js';
 import { constructError, Debug, reportErrorToUser } from '../../utils/errorsUtils.js';
 import { GuildFlag, GuildFlagBits } from '../../utils/guildFlagsUtils.js';
 import { Logging } from '../../utils/loggingUtils.js';
 import { Permission, PermissionBits } from '../../utils/permissionsUtils.js';
 import { getOption } from '../../utils/subcommandsUtils.js';
 import { Usages, UsageScope } from '../../utils/usageLimitsUtils.js';
-import { UserAssociations } from '../../models/user.js';
-import { UserPermissionAssociations } from '../../models/userPermission.js';
-import { client } from '../../client.js';
 
 const enum RoleNames {
 	InSession = 'In Session',

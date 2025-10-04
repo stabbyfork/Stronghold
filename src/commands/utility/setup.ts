@@ -670,6 +670,10 @@ export default createCommand<typeof commandOptions.setup>({
 							id: guild.roles.everyone,
 							deny: [PermissionFlagsBits.ViewChannel],
 						},
+						{
+							id: client.user!.id,
+							allow: [PermissionFlagsBits.ViewChannel],
+						},
 					],
 				})
 			).id;

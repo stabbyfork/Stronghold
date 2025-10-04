@@ -78,8 +78,10 @@ export default createCommand<{}, 'session'>({
 			cmd.setName('participants').setDescription('List the participants of the current session'),
 		),
 	description: {
-		edit: "When adding images by message link, you can only provide up to 4 images. The message MUST mention the bot (@user) or be sent to the bot's DMs, due to Discord's restrictions.",
-		start: 'You can either attach an image to the image option, or provide a message link to get images from. A message link can be obtained by right-clicking on a message and clicking "Copy Message Link".\nClicking "Join" just marks the user as in the session.',
+		edit_default:
+			'Defaults are used when using `/session quickstart`.\nSee the help entry for `/session start` for more info about sessions.',
+		edit: 'This edits the details of the currently ongoing session.\nSee the help entry for `/session start` for more info about sessions.',
+		start: 'Sessions allow users to join and leave at will. Clicking "Join" just marks the user as in the session (it doesn\'t do anything else).\n\nYou can either attach an image to the image option, or provide a message link to get images from. A message link can be obtained by right-clicking on a message and clicking "Copy Message Link".\nWhen adding images by message link, you can only provide up to 4 images. The message MUST mention the bot (@user) or be sent to the bot\'s DMs, due to Discord\'s restrictions.',
 	},
 	limits: {
 		start: {

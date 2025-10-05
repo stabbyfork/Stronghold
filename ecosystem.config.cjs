@@ -1,7 +1,7 @@
 module.exports = {
 	apps: [
 		{
-			name: 'vaelstrom',
+			name: 'stronghold',
 			script: 'dist/index.js',
 			interpreter: 'node',
 			interpreter_args: '--trace-deprecation',

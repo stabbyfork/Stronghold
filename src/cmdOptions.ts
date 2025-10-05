@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON SAT, 04 OCT 2025 12:11:34 GMT WITH 8 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON SUN, 05 OCT 2025 18:55:53 GMT WITH 8 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct } from "./types/commandTypes.js";
 
@@ -330,6 +330,7 @@ ranking: {
     remove: T,
     set: T
   },
+  promote: T,
   ranks: {
     list: T,
     add: T,

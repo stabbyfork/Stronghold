@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON SAT, 04 OCT 2025 12:11:34 GMT WITH 8 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON SUN, 05 OCT 2025 18:55:53 GMT WITH 8 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct, CommandExecute } from './types/commandTypes.js';
 
@@ -34,6 +34,7 @@ import ranking_points_lb from './commands/ranking/points/lb.js';
 import ranking_points_add from './commands/ranking/points/add.js';
 import ranking_points_remove from './commands/ranking/points/remove.js';
 import ranking_points_set from './commands/ranking/points/set.js';
+import ranking_promote from './commands/ranking/promote.js';
 import ranking_ranks_list from './commands/ranking/ranks/list.js';
 import ranking_ranks_add from './commands/ranking/ranks/add.js';
 import ranking_ranks_add_bulk from './commands/ranking/ranks/add_bulk.js';
@@ -96,6 +97,7 @@ ranking: {
     remove: ranking_points_remove,
     set: ranking_points_set
   },
+  promote: ranking_promote,
   ranks: {
     list: ranking_ranks_list,
     add: ranking_ranks_add,

@@ -81,6 +81,7 @@ export default createCommand<{}, 'ranking'>({
 						),
 				),
 		)
+		.addSubcommand((cmd) => cmd.setName('promote').setDescription('Promote everyone to an available rank'))
 		.addSubcommandGroup((group) =>
 			group
 				.setName('ranks')
@@ -195,5 +196,6 @@ export default createCommand<{}, 'ranking'>({
 			add_bulk: { usesPerInterval: 2, useCooldown: 15 * 1000, intervalMs: 120 * 1000 },
 			in: { usesPerInterval: 4, useCooldown: 5 * 1000, intervalMs: 40 * 1000 },
 		},
+		promote: { usesPerInterval: 1, useCooldown: 0, intervalMs: 150 * 1000 },
 	},
 });

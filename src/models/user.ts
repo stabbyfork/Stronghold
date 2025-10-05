@@ -31,6 +31,7 @@ export enum UserAssociations {
 /** Per guild */
 @Table({
 	indexes: [{ unique: true, fields: ['guildId', 'userId'] }],
+	tableName: 'Users',
 })
 export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
 	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, primaryKey: true, autoIncrement: true })
@@ -60,7 +61,7 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
 	declare createUserPermission: HasOneCreateAssociationMixin<UserPermission, 'userId'>;
 
 	@BelongsToMany(() => Guild, {
-		through: 'UserGuild',
+		through: 'UserGuilds',
 		inverse: 'users',
 	})
 	declare guilds?: NonAttribute<Guild[]>;

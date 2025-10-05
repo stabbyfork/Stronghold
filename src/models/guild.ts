@@ -7,7 +7,7 @@ import {
 	Model,
 	NonAttribute,
 } from '@sequelize/core';
-import { Attribute, HasMany, HasOne } from '@sequelize/core/decorators-legacy';
+import { Attribute, HasMany, HasOne, Table } from '@sequelize/core/decorators-legacy';
 import { User } from './user.js';
 import { ActivityCheck } from './activityCheck.js';
 import { Rank } from './rank.js';
@@ -24,6 +24,7 @@ export enum GuildAssociations {
 	Session = 'session',
 }
 
+@Table({ tableName: 'Guilds' })
 export class Guild extends Model<InferAttributes<Guild>, InferCreationAttributes<Guild>> {
 	/** Internal ID */
 	/*@Attribute({ autoIncrement: true, primaryKey: true, type: DataTypes.INTEGER.UNSIGNED })

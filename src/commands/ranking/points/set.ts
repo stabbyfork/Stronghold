@@ -46,10 +46,6 @@ export async function setPointsWithInteraction(
 		);
 		return;
 	}
-	if (points < 0) {
-		await reportErrorToUser(interaction, 'Point count must be a positive number.', true);
-		return;
-	}
 	const userIds = Array.from(users.matchAll(/<@(\d+)>/g)).map((match) => match[1]);
 	if (userIds.length === 0) {
 		await reportErrorToUser(interaction, 'You must provide at least one user.', true);

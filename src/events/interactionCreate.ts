@@ -319,6 +319,10 @@ export default createEvent({
 						}
 						if (member.roles.cache.has(inSessionRole.id)) {
 							await member.roles.remove(inSessionRole, 'Left session');
+							await interaction.reply({
+								content: '✅ Successfully left session',
+								flags: MessageFlags.Ephemeral,
+							});
 							await Logging.log({
 								data: interaction,
 								formatData: `${userMention(member.id)} left the session`,

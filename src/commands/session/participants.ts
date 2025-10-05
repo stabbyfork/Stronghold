@@ -35,8 +35,8 @@ export default async (interaction: ChatInputCommandInteraction) => {
 		);
 		return;
 	}
-	await guild.roles.fetch(inSessionRoleId, { force: true, cache: true });
-	const users = guild.roles.cache.get(inSessionRoleId)?.members;
+
+	const users = (await guild.roles.fetch(inSessionRoleId, { force: true }))?.members;
 	if (!users) {
 		await reportErrorToUser(
 			interaction,

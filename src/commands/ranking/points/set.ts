@@ -11,8 +11,9 @@ import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
 import { Logging } from '../../../utils/loggingUtils.js';
 import { GuildFlag } from '../../../utils/guildFlagsUtils.js';
 
-const enum MaxSafeUInt32 {
-	Max = 4294967295,
+const enum SafeInt32 {
+	Min = -(2 ** 31),
+	Max = 2 ** 31 - 1,
 }
 
 export async function setPointsWithInteraction(
@@ -45,6 +46,10 @@ export async function setPointsWithInteraction(
 		);
 		return;
 	}
+	if (points < 0) {
+		await reportErrorToUser(interaction, 'Point count must be a positive number.', true);
+		return;
+	}
 	const userIds = Array.from(users.matchAll(/<@(\d+)>/g)).map((match) => match[1]);
 	if (userIds.length === 0) {
 		await reportErrorToUser(interaction, 'You must provide at least one user.', true);
@@ -67,8 +72,8 @@ export async function setPointsWithInteraction(
 				});
 				let data: User;
 				const newPoints = Math.min(
-					Math.max(0, setPointsFunc(prevData?.points ?? 0, points)),
-					MaxSafeUInt32.Max,
+					Math.max(SafeInt32.Min, setPointsFunc(prevData?.points ?? 0, points)),
+					SafeInt32.Max,
 				);
 				if (prevData) {
 					await prevData.update({ points: newPoints }, { transaction });
@@ -111,7 +116,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			defaultEmbed()
 				.setColor('Green')
 				.setTitle('Success')
-				.setDescription(`Set point count to ${points} for ${userIds.map(userMention).join(', ')}.`),
+				.setDescription(`Set point count to \`${points}\` for ${userIds.map(userMention).join(', ')}.`),
 		(userIds, points) => `Set points of ${userIds.map(userMention).join(', ')} to ${points}`,
 	);
 };

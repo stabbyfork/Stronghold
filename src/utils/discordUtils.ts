@@ -35,11 +35,13 @@ import { Debug, reportErrorToUser, constructError } from './errorsUtils.js';
  * @returns An instance of `EmbedBuilder` with a default footer and timestamp.
  */
 export function defaultEmbed() {
-	return new EmbedBuilder()
-		.setFooter({
+	return (
+		new EmbedBuilder()
+			/*.setFooter({
 			text: `Created by a bot, developed by @${Config.get('appOwnerUsername')}`,
-		})
-		.setTimestamp();
+		})*/
+			.setTimestamp()
+	);
 }
 
 export function isSameUser(inter1: Interaction, inter2: Interaction) {
@@ -165,13 +167,6 @@ export async function messageCompCollector(
 	}
 
 	collector.on('collect', callback);
-}
-
-const enum CustomIds {
-	PageFirst = 'page-first',
-	PagePrevious = 'page-previous',
-	PageNext = 'page-next',
-	PageLast = 'page-last',
 }
 
 export class Pages {

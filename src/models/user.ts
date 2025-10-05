@@ -41,7 +41,7 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
 	@Attribute({ type: DataTypes.STRING(20), allowNull: false })
 	declare userId: string;
 
-	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, defaultValue: 0 })
+	@Attribute({ type: DataTypes.INTEGER, defaultValue: 0 })
 	declare points: CreationOptional<number>;
 
 	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, defaultValue: 0 })

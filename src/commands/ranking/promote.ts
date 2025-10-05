@@ -29,6 +29,7 @@ export default async (interaction: ChatInputCommandInteraction) => {
 		);
 		return;
 	}
+	await interaction.deferReply();
 	const dbMembers = await Data.models.User.findAll({ where: { guildId: guild.id } });
 	const members = await guild.members.fetch({ user: dbMembers.map((u) => u.userId) });
 	await Data.mainDb.transaction(async (transaction) => {
@@ -37,7 +38,7 @@ export default async (interaction: ChatInputCommandInteraction) => {
 			await Data.promoteUser(user, transaction);
 		}
 	});
-	await interaction.reply({
+	await interaction.editReply({
 		embeds: [defaultEmbed().setTitle('Success').setDescription('Promoted all users.').setColor('Green')],
 	});
 };

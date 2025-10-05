@@ -14,7 +14,7 @@ import { exec } from 'child_process';
 import * as Events from './events/*';
 import { GuildFlag } from './utils/guildFlagsUtils.js';
 import { Logging } from './utils/loggingUtils.js';
-import { userMention } from 'discord.js';
+import { ForumChannel, ThreadAutoArchiveDuration, userMention } from 'discord.js';
 
 let activityChecksId: NodeJS.Timeout;
 
@@ -117,14 +117,21 @@ tx2.action('logUpdate', {}, async (params, reply) => {
 	const version = (await import('../package.json')).default.version;
 	for (const dbGuild of await Data.models.Guild.findAll({ where: { logChannelId: { [Op.ne]: null } } })) {
 		const guild = client.guilds.cache.get(dbGuild.guildId) ?? (await client.guilds.fetch(dbGuild.guildId));
-		await Logging.log({
-			data: {
-				guildId: dbGuild.guildId,
-			},
-			logType: Logging.Type.Info,
-			extents: [GuildFlag.LogInfo],
-			formatData: `## ${version}\n${message.replace(/@OWNER/, userMention(guild.ownerId))}`,
-		});
+		if (!dbGuild.logChannelId) continue;
+		const channel = (guild.channels.cache.get(dbGuild.logChannelId) ??
+			(await guild.channels.fetch(dbGuild.logChannelId))) as ForumChannel | null;
+		if (!channel) continue;
+		const guildMsg = message.replace(/@OWNER/, userMention(guild.ownerId));
+		const thread = channel.threads.cache.find((t) => t.name === version);
+		if (!thread) {
+			await channel.threads.create({
+				name: version,
+				autoArchiveDuration: ThreadAutoArchiveDuration.OneDay,
+				message: { content: guildMsg },
+			});
+		} else {
+			await thread.send(guildMsg);
+		}
 	}
 	reply({ success: true });
 });

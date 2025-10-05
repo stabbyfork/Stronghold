@@ -1,5 +1,6 @@
 import { SlashCommandBuilder } from 'discord.js';
 import { createCommand } from '../types/commandTypes.js';
+import { UsageScope } from '../utils/usageLimitsUtils.js';
 
 const exampleRankObjs = [
 	{
@@ -196,6 +197,6 @@ export default createCommand<{}, 'ranking'>({
 			add_bulk: { usesPerInterval: 2, useCooldown: 15 * 1000, intervalMs: 120 * 1000 },
 			in: { usesPerInterval: 4, useCooldown: 5 * 1000, intervalMs: 40 * 1000 },
 		},
-		promote: { usesPerInterval: 1, useCooldown: 0, intervalMs: 150 * 1000 },
+		promote: { usesPerInterval: 1, useCooldown: 0, intervalMs: 150 * 1000, scope: UsageScope.GuildAll },
 	},
 });

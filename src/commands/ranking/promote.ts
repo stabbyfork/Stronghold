@@ -29,9 +29,11 @@ export default async (interaction: ChatInputCommandInteraction) => {
 		);
 		return;
 	}
+	const dbMembers = await Data.models.User.findAll({ where: { guildId: guild.id } });
+	const members = await guild.members.fetch({ user: dbMembers.map((u) => u.userId) });
 	await Data.mainDb.transaction(async (transaction) => {
-		const dbMembers = await Data.models.User.findAll({ where: { guildId: guild.id }, transaction });
 		for (const user of dbMembers) {
+			if (members.get(user.userId) == null) continue;
 			await Data.promoteUser(user, transaction);
 		}
 	});

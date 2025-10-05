@@ -165,6 +165,7 @@ export namespace Data {
 				pointsRequired: {
 					[Op.gt]: bestRank?.pointsRequired ?? userPoints,
 				},
+				stackable: false,
 			},
 			order: [['pointsRequired', 'ASC']],
 			transaction,
@@ -253,7 +254,7 @@ export namespace Data {
 			});
 		}
 	}
-	export async function nextRank(user: User, transaction?: Transaction) {
+	/*export async function nextRank(user: User, transaction?: Transaction) {
 		const guildId = user.guildId;
 		const rankId = user.mainRankId;
 		const rank = rankId ? await Data.models.Rank.findByPk(rankId, { transaction }) : null;
@@ -267,5 +268,5 @@ export namespace Data {
 			order: [['pointsRequired', 'ASC']],
 			transaction,
 		});
-	}
+	}*/
 }

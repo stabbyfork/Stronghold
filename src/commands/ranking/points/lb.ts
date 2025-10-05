@@ -13,7 +13,7 @@ export default async (interaction: ChatInputCommandInteraction) => {
 		return;
 	}
 	const data = await Data.models.User.findAndCountAll({
-		where: { guildId: guild.id, points: { [Op.gt]: 0 } },
+		where: { guildId: guild.id, points: { [Op.ne]: 0 } },
 		order: [
 			['points', 'DESC'],
 			[{ model: Data.models.Rank, as: UserAssociations.MainRank }, 'pointsRequired', 'DESC'],

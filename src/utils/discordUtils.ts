@@ -169,6 +169,13 @@ export async function messageCompCollector(
 	collector.on('collect', callback);
 }
 
+const enum CustomIds {
+	PageFirst = 'page-first',
+	PagePrevious = 'page-previous',
+	PageNext = 'page-next',
+	PageLast = 'page-last',
+}
+
 export class Pages {
 	/**
 	 * Unformatted cached pages, not created if `cachePages` is false

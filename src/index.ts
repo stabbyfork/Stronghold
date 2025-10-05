@@ -114,7 +114,7 @@ tx2.action('alterSyncDb', async (reply) => {
 
 tx2.action('logUpdate', {}, async (params, reply) => {
 	const message = (params as string).replace(/\\n/g, '\n');
-	const version = (await import('../package.json')).default.version;
+	const versionStr = `Update v${(await import('../package.json')).default.version}`;
 	for (const dbGuild of await Data.models.Guild.findAll({ where: { logChannelId: { [Op.ne]: null } } })) {
 		const guild = client.guilds.cache.get(dbGuild.guildId) ?? (await client.guilds.fetch(dbGuild.guildId));
 		if (!dbGuild.logChannelId) continue;
@@ -122,10 +122,10 @@ tx2.action('logUpdate', {}, async (params, reply) => {
 			(await guild.channels.fetch(dbGuild.logChannelId))) as ForumChannel | null;
 		if (!channel) continue;
 		const guildMsg = message.replace(/@OWNER/, userMention(guild.ownerId));
-		const thread = channel.threads.cache.find((t) => t.name === version);
+		const thread = channel.threads.cache.find((t) => t.name === versionStr);
 		if (!thread) {
 			await channel.threads.create({
-				name: version,
+				name: versionStr,
 				autoArchiveDuration: ThreadAutoArchiveDuration.OneDay,
 				message: { content: guildMsg },
 			});

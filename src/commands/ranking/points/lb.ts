@@ -8,8 +8,11 @@ import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js
 import { commandOptions } from '../../../cmdOptions.js';
 import { getOption } from '../../../utils/subcommandsUtils.js';
 
-async function getHighestStackingRank(user: User) {
-	const ranks = user.ranks ?? (await user.getRanks());
+function getHighestStackingRank(user: User) {
+	const ranks = user.ranks;
+	if (!ranks) {
+		throw new Error('User has no secondary ranks');
+	}
 
 	let highestRank = ranks[0];
 	for (const rank of ranks) {
@@ -57,9 +60,9 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 							? 'No one has any points.'
 							: data.rows
 									.slice(start, start + perPage)
-									.map(async (d, i) => {
+									.map((d, i) => {
 										const ind = i + 1 + start;
-										return `${ind === 1 ? '## ** ** ' : ind === 2 || ind === 3 ? '### ** ** ' : ''}${ind}. ${userMention(d.userId)}: \`${d.points}\` (${d.mainRank ? roleMention(d.mainRank.roleId) : showStacking ? ((await getHighestStackingRank(d)) ?? '\`No rank\`') : '\`No rank\`'}) `;
+										return `${ind === 1 ? '## ** ** ' : ind === 2 || ind === 3 ? '### ** ** ' : ''}${ind}. ${userMention(d.userId)}: \`${d.points}\` (${d.mainRank ? roleMention(d.mainRank.roleId) : showStacking ? (getHighestStackingRank(d) ?? '\`No rank\`') : '\`No rank\`'}) `;
 									})
 									.join('\n'),
 					),

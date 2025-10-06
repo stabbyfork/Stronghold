@@ -106,7 +106,12 @@ export namespace Data {
 		if (mainRank) {
 			await member.roles.add(mainRank.roleId, 'Gained enough points for this rank.');
 		}
-
+		const allRanks = await Data.models.Rank.findAll({ where: { guildId: user.guildId }, transaction });
+		const mappedIds = currentRanks.map((r) => r.rankId);
+		await member.roles.remove(
+			allRanks.filter((r) => r.rankId !== mainRank?.rankId && !mappedIds.includes(r.rankId)).map((r) => r.roleId),
+			'Not owned anymore.',
+		);
 		await member.roles.add(
 			currentRanks.map((r) => r.roleId),
 			'Gained enough points for this rank.',

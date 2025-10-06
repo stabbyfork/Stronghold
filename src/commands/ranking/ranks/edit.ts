@@ -32,12 +32,11 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	const newPoints = getOption(interaction, args, 'points');
 	const showInRanking = getOption(interaction, args, 'show_in_ranking');
 	const stackable = getOption(interaction, args, 'stackable');
+	const usersInRank = await Data.models.User.findAll({
+		where: { mainRankId: rank.rankId },
+	});
 	try {
 		await Data.mainDb.transaction(async (transaction) => {
-			const usersInRank = await Data.models.User.findAll({
-				where: { mainRankId: rank.rankId },
-				transaction,
-			});
 			if (newLimit) {
 				if (usersInRank.length > newLimit) {
 					await reportErrorToUser(
@@ -46,6 +45,12 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 						true,
 					);
 					throw new Errors.ExpectedError('Limit too low');
+				}
+			}
+			if (stackable === false) {
+				for (const dbUsr of usersInRank) {
+					const usr = guild.members.cache.get(dbUsr.userId) ?? (await guild.members.fetch(dbUsr.userId));
+					await usr.roles.remove(rank.roleId);
 				}
 			}
 			await rank.update(
@@ -66,7 +71,14 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		});
 	} catch (e) {
 		if (e instanceof Errors.ExpectedError) return;
-		else throw e;
+		else {
+			for (const dbUsr of usersInRank) {
+				const usr = guild.members.cache.get(dbUsr.userId);
+				if (!usr) continue;
+				await usr.roles.add(rank.roleId);
+			}
+			throw e;
+		}
 	}
 
 	await interaction.reply({

@@ -32,7 +32,17 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 
 	const data = await Data.models.User.findOne({
 		where: { guildId: guild.id, userId: userToCheck.id },
-		include: [UserAssociations.MainRank, UserAssociations.NextRank, UserAssociations.UserPermission],
+		include: [
+			UserAssociations.MainRank,
+			UserAssociations.NextRank,
+			UserAssociations.UserPermission,
+			{
+				as: UserAssociations.SecondaryRanks,
+				model: Data.models.Rank,
+				required: false,
+				where: { showInRanking: true },
+			},
+		],
 	});
 	message.addFields({ name: 'Points', value: data?.points.toString() ?? '0', inline: true });
 	const inactiveRoleId = (await Data.models.Guild.findOne({ where: { guildId: guild.id } }))?.inactiveRoleId;
@@ -58,12 +68,15 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		},
 		{
 			name: 'Current rank',
-			value: rank ? `\`${rank.name}\` (${rank.pointsRequired} points)` : 'None',
+			value: rank && rank.showInRanking ? `\`${rank.name}\` (${rank.pointsRequired} points)` : 'None',
 			inline: true,
 		},
 		{
 			name: 'Next rank',
-			value: nextRank ? `\`${nextRank.name}\` (${nextRank.pointsRequired} points)` : 'None',
+			value:
+				nextRank && nextRank.showInRanking
+					? `\`${nextRank.name}\` (${nextRank.pointsRequired} points)`
+					: 'None',
 			inline: true,
 		},
 		{
@@ -73,6 +86,13 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 						.filter((perm) => permissions & PermissionBits[perm])
 						.map((perm) => `\`${perm}\``)
 						.join(', ')}`
+				: 'None',
+			inline: true,
+		},
+		{
+			name: 'Secondary ranks',
+			value: data?.ranks
+				? data.ranks.map((rank) => `\`${rank.name}\` (${rank.pointsRequired} points)`).join(', ')
 				: 'None',
 			inline: true,
 		},

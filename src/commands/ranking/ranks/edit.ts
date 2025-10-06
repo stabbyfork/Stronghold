@@ -7,6 +7,8 @@ import { constructError, reportErrorToUser } from '../../../utils/errorsUtils.js
 import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
 import { getOption, reportErrorIfNotSetup } from '../../../utils/subcommandsUtils.js';
 import { Logging } from '../../../utils/loggingUtils.js';
+import { Op } from '@sequelize/core';
+import { RankAssociations } from '../../../models/rank.js';
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.ranking.ranks.edit) => {
 	if (!(await reportErrorIfNotSetup(interaction))) return;
@@ -22,7 +24,10 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	}
 	if (!(await hasPermissions(member, guild, true, Permission.ManageRanks))) return;
 	const name = getOption(interaction, args, 'name');
-	const rank = await Data.models.Rank.findOne({ where: { guildId: guild.id, name } });
+	const rank = await Data.models.Rank.findOne({
+		where: { guildId: guild.id, name },
+		include: [RankAssociations.SecondaryUsers],
+	});
 	if (!rank) {
 		await reportErrorToUser(interaction, constructError([ErrorReplies.RankNotFoundSubstitute], name), true);
 		return;
@@ -32,9 +37,14 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	const newPoints = getOption(interaction, args, 'points');
 	const showInRanking = getOption(interaction, args, 'show_in_ranking');
 	const stackable = getOption(interaction, args, 'stackable');
-	const usersInRank = await Data.models.User.findAll({
-		where: { mainRankId: rank.rankId },
-	});
+	const usersInRank = (
+		await Data.models.User.findAll({
+			where: {
+				guildId: guild.id,
+				mainRankId: rank.rankId,
+			},
+		})
+	).concat(rank.secondaryUsers ?? []);
 	try {
 		await Data.mainDb.transaction(async (transaction) => {
 			if (newLimit) {

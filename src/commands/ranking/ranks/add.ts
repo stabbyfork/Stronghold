@@ -1,15 +1,14 @@
+import { Op } from '@sequelize/core';
 import { ChatInputCommandInteraction, GuildMember, MessageFlags, roleMention } from 'discord.js';
 import { commandOptions } from '../../../cmdOptions.js';
 import { Data } from '../../../data.js';
+import { Rank } from '../../../models/rank.js';
 import { ErrorReplies } from '../../../types/errors.js';
 import { defaultEmbed } from '../../../utils/discordUtils.js';
-import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js';
-import { reportErrorIfNotSetup, getOption } from '../../../utils/subcommandsUtils.js';
-import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
+import { constructError, reportErrorToUser } from '../../../utils/errorsUtils.js';
 import { Logging } from '../../../utils/loggingUtils.js';
-import { report } from 'process';
-import { Rank } from '../../../models/rank.js';
-import { Op } from '@sequelize/core';
+import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
+import { getOption, reportErrorIfNotSetup } from '../../../utils/subcommandsUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.ranking.ranks.add) => {
 	if (!(await reportErrorIfNotSetup(interaction))) return;
@@ -29,6 +28,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	const limit = getOption(interaction, args, 'limit') ?? -1;
 	const existing = getOption(interaction, args, 'existing_role');
 	const stack = getOption(interaction, args, 'stackable') ?? false;
+	const showInRanking = getOption(interaction, args, 'show_in_ranking') ?? true;
 	if (!existing && !name) {
 		await interaction.reply({
 			embeds: [
@@ -80,6 +80,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 					userLimit: limit,
 					stackable: stack,
 					roleId,
+					showInRanking,
 				},
 				{
 					transaction,

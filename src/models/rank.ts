@@ -41,6 +41,9 @@ export class Rank extends Model<InferAttributes<Rank>, InferCreationAttributes<R
 	@Attribute({ type: DataTypes.BOOLEAN, allowNull: false })
 	declare stackable: boolean;
 
+	@Attribute({ type: DataTypes.BOOLEAN, allowNull: false })
+	declare showInRanking: boolean;
+
 	@HasOne(() => RankUsage, { foreignKey: { name: 'rankId', onUpdate: 'RESTRICT', onDelete: 'CASCADE' } })
 	declare rankUsage?: NonAttribute<RankUsage>;
 	declare getRankUsage: HasOneGetAssociationMixin<RankUsage>;

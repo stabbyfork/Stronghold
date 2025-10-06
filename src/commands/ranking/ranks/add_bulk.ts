@@ -19,6 +19,7 @@ interface RankData {
 	role_id?: string;
 	color?: string;
 	stack?: boolean;
+	show_in_ranking?: boolean;
 }
 
 const schema = {
@@ -52,6 +53,10 @@ const schema = {
 			stack: {
 				type: 'boolean',
 				description: 'If true, the role will be kept even if the user reaches the next rank',
+			},
+			show_in_ranking: {
+				type: 'boolean',
+				description: 'If true, the rank will be shown in point leaderboards',
 			},
 		},
 		additionalProperties: false,
@@ -167,6 +172,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				const name = rank.name;
 				const stackable = rank.stack ?? false;
 				const color = rank.color as keyof typeof Colors | undefined | `#${string}`;
+				const showInRanking = rank.show_in_ranking ?? true;
 				if (!existingId && !name) {
 					await interaction.reply({
 						embeds: [
@@ -241,6 +247,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 						userLimit: rank.limit,
 						roleId: role.id,
 						stackable,
+						showInRanking,
 					},
 					{
 						transaction,

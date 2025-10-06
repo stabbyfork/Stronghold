@@ -10,6 +10,7 @@ const exampleRankObjs = [
 		role_id: '1234567890123456789',
 		color: 'Green',
 		stack: false,
+		show_in_ranking: true,
 	},
 	{
 		name: 'Example Rank 2',
@@ -17,6 +18,7 @@ const exampleRankObjs = [
 		role_id: '405856094017456712',
 		color: '#ff002b',
 		stack: true,
+		show_in_ranking: false,
 	},
 ] as const;
 
@@ -129,6 +131,12 @@ export default createCommand<{}, 'ranking'>({
 								.setName('stackable')
 								.setDescription('Whether this rank can be stacked with other ranks (default = false)')
 								.setRequired(false),
+						)
+						.addBooleanOption((option) =>
+							option
+								.setName('show_in_ranking')
+								.setDescription('Show this rank in leaderboards & lists (default = true)')
+								.setRequired(false),
 						),
 				)
 				.addSubcommand((cmd) =>
@@ -163,6 +171,12 @@ export default createCommand<{}, 'ranking'>({
 							option
 								.setName('limit')
 								.setDescription('New maximum number of users with this rank (-1 = no limit)'),
+						)
+						.addBooleanOption((option) =>
+							option
+								.setName('show_in_ranking')
+								.setDescription('Show this rank in leaderboards & lists (default = true)')
+								.setRequired(false),
 						),
 				)
 				.addSubcommand((cmd) =>
@@ -189,7 +203,7 @@ export default createCommand<{}, 'ranking'>({
 	description: {
 		ranks: {
 			add: 'If both a name and an existing role are given, the existing role will be renamed.\nIf only a name is given, a new role will be created.\nIf only an existing role is given, the name will be set to the name of the role.\nEnabling `stackable` means the role will be kept even if the user reaches the next rank.\nA user can have one non-stacking rank and unlimited stacking ranks.\nOne server can only have 100 ranks.',
-			add_bulk: `The file must contain a valid [JSON](https://www.w3schools.com/Js/js_json_syntax.asp) array, in this format:\n\`\`\`json\n${JSON.stringify(exampleRankObjs, null, 4)}\n\`\`\`\n\`name\` is the name of the rank, and is constrained to 100 characters.\n\`points\` is the number of points required to get this rank, and is required to be specified.\n\`limit\` is the maximum number of people who can have this rank, and is optional (will default to no limit).\n\`role_id\` is the optional ID of the role to use instead of creating a new one.\nIf both \`name\` and \`role_id\` are given, the role and rank will be renamed to \`name\`. If only \`name\` is given, a new role will be created (with that name).\nIf only \`role_id\` is given, the name will be set to the name of the role.\n\`color\` can be the name of a color (e.g. "Red") or a hex number (e.g. "#ff0000").\n\`stack\` and \`limit\` are mutually exclusive; a stacking rank cannot have a user limit. Stacking ranks are also not considered to be main ranks, and will not be shown in point leaderboards.\n-# ||(too much effort to make it work)||\nA server can have a maximum of 100 ranks.`,
+			add_bulk: `The file must contain a valid [JSON](https://www.w3schools.com/Js/js_json_syntax.asp) array, in this format:\n\`\`\`json\n${JSON.stringify(exampleRankObjs, null, 4)}\n\`\`\`\n\`name\` is the name of the rank, and is constrained to 100 characters.\n\`points\` is the number of points required to get this rank, and is required to be specified.\n\`limit\` is the maximum number of people who can have this rank, and is optional (will default to no limit).\n\`role_id\` is the optional ID of the role to use instead of creating a new one.\nIf both \`name\` and \`role_id\` are given, the role and rank will be renamed to \`name\`. If only \`name\` is given, a new role will be created (with that name).\nIf only \`role_id\` is given, the name will be set to the name of the role.\n\`color\` can be the name of a color (e.g. "Red") or a hex number (e.g. "#ff0000").\n\`stack\` and \`limit\` are mutually exclusive; a stacking rank cannot have a user limit. Stacking ranks are also not considered to be main ranks, and will not be shown in point leaderboards.\n-# ||(too much effort to make it work)||\n\`show_in_ranking\` determines whether this rank will be shown in leaderboards and lists (e.g. /ranking view).\nA server can have a maximum of 100 ranks.`,
 		},
 	},
 	limits: {

@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON MON, 06 OCT 2025 14:03:26 GMT WITH 8 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON MON, 06 OCT 2025 14:37:13 GMT WITH 8 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct } from "./types/commandTypes.js";
 
@@ -193,6 +193,10 @@ ranking: {
       "stackable": {
         "type": "boolean",
         "required": false
+      },
+      "show_in_ranking": {
+        "type": "boolean",
+        "required": false
       }
     },
     "add_bulk": {
@@ -220,6 +224,10 @@ ranking: {
       },
       "limit": {
         "type": "integer",
+        "required": false
+      },
+      "show_in_ranking": {
+        "type": "boolean",
         "required": false
       }
     },

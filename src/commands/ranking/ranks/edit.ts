@@ -73,8 +73,20 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				},
 				{ transaction },
 			);
+			const toPromote = usersInRank;
+			if (stackable === true) {
+				const usersWithPoints = await Data.models.User.findAll({
+					where: {
+						guildId: guild.id,
+						points: {
+							[Op.gte]: rank.pointsRequired,
+						},
+					},
+				});
+				toPromote.push(...usersWithPoints);
+			}
 			await Promise.all(
-				usersInRank.map(async (user) => {
+				toPromote.map(async (user) => {
 					await Data.promoteUser(user, transaction);
 				}),
 			);

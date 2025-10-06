@@ -177,6 +177,9 @@ export default createCommand<{}, 'ranking'>({
 								.setName('show_in_ranking')
 								.setDescription('Show this rank in leaderboards & lists (default = true)')
 								.setRequired(false),
+						)
+						.addBooleanOption((option) =>
+							option.setName('stackable').setDescription('Whether this rank can be stacked'),
 						),
 				)
 				.addSubcommand((cmd) =>

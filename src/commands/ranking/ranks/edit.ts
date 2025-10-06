@@ -31,6 +31,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	const newName = getOption(interaction, args, 'new_name');
 	const newPoints = getOption(interaction, args, 'points');
 	const showInRanking = getOption(interaction, args, 'show_in_ranking');
+	const stackable = getOption(interaction, args, 'stackable');
 	try {
 		await Data.mainDb.transaction(async (transaction) => {
 			const usersInRank = await Data.models.User.findAll({
@@ -53,6 +54,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 					pointsRequired: newPoints ?? rank.pointsRequired,
 					userLimit: newLimit ?? rank.userLimit,
 					showInRanking: showInRanking ?? rank.showInRanking,
+					stackable: stackable ?? rank.stackable,
 				},
 				{ transaction },
 			);

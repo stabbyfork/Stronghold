@@ -91,9 +91,10 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		},
 		{
 			name: 'Secondary ranks',
-			value: data?.ranks
-				? data.ranks.map((rank) => `\`${rank.name}\` (${rank.pointsRequired} points)`).join(', ')
-				: 'None',
+			value:
+				data?.ranks && data.ranks.length // More than 0
+					? data.ranks.map((rank) => `\`${rank.name}\` (${rank.pointsRequired} points)`).join(', ')
+					: 'None',
 			inline: true,
 		},
 	);

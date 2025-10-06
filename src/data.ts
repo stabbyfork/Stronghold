@@ -97,6 +97,22 @@ export namespace Data {
 		console.log('Shutting down database');
 	}
 
+	export async function reconcileRanks(user: User, transaction: Transaction) {
+		const currentRanks = await user.getRanks({ transaction });
+		const mainRank = await user.getMainRank({ transaction });
+		const guild = client.guilds.cache.get(user.guildId) ?? (await client.guilds.fetch(user.guildId));
+		const member = guild.members.cache.get(user.userId) ?? (await guild.members.fetch(user.userId));
+
+		if (mainRank) {
+			await member.roles.add(mainRank.roleId, 'Gained enough points for this rank.');
+		}
+
+		await member.roles.add(
+			currentRanks.map((r) => r.roleId),
+			'Gained enough points for this rank.',
+		);
+	}
+
 	function diffRanks(newRanks: Rank[], currentRanks: Rank[]): [added: Rank[], removed: Rank[]] {
 		const newIds = new Set(newRanks.map((r) => r.rankId));
 		const currentIds = new Set(currentRanks.map((r) => r.rankId));

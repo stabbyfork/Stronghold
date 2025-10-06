@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON SUN, 05 OCT 2025 18:55:53 GMT WITH 8 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON MON, 06 OCT 2025 14:03:26 GMT WITH 8 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct } from "./types/commandTypes.js";
 
@@ -135,6 +135,12 @@ ranking: {
     }
   },
   "points": {
+    "lb": {
+      "show_stackable": {
+        "type": "boolean",
+        "required": false
+      }
+    },
     "add": {
       "points": {
         "type": "integer",

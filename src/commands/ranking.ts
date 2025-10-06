@@ -37,7 +37,15 @@ export default createCommand<{}, 'ranking'>({
 				.setName('points')
 				.setDescription('Points, given to users')
 				.addSubcommand((cmd) =>
-					cmd.setName('lb').setDescription('View the points leaderboard (for this server)'),
+					cmd
+						.setName('lb')
+						.setDescription('View the points leaderboard (for this server)')
+						.addBooleanOption((option) =>
+							option
+								.setName('show_stackable')
+								.setDescription('Show stackable ranks (default = false)')
+								.setRequired(false),
+						),
 				)
 				.addSubcommand((cmd) =>
 					cmd

@@ -58,12 +58,12 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		},
 		{
 			name: 'Current rank',
-			value: rank ? `${rank.name} (${rank.pointsRequired} points)` : 'None',
+			value: rank ? `\`${rank.name}\` (${rank.pointsRequired} points)` : 'None',
 			inline: true,
 		},
 		{
 			name: 'Next rank',
-			value: nextRank ? `${nextRank.name} (${nextRank.pointsRequired} points)` : 'None',
+			value: nextRank ? `\`${nextRank.name}\` (${nextRank.pointsRequired} points)` : 'None',
 			inline: true,
 		},
 		{

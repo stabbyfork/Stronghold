@@ -16,6 +16,7 @@ import { User } from './models/user.js';
 import { UserPermission } from './models/userPermission.js';
 import { Errors } from './types/errors.js';
 import { Debug } from './utils/errorsUtils.js';
+import { RelatedGuild } from './models/relatedGuild.js';
 
 const dbConfg = Config.get('database');
 
@@ -33,6 +34,7 @@ export namespace Data {
 		MessageLink,
 		GuildSession,
 		SessionOptions,
+		RelatedGuild,
 	};
 	export const mainDb =
 		process.env.NODE_ENV === 'prod'

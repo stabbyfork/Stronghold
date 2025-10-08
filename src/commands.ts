@@ -1,8 +1,9 @@
-// AUTO-GENERATED ON MON, 06 OCT 2025 14:50:17 GMT WITH 8 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON WED, 08 OCT 2025 17:58:50 GMT WITH 9 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct, CommandExecute } from './types/commandTypes.js';
 
 import activity from './commands/activity.js';
+import dpm from './commands/dpm.js';
 import permissions from './commands/permissions.js';
 import ranking from './commands/ranking.js';
 import session from './commands/session.js';
@@ -17,6 +18,18 @@ import activity_checks_cancel from './commands/activity/checks/cancel.js';
 import activity_checks_pause from './commands/activity/checks/pause.js';
 import activity_checks_resume from './commands/activity/checks/resume.js';
 import activity_checks_info from './commands/activity/checks/info.js';
+import dpm_setup from './commands/dpm/setup.js';
+import dpm_info from './commands/dpm/info.js';
+import dpm_allies_add from './commands/dpm/allies/add.js';
+import dpm_allies_remove from './commands/dpm/allies/remove.js';
+import dpm_allies_list from './commands/dpm/allies/list.js';
+import dpm_enemies_add from './commands/dpm/enemies/add.js';
+import dpm_enemies_remove from './commands/dpm/enemies/remove.js';
+import dpm_enemies_list from './commands/dpm/enemies/list.js';
+import dpm_neutrals_add from './commands/dpm/neutrals/add.js';
+import dpm_neutrals_remove from './commands/dpm/neutrals/remove.js';
+import dpm_neutrals_list from './commands/dpm/neutrals/list.js';
+import dpm_list from './commands/dpm/list.js';
 import permissions_roles_add from './commands/permissions/roles/add.js';
 import permissions_roles_remove from './commands/permissions/roles/remove.js';
 import permissions_roles_list from './commands/permissions/roles/list.js';
@@ -51,6 +64,7 @@ import session_participants from './commands/session/participants.js';
 
 export const commands = {
   'activity': activity,
+  'dpm': dpm,
   'permissions': permissions,
   'ranking': ranking,
   'session': session,
@@ -70,6 +84,26 @@ activity: {
     resume: activity_checks_resume,
     info: activity_checks_info
   }
+},
+dpm: {
+  setup: dpm_setup,
+  info: dpm_info,
+  allies: {
+    add: dpm_allies_add,
+    remove: dpm_allies_remove,
+    list: dpm_allies_list
+  },
+  enemies: {
+    add: dpm_enemies_add,
+    remove: dpm_enemies_remove,
+    list: dpm_enemies_list
+  },
+  neutrals: {
+    add: dpm_neutrals_add,
+    remove: dpm_neutrals_remove,
+    list: dpm_neutrals_list
+  },
+  list: dpm_list
 },
 permissions: {
   roles: {

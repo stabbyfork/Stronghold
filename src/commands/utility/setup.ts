@@ -903,7 +903,7 @@ export default createCommand<typeof commandOptions.setup>({
 		usesPerInterval: 5,
 		intervalMs: 60 * 60 * 1000,
 		useCooldown: 0,
-		scope: UsageScope.GuildAll,
+		scope: UsageScope.GuildMember,
 	},
 	description:
 		'Includes configuration of logging, admin permissions (for both users and roles), and the inactive status role. Recommended to be run before using the rest of the commands, as most features require the server to be set up.',

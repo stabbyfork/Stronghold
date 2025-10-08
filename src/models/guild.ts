@@ -1,19 +1,24 @@
 import {
 	CreationOptional,
 	DataTypes,
+	HasManyAddAssociationMixin,
+	HasManyCreateAssociationMixin,
+	HasManyGetAssociationsMixin,
+	HasManyRemoveAssociationMixin,
 	HasOneGetAssociationMixin,
 	InferAttributes,
 	InferCreationAttributes,
 	Model,
 	NonAttribute,
 } from '@sequelize/core';
-import { Attribute, HasMany, HasOne, Table } from '@sequelize/core/decorators-legacy';
+import { Attribute, HasMany, HasOne, Table, ValidateAttribute } from '@sequelize/core/decorators-legacy';
 import { User } from './user.js';
 import { ActivityCheck } from './activityCheck.js';
 import { Rank } from './rank.js';
 import { UserPermission } from './userPermission.js';
 import { RolePermission } from './rolePermission.js';
 import { GuildSession } from './session.js';
+import { RelatedGuild } from './relatedGuild.js';
 
 export enum GuildAssociations {
 	Users = 'users',
@@ -22,6 +27,7 @@ export enum GuildAssociations {
 	UserPermissions = 'userPermissions',
 	RolePermissions = 'rolePermissions',
 	Session = 'session',
+	RelatedGuilds = 'relatedGuilds',
 }
 
 @Table({ tableName: 'Guilds' })
@@ -46,7 +52,14 @@ export class Guild extends Model<InferAttributes<Guild>, InferCreationAttributes
 	@Attribute({ allowNull: true, type: DataTypes.STRING(20) })
 	declare inSessionRoleId: string | null;
 
-	// Associated in user.ts
+	@Attribute({ allowNull: true, type: DataTypes.STRING(8), unique: true })
+	@ValidateAttribute({
+		isLowercase: true,
+		notContains: [' ', '!'],
+	})
+	declare tag: string | null;
+
+	/** Associated in user.ts */
 	declare users?: NonAttribute<User[]>;
 
 	@HasOne(() => ActivityCheck, { foreignKey: { name: 'guildId', onUpdate: 'RESTRICT', onDelete: 'CASCADE' } })
@@ -66,6 +79,13 @@ export class Guild extends Model<InferAttributes<Guild>, InferCreationAttributes
 	@HasOne(() => GuildSession, { foreignKey: { name: 'guildId', onUpdate: 'RESTRICT', onDelete: 'CASCADE' } })
 	declare session?: NonAttribute<GuildSession>;
 	declare getSession: HasOneGetAssociationMixin<GuildSession>;
+
+	@HasMany(() => RelatedGuild, { foreignKey: { name: 'guildId', onUpdate: 'RESTRICT', onDelete: 'CASCADE' } })
+	declare relatedGuilds?: NonAttribute<RelatedGuild[]>;
+	declare getRelatedGuilds: HasManyGetAssociationsMixin<RelatedGuild>;
+	declare removeRelatedGuild: HasManyRemoveAssociationMixin<RelatedGuild, RelatedGuild['id']>;
+	declare addRelatedGuild: HasManyAddAssociationMixin<RelatedGuild, RelatedGuild['id']>;
+	declare createRelatedGuild: HasManyCreateAssociationMixin<RelatedGuild, 'guildId'>;
 
 	@Attribute({ type: DataTypes.DATE })
 	declare createdAt: CreationOptional<Date>;

@@ -1,0 +1,218 @@
+import { SlashCommandBuilder } from 'discord.js';
+import { createCommand } from '../types/commandTypes.js';
+import { UsageScope } from '../utils/usageLimitsUtils.js';
+
+export default createCommand<{}, 'dpm'>({
+	data: new SlashCommandBuilder()
+		.setName('dpm')
+		.setDescription('Commands related to diplomacy')
+		.addSubcommand((cmd) =>
+			cmd
+				.setName('setup')
+				.setDescription('Setup diplomacy. Server owner only')
+				.addStringOption((option) =>
+					option
+						.setName('tag')
+						.setDescription('Unique tag to represent this guild. 2 to 8 chars, not case sensitive')
+						.setRequired(true)
+						.setMaxLength(8)
+						.setMinLength(2),
+				),
+		)
+		.addSubcommand((cmd) =>
+			cmd
+				.setName('info')
+				.setDescription('Get info about a guild')
+				.addStringOption((option) =>
+					option
+						.setName('tag')
+						.setDescription('Tag of the guild. Omit for own info')
+						.setRequired(false)
+						.setMaxLength(8)
+						.setMinLength(2),
+				),
+		)
+		.addSubcommandGroup((group) =>
+			group
+				.setName('allies')
+				.setDescription('Manage alliances')
+				.addSubcommand((cmd) =>
+					cmd
+						.setName('add')
+						.setDescription('Add an alliance')
+						.addStringOption((option) =>
+							option
+								.setName('tag')
+								.setDescription('Tag of the target guild')
+								.setRequired(true)
+								.setMaxLength(8)
+								.setMinLength(2),
+						),
+				)
+				.addSubcommand((cmd) =>
+					cmd
+						.setName('remove')
+						.setDescription('Remove an alliance')
+						.addStringOption((option) =>
+							option
+								.setName('tag')
+								.setDescription('Tag of the target guild')
+								.setRequired(true)
+								.setMaxLength(8)
+								.setMinLength(2),
+						),
+				)
+				.addSubcommand((cmd) => cmd.setName('list').setDescription('List all alliances')),
+		)
+		.addSubcommandGroup((group) =>
+			group
+				.setName('enemies')
+				.setDescription('Manage enemies')
+				.addSubcommand((cmd) =>
+					cmd
+						.setName('add')
+						.setDescription('Add an enemy')
+						.addStringOption((option) =>
+							option
+								.setName('tag')
+								.setDescription('Tag of the target guild')
+								.setRequired(true)
+								.setMaxLength(8)
+								.setMinLength(2),
+						),
+				)
+				.addSubcommand((cmd) =>
+					cmd
+						.setName('remove')
+						.setDescription('Remove an enemy')
+						.addStringOption((option) =>
+							option
+								.setName('tag')
+								.setDescription('Tag of the target guild')
+								.setRequired(true)
+								.setMaxLength(8)
+								.setMinLength(2),
+						),
+				)
+				.addSubcommand((cmd) => cmd.setName('list').setDescription('List all enemy')),
+		)
+		.addSubcommandGroup((group) =>
+			group
+				.setName('neutrals')
+				.setDescription('Manage neutral guilds')
+				.addSubcommand((cmd) =>
+					cmd
+						.setName('add')
+						.setDescription('Add a neutral guild')
+						.addStringOption((option) =>
+							option
+								.setName('tag')
+								.setDescription('Tag of the target guild')
+								.setRequired(true)
+								.setMaxLength(8)
+								.setMinLength(2),
+						),
+				)
+				.addSubcommand((cmd) =>
+					cmd
+						.setName('remove')
+						.setDescription('Remove a neutral guild')
+						.addStringOption((option) =>
+							option
+								.setName('tag')
+								.setDescription('Tag of the target guild')
+								.setRequired(true)
+								.setMaxLength(8)
+								.setMinLength(2),
+						),
+				)
+				.addSubcommand((cmd) => cmd.setName('list').setDescription('List all neutral guilds')),
+		)
+		.addSubcommand((cmd) => cmd.setName('list').setDescription('List all existing guilds')),
+	limits: {
+		setup: {
+			usesPerInterval: 3,
+			intervalMs: 60 * 1000,
+			useCooldown: 0,
+			scope: UsageScope.GuildMember,
+		},
+		info: {
+			usesPerInterval: 3,
+			intervalMs: 40 * 1000,
+			useCooldown: 5 * 1000,
+			scope: UsageScope.GuildMember,
+		},
+		list: {
+			usesPerInterval: 3,
+			intervalMs: 40 * 1000,
+			useCooldown: 8 * 1000,
+			scope: UsageScope.GuildAll,
+		},
+		allies: {
+			add: {
+				usesPerInterval: 3,
+				intervalMs: 60 * 1000,
+				useCooldown: 5 * 1000,
+				scope: UsageScope.GuildMember,
+			},
+			remove: {
+				usesPerInterval: 3,
+				intervalMs: 60 * 1000,
+				useCooldown: 5 * 1000,
+				scope: UsageScope.GuildMember,
+			},
+			list: {
+				usesPerInterval: 3,
+				intervalMs: 40 * 1000,
+				useCooldown: 5 * 1000,
+				scope: UsageScope.GuildMember,
+			},
+		},
+		enemies: {
+			add: {
+				usesPerInterval: 3,
+				intervalMs: 60 * 1000,
+				useCooldown: 5 * 1000,
+				scope: UsageScope.GuildMember,
+			},
+			remove: {
+				usesPerInterval: 3,
+				intervalMs: 60 * 1000,
+				useCooldown: 5 * 1000,
+				scope: UsageScope.GuildMember,
+			},
+			list: {
+				usesPerInterval: 3,
+				intervalMs: 40 * 1000,
+				useCooldown: 5 * 1000,
+				scope: UsageScope.GuildMember,
+			},
+		},
+		neutrals: {
+			add: {
+				usesPerInterval: 3,
+				intervalMs: 60 * 1000,
+				useCooldown: 5 * 1000,
+				scope: UsageScope.GuildMember,
+			},
+			remove: {
+				usesPerInterval: 3,
+				intervalMs: 60 * 1000,
+				useCooldown: 5 * 1000,
+				scope: UsageScope.GuildMember,
+			},
+			list: {
+				usesPerInterval: 3,
+				intervalMs: 40 * 1000,
+				useCooldown: 5 * 1000,
+				scope: UsageScope.GuildMember,
+			},
+		},
+	},
+	description: {
+		allies: {
+			add: 'Changes the relation of a guild if it already exists.',
+		},
+		setup: 'Must not contain spaces or exclamation marks (!). Must be within 2-8 characters. Converted to lowercase.',
+	},
+});

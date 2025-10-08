@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON MON, 06 OCT 2025 14:50:17 GMT WITH 8 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON WED, 08 OCT 2025 17:58:50 GMT WITH 9 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct } from "./types/commandTypes.js";
 
@@ -27,6 +27,62 @@ activity: {
       "override-sequence": {
         "type": "string",
         "required": false
+      }
+    }
+  }
+},
+dpm: {
+  "setup": {
+    "tag": {
+      "type": "string",
+      "required": true
+    }
+  },
+  "info": {
+    "tag": {
+      "type": "string",
+      "required": false
+    }
+  },
+  "allies": {
+    "add": {
+      "tag": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "remove": {
+      "tag": {
+        "type": "string",
+        "required": true
+      }
+    }
+  },
+  "enemies": {
+    "add": {
+      "tag": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "remove": {
+      "tag": {
+        "type": "string",
+        "required": true
+      }
+    }
+  },
+  "neutrals": {
+    "add": {
+      "tag": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "remove": {
+      "tag": {
+        "type": "string",
+        "required": true
       }
     }
   }
@@ -321,6 +377,26 @@ activity: {
     resume: T,
     info: T
   }
+},
+dpm: {
+  setup: T,
+  info: T,
+  allies: {
+    add: T,
+    remove: T,
+    list: T
+  },
+  enemies: {
+    add: T,
+    remove: T,
+    list: T
+  },
+  neutrals: {
+    add: T,
+    remove: T,
+    list: T
+  },
+  list: T
 },
 permissions: {
   roles: {

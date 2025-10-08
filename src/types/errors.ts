@@ -60,6 +60,10 @@ export const ErrorReplies = {
 	ChannelNotFoundSubstitute: 'Channel not found (id): !{ERROR}.',
 	MessageNotFoundSubstitute: 'Message not found (id): !{ERROR}.',
 	CantBeStackableAndLimited: 'Role cannot be stackable and limited at the same time.',
+	DiploNotSetup: 'Diplomacy is not set up. Please run `/dpm setup` first.',
+	DiploAlreadySetup: 'Diplomacy is already set up.',
+	GuildNotRelated: 'Guild with the tag \`!{ERROR}\` is not related to this server.',
+	GuildTagNotFound: 'Guild with the tag \`!{ERROR}\` not found.',
 } as const;
 
 export namespace Errors {

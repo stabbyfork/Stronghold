@@ -352,6 +352,10 @@ export class Pages {
 		}
 	}
 
+	shouldDisplayNavButtons() {
+		return this.maxPage > 0;
+	}
+
 	/**
 	 * Replies to the given interaction with the current page.
 	 *
@@ -366,7 +370,7 @@ export class Pages {
 	 */
 	async replyTo(interaction: RepliableInteraction, ephemeral = true) {
 		const toReply = {
-			components: [await this.getFormattedPage()],
+			components: [await this.getFormattedPage(this.shouldDisplayNavButtons())],
 			flags: (ephemeral ? MessageFlags.Ephemeral : 0) | MessageFlags.IsComponentsV2,
 			withResponse: true,
 			allowedMentions: {
@@ -422,7 +426,10 @@ export class Pages {
 				default:
 					throw new Errors.ValueError(`Unknown customId: ${i.customId}`);
 			}
-			await i.update({ components: [await this.getFormattedPage()], allowedMentions: { roles: [], users: [] } });
+			await i.update({
+				components: [await this.getFormattedPage(this.shouldDisplayNavButtons())],
+				allowedMentions: { roles: [], users: [] },
+			});
 		});
 	}
 }

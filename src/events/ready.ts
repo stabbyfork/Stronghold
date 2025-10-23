@@ -6,6 +6,7 @@ import { Data } from '../data.js';
 import { createEvent } from '../types/eventTypes.js';
 import { GuildFlag } from '../utils/guildFlagsUtils.js';
 import { Logging } from '../utils/loggingUtils.js';
+import { Debug } from '../utils/errorsUtils.js';
 
 export default createEvent({
 	name: Events.ClientReady,
@@ -25,15 +26,18 @@ export default createEvent({
 		for await (const _ of setInterval(3000)) {
 			if (index >= dbGuilds.length) return;
 			const guild = dbGuilds[index++];
-			console.log('Guild', guild.guildId);
-			await Logging.log({
-				data: {
-					guildId: guild.guildId,
-				},
-				logType: Logging.Type.Info,
-				extents: [GuildFlag.LogInfo],
-				formatData: 'Bot has started',
-			});
+			try {
+				await Logging.log({
+					data: {
+						guildId: guild.guildId,
+					},
+					logType: Logging.Type.Info,
+					extents: [GuildFlag.LogInfo],
+					formatData: 'Bot has started',
+				});
+			} catch (e) {
+				Debug.error(e);
+			}
 		}
 	},
 });

@@ -3,7 +3,7 @@ import { commands } from '../commands.js';
 import { Data } from '../data.js';
 import { CommandConstruct, CommandExecute, CommandOptionDictDeclare } from '../types/commandTypes.js';
 import { ErrorReplies, Errors } from '../types/errors.js';
-import { createEvent, GlobalCustomIds } from '../types/eventTypes.js';
+import { createEvent, GlobalCustomIds, InformedCustomId } from '../types/eventTypes.js';
 import { constructError, Debug, reportErrorToUser } from '../utils/errorsUtils.js';
 import { getValue } from '../utils/genericsUtils.js';
 import { GuildFlag } from '../utils/guildFlagsUtils.js';
@@ -18,6 +18,10 @@ import {
 	UsageScope,
 } from '../utils/usageLimitsUtils.js';
 import { GuildAssociations } from '../models/guild.js';
+import { DPM } from '../utils/diplomacyUtils.js';
+import { GuildRelation } from '../models/relatedGuild.js';
+import { Op } from '@sequelize/core';
+import { client } from '../client.js';
 
 export default createEvent({
 	name: Events.InteractionCreate,
@@ -155,6 +159,7 @@ export default createEvent({
 				}
 			}
 		} else if (interaction.isMessageComponent()) {
+			let handled = false;
 			switch (interaction.customId) {
 				case GlobalCustomIds.InSessionJoin:
 					{
@@ -266,6 +271,7 @@ export default createEvent({
 							extents: [GuildFlag.LogInfo],
 						});
 					}
+					handled = true;
 					break;
 				case GlobalCustomIds.InSessionLeave:
 					{
@@ -336,7 +342,351 @@ export default createEvent({
 							});
 						}
 					}
+					handled = true;
 					break;
+			}
+			if (handled) return;
+			if (InformedCustomId.isValid(interaction.customId)) {
+				const { name, data } = InformedCustomId.deformat(interaction.customId);
+				const sourceGuild = interaction.guild;
+				switch (name) {
+					case DPM.CustomId.AcceptAlly: {
+						{
+							const targetGuildId = data[0];
+							if (!targetGuildId) {
+								Debug.error(`Interaction for ${DPM.CustomId.AcceptAlly} has no target guild`);
+								await reportErrorToUser(
+									interaction,
+									constructError([
+										ErrorReplies.InteractionHasNoTargetGuild,
+										ErrorReplies.ReportToOwner,
+									]),
+									true,
+								);
+								return;
+							}
+							if (!sourceGuild) {
+								Debug.error(`Interaction for ${DPM.CustomId.AcceptAlly} is not in a guild`);
+								await reportErrorToUser(
+									interaction,
+									constructError([ErrorReplies.InteractionHasNoGuild, ErrorReplies.ReportToOwner]),
+									true,
+								);
+								return;
+							}
+							// Swap around to find where the request is coming from
+							const dbRel = await Data.models.RelatedGuild.findOne({
+								where: {
+									guildId: targetGuildId,
+									targetGuildId: sourceGuild.id,
+								},
+								attributes: ['activeChange', 'relation'],
+							});
+							if (dbRel?.activeChange !== GuildRelation.Ally) {
+								await reportErrorToUser(
+									interaction,
+									constructError([ErrorReplies.NoAllianceRequest]),
+									true,
+								);
+								return;
+							}
+							if (dbRel.relation === GuildRelation.Ally) {
+								await reportErrorToUser(
+									interaction,
+									constructError([ErrorReplies.AlreadyAllied]),
+									true,
+								);
+								return;
+							}
+							await Data.mainDb.transaction(async (transaction) => {
+								await Data.models.RelatedGuild.update(
+									{ relation: GuildRelation.Ally },
+									{
+										where: {
+											[Op.or]: [
+												{ guildId: sourceGuild.id, targetGuildId: targetGuildId },
+												{ guildId: targetGuildId, targetGuildId: sourceGuild.id },
+											],
+										},
+										transaction,
+									},
+								);
+							});
+							await interaction.reply({
+								content: `✅ Successfully accepted ally request from ${client.guilds.cache.get(targetGuildId)?.name ?? 'an unknown guild'}`,
+							});
+						}
+						break;
+					}
+					case DPM.CustomId.DeclineAlly: {
+						{
+							const targetGuildId = data[0];
+							if (!targetGuildId) {
+								Debug.error(`Interaction for ${DPM.CustomId.DeclineAlly} has no target guild`);
+								await reportErrorToUser(
+									interaction,
+									constructError([
+										ErrorReplies.InteractionHasNoTargetGuild,
+										ErrorReplies.ReportToOwner,
+									]),
+									true,
+								);
+								return;
+							}
+							if (!sourceGuild) {
+								Debug.error(`Interaction for ${DPM.CustomId.DeclineAlly} is not in a guild`);
+								await reportErrorToUser(
+									interaction,
+									constructError([ErrorReplies.InteractionHasNoGuild, ErrorReplies.ReportToOwner]),
+									true,
+								);
+								return;
+							}
+							// Swap around to find where the request is coming from
+							const dbRel = await Data.models.RelatedGuild.findOne({
+								where: {
+									guildId: targetGuildId,
+									targetGuildId: sourceGuild.id,
+								},
+								attributes: ['activeChange'],
+							});
+							if (dbRel?.activeChange !== GuildRelation.Ally) {
+								await reportErrorToUser(
+									interaction,
+									constructError([ErrorReplies.NoAllianceRequest]),
+									true,
+								);
+								return;
+							}
+							await dbRel.update({ activeChange: null });
+							await interaction.reply({
+								content: `✅ Successfully declined ally request from ${client.guilds.cache.get(targetGuildId)?.name ?? 'an unknown guild'}`,
+							});
+						}
+						break;
+					}
+					case DPM.CustomId.CancelAlly: {
+						{
+							const targetGuildId = data[0];
+							if (!targetGuildId) {
+								Debug.error(`Interaction for ${DPM.CustomId.DeclineAlly} has no target guild`);
+								await reportErrorToUser(
+									interaction,
+									constructError([
+										ErrorReplies.InteractionHasNoTargetGuild,
+										ErrorReplies.ReportToOwner,
+									]),
+									true,
+								);
+								return;
+							}
+							if (!sourceGuild) {
+								Debug.error(`Interaction for ${DPM.CustomId.DeclineAlly} is not in a guild`);
+								await reportErrorToUser(
+									interaction,
+									constructError([ErrorReplies.InteractionHasNoGuild, ErrorReplies.ReportToOwner]),
+									true,
+								);
+								return;
+							}
+							const dbRel = await Data.models.RelatedGuild.findOne({
+								where: {
+									guildId: sourceGuild.id,
+									targetGuildId,
+								},
+								attributes: ['activeChange'],
+							});
+							if (dbRel?.activeChange !== GuildRelation.Ally) {
+								await reportErrorToUser(
+									interaction,
+									constructError([ErrorReplies.NoAllianceRequest]),
+									true,
+								);
+								return;
+							}
+							await DPM.transaction(
+								{
+									source: sourceGuild,
+									target: targetGuildId,
+								},
+								DPM.TransactionType.AllyCancel,
+								{
+									author: interaction.user,
+									message: 'No reason can be provided.',
+								},
+							);
+							await interaction.reply({
+								content: `✅ Successfully cancelled ally request to ${client.guilds.cache.get(targetGuildId)?.name ?? 'an unknown guild'}`,
+							});
+						}
+						break;
+					}
+					case DPM.CustomId.AcceptNeutral: {
+						{
+							const targetGuildId = data[0];
+							if (!targetGuildId) {
+								Debug.error(`Interaction for ${DPM.CustomId.AcceptNeutral} has no target guild`);
+								await reportErrorToUser(
+									interaction,
+									constructError([
+										ErrorReplies.InteractionHasNoTargetGuild,
+										ErrorReplies.ReportToOwner,
+									]),
+									true,
+								);
+								return;
+							}
+							if (!sourceGuild) {
+								Debug.error(`Interaction for ${DPM.CustomId.AcceptNeutral} is not in a guild`);
+								await reportErrorToUser(
+									interaction,
+									constructError([ErrorReplies.InteractionHasNoGuild, ErrorReplies.ReportToOwner]),
+									true,
+								);
+								return;
+							}
+							// Swap around to find where the request is coming from
+							const dbRel = await Data.models.RelatedGuild.findOne({
+								where: {
+									guildId: targetGuildId,
+									targetGuildId: sourceGuild.id,
+								},
+								attributes: ['activeChange', 'relation'],
+							});
+							if (dbRel?.activeChange !== GuildRelation.Neutral) {
+								await reportErrorToUser(
+									interaction,
+									constructError([ErrorReplies.NoNeutralRequest]),
+									true,
+								);
+								return;
+							}
+							if (dbRel?.relation === GuildRelation.Neutral) {
+								await reportErrorToUser(interaction, constructError([ErrorReplies.AlreadyNeutral]));
+								return;
+							}
+							await Data.mainDb.transaction(async (transaction) => {
+								await Data.models.RelatedGuild.update(
+									{ relation: GuildRelation.Neutral },
+									{
+										where: {
+											[Op.or]: [
+												{ guildId: sourceGuild.id, targetGuildId: targetGuildId },
+												{ guildId: targetGuildId, targetGuildId: sourceGuild.id },
+											],
+										},
+										transaction,
+									},
+								);
+							});
+							await interaction.reply({
+								content: `✅ Successfully accepted peace request from ${client.guilds.cache.get(targetGuildId)?.name ?? 'an unknown guild'}.`,
+							});
+						}
+					}
+					case DPM.CustomId.DeclineNeutral: {
+						{
+							const targetGuildId = data[0];
+							if (!targetGuildId) {
+								Debug.error(`Interaction for ${DPM.CustomId.DeclineNeutral} has no target guild`);
+								await reportErrorToUser(
+									interaction,
+									constructError([
+										ErrorReplies.InteractionHasNoTargetGuild,
+										ErrorReplies.ReportToOwner,
+									]),
+									true,
+								);
+								return;
+							}
+							if (!sourceGuild) {
+								Debug.error(`Interaction for ${DPM.CustomId.DeclineNeutral} is not in a guild`);
+								await reportErrorToUser(
+									interaction,
+									constructError([ErrorReplies.InteractionHasNoGuild, ErrorReplies.ReportToOwner]),
+									true,
+								);
+								return;
+							}
+							// Swap around to find where the request is coming from
+							const dbRel = await Data.models.RelatedGuild.findOne({
+								where: {
+									guildId: targetGuildId,
+									targetGuildId: sourceGuild.id,
+								},
+								attributes: ['activeChange'],
+							});
+							if (dbRel?.activeChange !== GuildRelation.Neutral) {
+								await reportErrorToUser(
+									interaction,
+									constructError([ErrorReplies.NoNeutralRequest]),
+									true,
+								);
+								return;
+							}
+							await dbRel.update({ activeChange: null });
+							await interaction.reply({
+								content: `✅ Successfully declined peace request from ${client.guilds.cache.get(targetGuildId)?.name ?? 'an unknown guild'}`,
+							});
+						}
+					}
+					case DPM.CustomId.CancelNeutral: {
+						{
+							const targetGuildId = data[0];
+							if (!targetGuildId) {
+								Debug.error(`Interaction for ${DPM.CustomId.DeclineAlly} has no target guild`);
+								await reportErrorToUser(
+									interaction,
+									constructError([
+										ErrorReplies.InteractionHasNoTargetGuild,
+										ErrorReplies.ReportToOwner,
+									]),
+									true,
+								);
+								return;
+							}
+							if (!sourceGuild) {
+								Debug.error(`Interaction for ${DPM.CustomId.DeclineAlly} is not in a guild`);
+								await reportErrorToUser(
+									interaction,
+									constructError([ErrorReplies.InteractionHasNoGuild, ErrorReplies.ReportToOwner]),
+									true,
+								);
+								return;
+							}
+							const dbRel = await Data.models.RelatedGuild.findOne({
+								where: {
+									guildId: sourceGuild.id,
+									targetGuildId,
+								},
+								attributes: ['activeChange'],
+							});
+							if (dbRel?.activeChange !== GuildRelation.Neutral) {
+								await reportErrorToUser(
+									interaction,
+									constructError([ErrorReplies.NoNeutralRequest]),
+									true,
+								);
+								return;
+							}
+							await DPM.transaction(
+								{
+									source: sourceGuild,
+									target: targetGuildId,
+								},
+								DPM.TransactionType.NeutralCancel,
+								{
+									author: interaction.user,
+									message: 'No reason can be provided.',
+								},
+							);
+							await interaction.reply({
+								content: `✅ Successfully cancelled peace request from ${client.guilds.cache.get(targetGuildId)?.name ?? 'an unknown guild'}`,
+							});
+						}
+						break;
+					}
+				}
 			}
 		}
 	},

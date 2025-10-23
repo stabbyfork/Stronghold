@@ -1,6 +1,7 @@
-import { ChatInputCommandInteraction, GuildMember } from 'discord.js';
-import { changeRelation, ChangeType, isDiploReady } from '../../../utils/diplomacyUtils.js';
-import { ErrorReplies } from '../../../types/errors.js';
+import { ChatInputCommandInteraction, GuildMember, MessageFlags } from 'discord.js';
+import { changeRelation, DPM, isDiploReady } from '../../../utils/diplomacyUtils.js';
+import { ChangeType } from '../../../types/diplomacyTypes.js';
+import { ErrorReplies, Errors } from '../../../types/errors.js';
 import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js';
 import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
 import { GuildRelation } from '../../../models/relatedGuild.js';
@@ -32,20 +33,39 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		return;
 	}
 	const tag = getOption(interaction, args, 'tag').toLowerCase();
-	if (
-		await changeRelation({
-			interaction,
-			relationTag: tag,
-			changeType: ChangeType.Remove,
-		})
-	) {
-		await interaction.reply({
-			embeds: [
-				defaultEmbed()
-					.setTitle('Enemy removed')
-					.setDescription(`You are no longer enemies with \`${tag}\`.`)
-					.setColor('Green'),
-			],
-		});
+	const target = await DPM.tagToGuild(tag);
+	if (!target) {
+		await reportErrorToUser(interaction, constructError([ErrorReplies.GuildTagNotFound], tag), true);
+		return;
 	}
+	const message = getOption(interaction, args, 'message');
+	try {
+		await DPM.transaction(
+			{
+				source: guild,
+				target,
+			},
+			DPM.TransactionType.NeutralQuery,
+			{
+				author: interaction.user,
+				message: message ?? 'No message provided.',
+			},
+		);
+	} catch (e) {
+		if (e instanceof Errors.DPMError) {
+			await reportErrorToUser(interaction, e.message, true);
+			return;
+		} else {
+			throw e;
+		}
+	}
+	await interaction.reply({
+		embeds: [
+			defaultEmbed()
+				.setTitle('Peace request sent')
+				.setDescription(`Sent a peace request to \`${tag}\`.`)
+				.setColor('Green'),
+		],
+		flags: MessageFlags.Ephemeral,
+	});
 };

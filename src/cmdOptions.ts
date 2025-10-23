@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON WED, 08 OCT 2025 18:40:23 GMT WITH 9 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON TUE, 14 OCT 2025 17:37:08 GMT WITH 9 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct } from "./types/commandTypes.js";
 
@@ -36,6 +36,10 @@ dpm: {
     "tag": {
       "type": "string",
       "required": true
+    },
+    "diplomacy_channel": {
+      "type": "channel",
+      "required": false
     }
   },
   "info": {
@@ -49,12 +53,20 @@ dpm: {
       "tag": {
         "type": "string",
         "required": true
+      },
+      "message": {
+        "type": "string",
+        "required": false
       }
     },
     "remove": {
       "tag": {
         "type": "string",
         "required": true
+      },
+      "message": {
+        "type": "string",
+        "required": false
       }
     }
   },
@@ -63,6 +75,32 @@ dpm: {
       "tag": {
         "type": "string",
         "required": true
+      },
+      "message": {
+        "type": "string",
+        "required": false
+      }
+    },
+    "remove": {
+      "tag": {
+        "type": "string",
+        "required": true
+      },
+      "message": {
+        "type": "string",
+        "required": false
+      }
+    }
+  },
+  "neutrals": {
+    "add": {
+      "tag": {
+        "type": "string",
+        "required": true
+      },
+      "message": {
+        "type": "string",
+        "required": false
       }
     },
     "remove": {
@@ -72,18 +110,14 @@ dpm: {
       }
     }
   },
-  "neutrals": {
-    "add": {
-      "tag": {
-        "type": "string",
-        "required": true
-      }
+  "send": {
+    "tag": {
+      "type": "string",
+      "required": true
     },
-    "remove": {
-      "tag": {
-        "type": "string",
-        "required": true
-      }
+    "message": {
+      "type": "string",
+      "required": true
     }
   }
 },
@@ -396,7 +430,8 @@ dpm: {
     remove: T,
     list: T
   },
-  list: T
+  list: T,
+  send: T
 },
 permissions: {
   roles: {

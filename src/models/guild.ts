@@ -5,6 +5,7 @@ import {
 	HasManyCreateAssociationMixin,
 	HasManyGetAssociationsMixin,
 	HasManyRemoveAssociationMixin,
+	HasManyRemoveAssociationsMixin,
 	HasOneGetAssociationMixin,
 	InferAttributes,
 	InferCreationAttributes,
@@ -28,6 +29,7 @@ export enum GuildAssociations {
 	RolePermissions = 'rolePermissions',
 	Session = 'session',
 	RelatedGuilds = 'relatedGuilds',
+	RelationThreads = 'relationThreadPairs',
 }
 
 @Table({ tableName: 'Guilds' })
@@ -47,6 +49,9 @@ export class Guild extends Model<InferAttributes<Guild>, InferCreationAttributes
 	/** Log channel ID */
 	@Attribute({ allowNull: true, type: DataTypes.STRING(20) })
 	declare logChannelId: string | null;
+	/** Diplomacy channel */
+	@Attribute({ allowNull: true, type: DataTypes.STRING(20) })
+	declare dpmChannelId: string | null;
 	@Attribute({ allowNull: true, type: DataTypes.STRING(20) })
 	declare inactiveRoleId: string | null;
 	@Attribute({ allowNull: true, type: DataTypes.STRING(20) })
@@ -80,10 +85,14 @@ export class Guild extends Model<InferAttributes<Guild>, InferCreationAttributes
 	declare session?: NonAttribute<GuildSession>;
 	declare getSession: HasOneGetAssociationMixin<GuildSession>;
 
-	@HasMany(() => RelatedGuild, { foreignKey: { name: 'guildId', onUpdate: 'RESTRICT', onDelete: 'CASCADE' } })
+	@HasMany(() => RelatedGuild, {
+		foreignKey: { name: 'guildId', onUpdate: 'RESTRICT', onDelete: 'CASCADE' },
+		inverse: 'guild',
+	})
 	declare relatedGuilds?: NonAttribute<RelatedGuild[]>;
 	declare getRelatedGuilds: HasManyGetAssociationsMixin<RelatedGuild>;
 	declare removeRelatedGuild: HasManyRemoveAssociationMixin<RelatedGuild, RelatedGuild['id']>;
+	declare removeRelatedGuilds: HasManyRemoveAssociationsMixin<RelatedGuild, RelatedGuild['id']>;
 	declare addRelatedGuild: HasManyAddAssociationMixin<RelatedGuild, RelatedGuild['id']>;
 	declare createRelatedGuild: HasManyCreateAssociationMixin<RelatedGuild, 'guildId'>;
 

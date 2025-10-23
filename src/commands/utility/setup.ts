@@ -36,6 +36,7 @@ import { Logging } from '../../utils/loggingUtils.js';
 import { Permission, PermissionBits } from '../../utils/permissionsUtils.js';
 import { getOption } from '../../utils/subcommandsUtils.js';
 import { Usages, UsageScope } from '../../utils/usageLimitsUtils.js';
+import setup from '../dpm/setup.js';
 
 const enum RoleNames {
 	InSession = 'In Session',
@@ -133,7 +134,6 @@ async function createSetupMessage(
 	config: SetupConfig,
 	force: boolean,
 	user: User,
-	transaction?: Transaction,
 ): Promise<[message: ContainerBuilder, existingInactiveRoleId: string | null, existingInSessionRoleId: string | null]> {
 	const message = new ContainerBuilder({ accent_color: 0x0033ff }).addSectionComponents((section) =>
 		section
@@ -645,6 +645,12 @@ export default createCommand<typeof commandOptions.setup>({
 				text.setContent(
 					'You may use `/help` to view all available commands. Some commands have extra information about their usage. To get help on a specific command, use `/help <command>`.',
 				),
+			(text) =>
+				text.setContent(
+					'Next steps:\n- View all commands using \`/help\`\n- Set up diplomacy using \`/dpm setup\`\n- Add ranks using \`/ranking ranks add\`',
+				),
+			(text) =>
+				text.setContent("If you have any questions, please join our support server! (linked in the bot's bio)"),
 		);
 
 		if (setupConfig.createLogChannel) {

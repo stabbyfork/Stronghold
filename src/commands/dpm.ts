@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from 'discord.js';
+import { ChannelType, SlashCommandBuilder } from 'discord.js';
 import { createCommand } from '../types/commandTypes.js';
 import { UsageScope } from '../utils/usageLimitsUtils.js';
 
@@ -17,6 +17,13 @@ export default createCommand<{}, 'dpm'>({
 						.setRequired(true)
 						.setMaxLength(8)
 						.setMinLength(2),
+				)
+				.addChannelOption((option) =>
+					option
+						.setName('diplomacy_channel')
+						.setDescription('Channel for diplomacy')
+						.setRequired(false)
+						.addChannelTypes(ChannelType.GuildForum),
 				),
 		)
 		.addSubcommand((cmd) =>
@@ -39,7 +46,7 @@ export default createCommand<{}, 'dpm'>({
 				.addSubcommand((cmd) =>
 					cmd
 						.setName('add')
-						.setDescription('Add an alliance')
+						.setDescription('Send an alliance request to a guild')
 						.addStringOption((option) =>
 							option
 								.setName('tag')
@@ -47,12 +54,19 @@ export default createCommand<{}, 'dpm'>({
 								.setRequired(true)
 								.setMaxLength(8)
 								.setMinLength(2),
+						)
+						.addStringOption((option) =>
+							option
+								.setName('message')
+								.setDescription('Message to send to the guild')
+								.setRequired(false)
+								.setMaxLength(1024),
 						),
 				)
 				.addSubcommand((cmd) =>
 					cmd
 						.setName('remove')
-						.setDescription('Remove an alliance')
+						.setDescription('Remove an ally')
 						.addStringOption((option) =>
 							option
 								.setName('tag')
@@ -60,6 +74,13 @@ export default createCommand<{}, 'dpm'>({
 								.setRequired(true)
 								.setMaxLength(8)
 								.setMinLength(2),
+						)
+						.addStringOption((option) =>
+							option
+								.setName('message')
+								.setDescription('Message to send to the guild')
+								.setRequired(false)
+								.setMaxLength(1024),
 						),
 				)
 				.addSubcommand((cmd) => cmd.setName('list').setDescription('List all alliances')),
@@ -79,12 +100,19 @@ export default createCommand<{}, 'dpm'>({
 								.setRequired(true)
 								.setMaxLength(8)
 								.setMinLength(2),
+						)
+						.addStringOption((option) =>
+							option
+								.setName('message')
+								.setDescription('Message to send to the guild')
+								.setRequired(false)
+								.setMaxLength(1024),
 						),
 				)
 				.addSubcommand((cmd) =>
 					cmd
 						.setName('remove')
-						.setDescription('Remove an enemy')
+						.setDescription('Send a peace request to an enemy')
 						.addStringOption((option) =>
 							option
 								.setName('tag')
@@ -92,6 +120,13 @@ export default createCommand<{}, 'dpm'>({
 								.setRequired(true)
 								.setMaxLength(8)
 								.setMinLength(2),
+						)
+						.addStringOption((option) =>
+							option
+								.setName('message')
+								.setDescription('Message to send to the guild')
+								.setRequired(false)
+								.setMaxLength(1024),
 						),
 				)
 				.addSubcommand((cmd) => cmd.setName('list').setDescription('List all enemy')),
@@ -111,6 +146,13 @@ export default createCommand<{}, 'dpm'>({
 								.setRequired(true)
 								.setMaxLength(8)
 								.setMinLength(2),
+						)
+						.addStringOption((option) =>
+							option
+								.setName('message')
+								.setDescription('Message to send to the guild')
+								.setRequired(false)
+								.setMaxLength(1024),
 						),
 				)
 				.addSubcommand((cmd) =>
@@ -128,7 +170,23 @@ export default createCommand<{}, 'dpm'>({
 				)
 				.addSubcommand((cmd) => cmd.setName('list').setDescription('List all neutral guilds')),
 		)
-		.addSubcommand((cmd) => cmd.setName('list').setDescription('List all existing guilds')),
+		.addSubcommand((cmd) => cmd.setName('list').setDescription('List all existing guilds'))
+		.addSubcommand((cmd) =>
+			cmd
+				.setName('send')
+				.setDescription('Send a message to a guild')
+				.addStringOption((option) =>
+					option
+						.setName('tag')
+						.setDescription('Tag of the target guild')
+						.setRequired(true)
+						.setMaxLength(8)
+						.setMinLength(2),
+				)
+				.addStringOption((option) =>
+					option.setName('message').setDescription('Message to send').setRequired(true).setMaxLength(1024),
+				),
+		),
 	limits: {
 		setup: {
 			usesPerInterval: 3,

@@ -82,9 +82,13 @@
 			"readOnly": true,
 			"required": ["token", "clientId"],
 			"additionalProperties": false
+		},
+		"assetsDirectory": {
+			"type": "string",
+			"description": "The directory thats stores assets. Interpreted relatively depending on the module that is reading it. CURRENTLY UNUSED"
 		}
 	},
 	"readOnly": true,
-	"required": ["appOwnerUsername", "token", "clientId", "$schema", "database", "appOwnerId"],
+	"required": ["appOwnerUsername", "token", "clientId", "$schema", "database", "appOwnerId", "assetsDirectory"],
 	"additionalProperties": false
 }

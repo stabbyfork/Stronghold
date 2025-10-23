@@ -19,7 +19,7 @@ export const ErrorReplies = {
 	OutdatedCommand: 'This command cannot be used and may be outdated.',
 	InteractionHasNoGuild:
 		'This interaction does not have an associated guild. This may be because of an internal error or because the interaction was not created in a guild.',
-	SetupAlreadyComplete: 'This server is already set up.',
+	SetupAlreadyComplete: 'This server is already set up. To redo the setup, run `/setup force: true`.',
 	InteractionTimedOut: 'This interaction has timed out.',
 	InteractionHasNoMember:
 		'This interaction does not have an associated guild member. This may be because of an internal error or because the interaction was not created in a guild.',
@@ -64,6 +64,13 @@ export const ErrorReplies = {
 	DiploAlreadySetup: 'Diplomacy is already set up.',
 	GuildNotRelated: 'Guild with the tag \`!{ERROR}\` is not related to this server.',
 	GuildTagNotFound: 'Guild with the tag \`!{ERROR}\` not found.',
+	InternalError: 'An internal error occurred.',
+	InteractionHasNoTargetGuild:
+		'This interaction does not have an associated target guild. This may be because of an internal error.',
+	NoAllianceRequest: 'There is no active alliance request for this guild.',
+	NoNeutralRequest: 'There is no active peace request for this guild.',
+	AlreadyAllied: 'You are already allied with this guild.',
+	AlreadyNeutral: 'You are already at peace with this guild.',
 } as const;
 
 export namespace Errors {
@@ -237,6 +244,14 @@ export namespace Errors {
 			super(message);
 			this.name = 'HandledError';
 			Object.setPrototypeOf(this, HandledError.prototype);
+		}
+	}
+
+	export class DPMError extends Error {
+		constructor(message: string) {
+			super(message);
+			this.name = 'DPMError';
+			Object.setPrototypeOf(this, DPMError.prototype);
 		}
 	}
 }

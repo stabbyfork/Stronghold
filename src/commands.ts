@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON WED, 08 OCT 2025 18:40:23 GMT WITH 9 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON TUE, 14 OCT 2025 17:37:08 GMT WITH 9 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct, CommandExecute } from './types/commandTypes.js';
 
@@ -30,6 +30,7 @@ import dpm_neutrals_add from './commands/dpm/neutrals/add.js';
 import dpm_neutrals_remove from './commands/dpm/neutrals/remove.js';
 import dpm_neutrals_list from './commands/dpm/neutrals/list.js';
 import dpm_list from './commands/dpm/list.js';
+import dpm_send from './commands/dpm/send.js';
 import permissions_roles_add from './commands/permissions/roles/add.js';
 import permissions_roles_remove from './commands/permissions/roles/remove.js';
 import permissions_roles_list from './commands/permissions/roles/list.js';
@@ -103,7 +104,8 @@ dpm: {
     remove: dpm_neutrals_remove,
     list: dpm_neutrals_list
   },
-  list: dpm_list
+  list: dpm_list,
+  send: dpm_send
 },
 permissions: {
   roles: {

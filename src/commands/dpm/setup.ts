@@ -3,12 +3,13 @@ import {
 	ButtonBuilder,
 	ButtonStyle,
 	ChatInputCommandInteraction,
+	ForumChannel,
 	MessageActionRowComponentBuilder,
 } from 'discord.js';
 import { commandOptions } from '../../cmdOptions.js';
 import { Data } from '../../data.js';
 import { ErrorReplies } from '../../types/errors.js';
-import { isDiploReady } from '../../utils/diplomacyUtils.js';
+import { DPM, isDiploReady } from '../../utils/diplomacyUtils.js';
 import { defaultEmbed } from '../../utils/discordUtils.js';
 import { constructError, reportErrorToUser } from '../../utils/errorsUtils.js';
 import { Logging } from '../../utils/loggingUtils.js';
@@ -29,10 +30,10 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		await reportErrorToUser(interaction, constructError([ErrorReplies.MustBeServerOwner]), true);
 		return;
 	}
-	if (await isDiploReady(interaction.guild)) {
-		await reportErrorToUser(interaction, constructError([ErrorReplies.DiploAlreadySetup]), true);
-		return;
-	}
+	/*if (await isDiploReady(interaction.guild)) {
+		//await reportErrorToUser(interaction, constructError([ErrorReplies.DiploAlreadySetup]), true);
+		//return;
+	}*/
 	const dbGuild = await Data.models.Guild.findOne({ where: { guildId: guild.id } });
 	if (!dbGuild) {
 		await reportErrorToUser(
@@ -42,6 +43,8 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		);
 		return;
 	}
+	let channel = getOption(interaction, args, 'diplomacy_channel') as ForumChannel | null;
+
 	const newTag = getOption(interaction, args, 'tag').toLowerCase();
 	if (await Data.models.Guild.findOne({ where: { tag: newTag } })) {
 		await reportErrorToUser(interaction, 'This tag is already in use. Please choose another one.', true);
@@ -55,7 +58,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			defaultEmbed()
 				.setTitle('Confirmation')
 				.setDescription(
-					`Are you sure you want to use the tag \`${newTag}\`?\n-# Do not click the button to deny.`,
+					`Are you sure you want to use the tag \`${newTag}\`?\n${channel ? `The diplomacy channel will be set to ${channel}.` : 'A new channel for diplomacy will be created.'}\n\n-# Do not click the button to deny.`,
 				)
 				.setColor('Yellow'),
 		],
@@ -74,6 +77,12 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		});
 		return;
 	}
+	if (channel) {
+		dbGuild.dpmChannelId = channel.id;
+	} else {
+		channel = await DPM.createChannel(guild);
+		dbGuild.dpmChannelId = channel.id;
+	}
 	dbGuild.tag = newTag;
 	await dbGuild.save();
 	await interaction.followUp({
@@ -84,5 +93,5 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				.setColor('Green'),
 		],
 	});
-	Logging.quickInfo(interaction, `Diplomacy set up successfully. Set tag to ${newTag}.`);
+	Logging.quickInfo(interaction, `Diplomacy set up successfully. Set tag to \`${newTag}\`.`);
 };

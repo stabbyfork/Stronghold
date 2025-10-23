@@ -16,6 +16,7 @@ import {
 	ComponentType,
 	InteractionReplyOptions,
 	ChatInputCommandInteraction,
+	AttachmentBuilder,
 } from 'discord.js';
 import { client } from '../client.js';
 import { Config } from '../config.js';
@@ -193,6 +194,7 @@ export class Pages {
 	 * Highest page added or visited
 	 */
 	private highestPage = 0;
+	attachments: AttachmentBuilder[] = [];
 
 	/**
 	 * The highest page number that can be displayed.
@@ -274,6 +276,7 @@ export class Pages {
 		startingPage = 0,
 		cachePages = false,
 		onExpire,
+		files = [],
 	}: {
 		itemsPerPage: number;
 		totalItems?: number;
@@ -281,12 +284,13 @@ export class Pages {
 		startingPage?: number;
 		cachePages?: boolean;
 		onExpire?: () => Promise<void>;
+		files?: AttachmentBuilder[];
 	}) {
 		this.itemsPerPage = itemsPerPage;
 		this.totalItems = totalItems;
 		this.currentPageI = startingPage;
 		this.createPage = (index) => {
-			return createPage(index, this.itemsPerPage);
+			return createPage(index, this.itemsPerPage, this.attachments);
 		};
 		if (cachePages) {
 			throw new Errors.NotAllowedError(
@@ -295,6 +299,7 @@ export class Pages {
 		}
 		this.cachePages = cachePages;
 		this.onExpire = onExpire;
+		this.attachments = files;
 	}
 
 	setTotalItems(totalItems?: number) {
@@ -367,12 +372,14 @@ export class Pages {
 	 *
 	 * @param interaction The interaction to reply to.
 	 * @param ephemeral Whether or not the response should be ephemeral. Defaults to true.
+	 * @param attachmentIndexes The indexes of the attachments to attach to the message (of the attachments member). Defaults to none.
 	 */
-	async replyTo(interaction: RepliableInteraction, ephemeral = true) {
+	async replyTo(interaction: RepliableInteraction, ephemeral = true, attachmentIndexes: number[] = []) {
 		const toReply = {
 			components: [await this.getFormattedPage(this.shouldDisplayNavButtons())],
 			flags: (ephemeral ? MessageFlags.Ephemeral : 0) | MessageFlags.IsComponentsV2,
 			withResponse: true,
+			files: attachmentIndexes.map((index) => this.attachments[index]),
 			allowedMentions: {
 				roles: [],
 				users: [],
@@ -428,6 +435,7 @@ export class Pages {
 			}
 			await i.update({
 				components: [await this.getFormattedPage(this.shouldDisplayNavButtons())],
+				files: attachmentIndexes.map((i) => this.attachments[i]),
 				allowedMentions: { roles: [], users: [] },
 			});
 		});
@@ -463,5 +471,40 @@ export async function getMessageFromLink(messageLink: string, interaction: ChatI
 	// May throw
 	return await channel.messages.fetch({ message: messageId, force });
 }
+
+export function getOrFetchGuild(guildId: string) {
+	return client.guilds.cache.get(guildId) ?? client.guilds.fetch(guildId);
+}
+
+/**
+ * Returns a string representing an attachment in the format `attachment://${name}`.
+ * @param attachments - The array of attachments.
+ * @param index - The index of the attachment to get.
+ * @returns The string representing the attachment.
+ */
+export function getAttachment<A extends AttachmentBuilder[], I extends number>(
+	attachments: A,
+	index: I,
+): `attachment://${A[I]['name']}` {
+	return `attachment://${attachments[index].name}`;
+}
+
+/*export namespace CustomIdFormatting {
+	export function format(customId: string, data: string[]) {
+		let out = customId;
+		for (let i = 0; i < data.length; i++) {
+			out = customId.replace(`{${i}}`, `"${data[i]}"`);
+		}
+		return customId;
+	}
+	export function deformat(formatted: string, original: string) {
+		const matches = formatted.matchAll(/"([^"]+)"/g).map((m) => m[1]);
+		const out: Map<number, string>;
+		for (let i = 0; i < matches.length; i++) {
+			
+		}
+		return out;
+	}
+}*/
 
 //#endregion

@@ -75,4 +75,8 @@ export interface Config {
      */
     devServerId?: string;
   };
+  /**
+   * The directory thats stores assets. Interpreted relatively depending on the module that is reading it
+   */
+  assetsDirectory: string;
 }

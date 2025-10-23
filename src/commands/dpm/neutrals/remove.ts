@@ -1,14 +1,14 @@
-import { ChatInputCommandInteraction, GuildMember } from 'discord.js';
-import { changeRelation, ChangeType, isDiploReady } from '../../../utils/diplomacyUtils.js';
-import { ErrorReplies } from '../../../types/errors.js';
-import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js';
-import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
-import { GuildRelation } from '../../../models/relatedGuild.js';
-import { defaultEmbed } from '../../../utils/discordUtils.js';
-import { getOption } from '../../../utils/subcommandsUtils.js';
+import { ChatInputCommandInteraction, GuildMember, MessageFlags } from 'discord.js';
 import { commandOptions } from '../../../cmdOptions.js';
+import { Data } from '../../../data.js';
+import { ErrorReplies } from '../../../types/errors.js';
+import { DPM, isDiploReady } from '../../../utils/diplomacyUtils.js';
+import { defaultEmbed } from '../../../utils/discordUtils.js';
+import { constructError, reportErrorToUser } from '../../../utils/errorsUtils.js';
+import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
+import { getOption } from '../../../utils/subcommandsUtils.js';
 
-export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.dpm.enemies.remove) => {
+export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.dpm.neutrals.remove) => {
 	const guild = interaction.guild;
 	if (!guild) {
 		await reportErrorToUser(interaction, constructError([ErrorReplies.InteractionHasNoGuild]), true);
@@ -32,20 +32,19 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		return;
 	}
 	const tag = getOption(interaction, args, 'tag').toLowerCase();
-	if (
-		await changeRelation({
-			interaction,
-			relationTag: tag,
-			changeType: ChangeType.Remove,
-		})
-	) {
-		await interaction.reply({
-			embeds: [
-				defaultEmbed()
-					.setTitle('Neutral guild removed')
-					.setDescription(`You are no longer neutral with \`${tag}\`.`)
-					.setColor('Green'),
-			],
-		});
+	const target = await DPM.tagToGuild(tag);
+	if (!target) {
+		await reportErrorToUser(interaction, constructError([ErrorReplies.GuildTagNotFound], tag), true);
+		return;
 	}
+	await Data.models.RelatedGuild.destroy({ where: { guildId: target.id, targetGuildId: guild.id } });
+	await interaction.reply({
+		embeds: [
+			defaultEmbed()
+				.setTitle('Neutral guild removed')
+				.setDescription(`You are no longer neutral with \`${tag}\`.`)
+				.setColor('Green'),
+		],
+		flags: MessageFlags.Ephemeral,
+	});
 };

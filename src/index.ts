@@ -1,4 +1,5 @@
 import { Op, sql } from '@sequelize/core';
+import { exec } from 'child_process';
 import { setInterval as yieldInterval } from 'timers/promises';
 import tx2 from 'tx2';
 import { client } from './client.js';
@@ -9,16 +10,13 @@ import { Data } from './data.js';
 import { runActivityCheckExecute } from './utils/discordUtils.js';
 import { Debug } from './utils/errorsUtils.js';
 import { intDiv } from './utils/genericsUtils.js';
-import { exec } from 'child_process';
 //@ts-ignore
 import * as Events from './events/*';
-import { GuildFlag } from './utils/guildFlagsUtils.js';
-import { Logging } from './utils/loggingUtils.js';
 import { ForumChannel, ThreadAutoArchiveDuration, userMention } from 'discord.js';
 
 let activityChecksId: NodeJS.Timeout;
 
-async function registerEvents(dir: string, workDir: string) {
+async function registerEvents() {
 	for (const file of Events.default) {
 		const evt = file.default;
 		if (!(evt && 'name' in evt && 'once' in evt && 'execute' in evt)) continue;
@@ -68,7 +66,7 @@ async function runActivityChecks() {
 console.log('Initialising data');
 await Data.setup();
 console.log('Registering events');
-await registerEvents('src/events', 'src');
+await registerEvents();
 console.log('Registering activity checks');
 activityChecksId = setInterval(runActivityChecks, 60 * 60 * 1000);
 

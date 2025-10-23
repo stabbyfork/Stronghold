@@ -20,16 +20,12 @@ export default createEvent({
 			where: { logChannelId: { [Op.ne]: null } },
 			attributes: ['logChannelId'],
 		});
-		const gen = (function* () {
-			for (const guild of dbGuilds) {
-				yield guild;
-			}
-		})();
+		let index = 0;
 		console.log('Started with', dbGuilds.length, 'guilds');
-		for await (const _ of setInterval(10000)) {
-			const next = gen.next();
-			if (next.done) return;
-			const guild = next.value;
+		for await (const _ of setInterval(3000)) {
+			if (index >= dbGuilds.length) return;
+			const guild = dbGuilds[index++];
+			console.log('Guild', guild.guildId);
 			await Logging.log({
 				data: {
 					guildId: guild.guildId,

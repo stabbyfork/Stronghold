@@ -34,11 +34,11 @@ export default async (interaction: ChatInputCommandInteraction) => {
 	const members = await guild.members.fetch({ user: dbMembers.map((u) => u.userId) });
 	await Data.mainDb.transaction(async (transaction) => {
 		for (const user of dbMembers) {
-			if (members.get(user.userId) == null) continue;
+			if (members.get(user.userId) === null) continue;
 			await Promise.all([Data.promoteUser(user, transaction), Data.reconcileRanks(user, transaction)]);
 		}
 	});
-	await interaction.editReply({
+	await interaction.followUp({
 		embeds: [defaultEmbed().setTitle('Success').setDescription('Promoted all users.').setColor('Green')],
 	});
 };

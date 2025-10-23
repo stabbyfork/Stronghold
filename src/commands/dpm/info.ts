@@ -59,7 +59,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				(text) => text.setContent(`Tag: \`${dbGuild.tag}\``),
 				(text) => text.setContent(`ID: \`${guild.id}\``),
 				(text) => text.setContent(`Members: ${guild.memberCount}`),
-				(text) => text.setContent(`Owner: ${userMention(guild.ownerId)} (\`${guild.ownerId}\`)`),
+				(text) => text.setContent(`Owner: ${userMention(guild.ownerId)}`),
 				(text) => text.setContent(`Created on: ${time(guild.createdAt, TimestampStyles.LongDate)}`),
 				(text) =>
 					text.setContent(`Allies: ${allies.length ? allies.map((a) => `\`${a.tag}\``).join(', ') : 'None'}`),

@@ -178,4 +178,6 @@ export function checkBits(obj: Record<string, number>) {
 	}
 }
 
+export type Pair<K, V> = [K, V];
+
 //#endregion

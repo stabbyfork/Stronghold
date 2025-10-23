@@ -36,7 +36,7 @@
 		"start:production": "pm2 start ./ecosystem.config.cjs --time --env production",
 		"start": "pm2 start ./ecosystem.config.cjs --time",
 		"stop": "pm2 stop ./ecosystem.config.cjs",
-		"restart": "pm2 restart ./ecosystem.config.cjs --time",
+		"restart": "pm2 restart --cron-restart 0 ./ecosystem.config.cjs",
 		"build:production": "npm run build:schema && npm run build:index && npm run build:register prod && npm run bundle && echo 'Build complete'",
 		"build:dev": "npm run build:schema && npm run build:index && npm run build:register dev && npm run bundle && echo 'Build complete'",
 		"compile": "npx tsc",
@@ -48,9 +48,9 @@
 		"depCruise": "npx depcruise src/index.ts",
 		"depGraph": "npx depcruise src/index.ts --include-only \"^src\" --output-type dot | dot -T svg > dependency-graph.svg",
 		"bundle": "node esbuild.js",
-		"bundleAndRestart": "npm run bundle && pm2 flush && npm restart",
+		"bundleAndRestart": "npm run bundle && pm2 flush && pm2 restart --cron-restart 0 ./ecosystem.config.cjs",
 		"bundleAndRestart:production": "npm run bundle && pm2 flush && npm run start:production",
-		"pullAndRestart:production": "git pull && npm run bundleAndRestart:production "
+		"pullAndRestart:production": "git pull && npm run bundleAndRestart:production"
 	},
 	"version": "1.2.4",
 	"name": "stronghold",

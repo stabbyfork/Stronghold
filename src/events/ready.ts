@@ -18,7 +18,7 @@ export default createEvent({
 		}
 		const dbGuilds = await Data.models.Guild.findAll({
 			where: { logChannelId: { [Op.ne]: null } },
-			attributes: ['logChannelId'],
+			attributes: ['logChannelId', 'guildId'],
 		});
 		let index = 0;
 		console.log('Started with', dbGuilds.length, 'guilds');

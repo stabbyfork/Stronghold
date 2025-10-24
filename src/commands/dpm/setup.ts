@@ -81,6 +81,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		dbGuild.dpmChannelId = channel.id;
 	}
 	dbGuild.tag = newTag;
+	dbGuild.ready = true;
 	await dbGuild.save();
 	await interaction.followUp({
 		embeds: [

@@ -67,6 +67,5 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				.setDescription(`Sent an ally request to \`${tag}\`.`)
 				.setColor('Green'),
 		],
-		flags: MessageFlags.Ephemeral,
 	});
 };

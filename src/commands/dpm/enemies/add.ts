@@ -66,6 +66,5 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				.setDescription(`You are now enemies with \`${tag}\`.`)
 				.setColor('Green'),
 		],
-		flags: MessageFlags.Ephemeral,
 	});
 };

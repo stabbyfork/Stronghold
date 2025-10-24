@@ -33,12 +33,12 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	}
 	const tag = getOption(interaction, args, 'tag').toLowerCase();
 	const message = getOption(interaction, args, 'message');
-	const target = (await Data.models.Guild.findOne({ where: { tag }, attributes: ['guildId'] }))?.guildId;
+	const target = await Data.models.Guild.findOne({ where: { tag }, attributes: ['guildId'] });
 	if (!target) {
 		await reportErrorToUser(interaction, constructError([ErrorReplies.GuildTagNotFound], tag), true);
 		return;
 	}
-	await DPM.transaction({ source: guild.id, target }, DPM.TransactionType.MessageSend, {
+	await DPM.transaction({ source: guild.id, target: target.guildId }, DPM.TransactionType.MessageSend, {
 		message,
 		author: interaction.user,
 	});
@@ -46,8 +46,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		embeds: [
 			defaultEmbed()
 				.setTitle('Message sent')
-				.setDescription(`Sent message to guild with ID ${target}:\n${message}`),
+				.setDescription(`Sent message to guild with tag \`${tag}\`:\n${message}`),
 		],
-		ephemeral: true,
 	});
 };

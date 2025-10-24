@@ -14,17 +14,16 @@ import {
 	ThreadAutoArchiveDuration,
 	User,
 } from 'discord.js';
+import { client } from '../client.js';
 import { Data } from '../data.js';
 import { GuildRelation } from '../models/relatedGuild.js';
 import { ChangeType } from '../types/diplomacyTypes.js';
 import { ErrorReplies, Errors } from '../types/errors.js';
+import { InformedCustomId } from '../types/eventTypes.js';
 import { defaultEmbed, getOrFetchGuild } from './discordUtils.js';
 import { constructError, Debug, reportErrorToUser } from './errorsUtils.js';
-import { Logging } from './loggingUtils.js';
-import { InformedCustomId } from '../types/eventTypes.js';
-import { client } from '../client.js';
 import { GuildFlag } from './guildFlagsUtils.js';
-import { Guild as DbGuild } from '../models/guild.js';
+import { Logging } from './loggingUtils.js';
 
 export async function isDiploReady(guild: Guild) {
 	const dbGuild = await Data.models.Guild.findOne({ where: { guildId: guild.id } });
@@ -472,13 +471,15 @@ export namespace DPM {
 		const existing = channelCache.get(guild.id);
 		if (existing) return existing;
 		const dbGuild = await Data.models.Guild.findOne({ where: { guildId: guild.id } });
-		if (!dbGuild) throw new Errors.NotFoundError('Guild not found in database.');
-		if (!(await isDiploReady(guild))) throw new Error('Guild is not set up for diplomacy.');
+		if (!dbGuild) throw new Errors.NotFoundError(`Guild with ID \`${guild.id}\` not found in the database.`);
+		if (!(await isDiploReady(guild)))
+			throw new Error(`Guild with tag \`${dbGuild.tag}\` is not set up for diplomacy.`);
 
 		const channel =
 			(guild.channels.cache.get(dbGuild.dpmChannelId!) as ForumChannel | null) ??
 			((await guild.channels.fetch(dbGuild.dpmChannelId!)) as ForumChannel | null);
-		if (!channel) throw new Errors.NotFoundError('Diplomacy channel not found.');
+		if (!channel)
+			throw new Errors.NotFoundError(`Diplomacy channel for guild with tag \`${dbGuild.tag}\` not found.`);
 		const toSet: DPMChannel = [channel, new Collection()];
 		channelCache.set(guild.id, toSet);
 		return toSet;
@@ -527,7 +528,7 @@ export namespace DPM {
 					sourceThread = await sourceChannel.threads.create({
 						name: `${sourceGuild.name} - ${targetGuild.name}`,
 						autoArchiveDuration: ThreadAutoArchiveDuration.OneDay,
-						message: { content: `Diplomacy between ${sourceGuild.name} and ${targetGuild.name}` },
+						message: { content: `Diplomacy between \`${sourceGuild.name}\` and \`${targetGuild.name}\`` },
 					});
 					await relation1.update({ sourceThreadId: sourceThread.id });
 				}
@@ -564,7 +565,7 @@ export namespace DPM {
 					targetThread = await targetChannel.threads.create({
 						name: `${targetGuild.name} - ${sourceGuild.name}`,
 						autoArchiveDuration: ThreadAutoArchiveDuration.OneDay,
-						message: { content: `Diplomacy between ${targetGuild.name} and ${sourceGuild.name}` },
+						message: { content: `Diplomacy between \`${targetGuild.name}\` and \`${sourceGuild.name}\`` },
 					});
 					await relation2.update({ sourceThreadId: targetThread.id });
 				}

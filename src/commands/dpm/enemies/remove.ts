@@ -66,6 +66,5 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				.setDescription(`Sent a peace request to \`${tag}\`.`)
 				.setColor('Green'),
 		],
-		flags: MessageFlags.Ephemeral,
 	});
 };

@@ -81,7 +81,6 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 					.setDescription(`You are now neutral with \`${tag}\`.`)
 					.setColor('Green'),
 			],
-			flags: MessageFlags.Ephemeral,
 		});
 	}
 };

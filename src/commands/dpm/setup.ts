@@ -30,10 +30,6 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		await reportErrorToUser(interaction, constructError([ErrorReplies.MustBeServerOwner]), true);
 		return;
 	}
-	/*if (await isDiploReady(interaction.guild)) {
-		//await reportErrorToUser(interaction, constructError([ErrorReplies.DiploAlreadySetup]), true);
-		//return;
-	}*/
 	const dbGuild = await Data.models.Guild.findOne({ where: { guildId: guild.id } });
 	if (!dbGuild) {
 		await reportErrorToUser(
@@ -46,7 +42,8 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	let channel = getOption(interaction, args, 'diplomacy_channel') as ForumChannel | null;
 
 	const newTag = getOption(interaction, args, 'tag').toLowerCase();
-	if (await Data.models.Guild.findOne({ where: { tag: newTag } })) {
+	const existingGuild = await Data.models.Guild.findOne({ where: { tag: newTag } });
+	if (existingGuild && existingGuild.guildId !== guild.id) {
 		await reportErrorToUser(interaction, 'This tag is already in use. Please choose another one.', true);
 		return;
 	}
@@ -58,7 +55,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			defaultEmbed()
 				.setTitle('Confirmation')
 				.setDescription(
-					`Are you sure you want to use the tag \`${newTag}\`?\n${channel ? `The diplomacy channel will be set to ${channel}.` : 'A new channel for diplomacy will be created.'}\n\n-# Do not click the button to deny.`,
+					`Are you sure you want to use the tag \`${newTag}\`?\n${channel ? `The diplomacy channel will be set to ${channel}.` : 'A new channel for diplomacy will be created.'}${(await isDiploReady(guild)) ? '\nConfirming will reset diplomacy data set in the previous setup.' : ''}\n\n-# Do not click the button to deny.`,
 				)
 				.setColor('Yellow'),
 		],

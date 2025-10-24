@@ -21,7 +21,7 @@ export default createCommand<{}, 'dpm'>({
 				.addChannelOption((option) =>
 					option
 						.setName('diplomacy_channel')
-						.setDescription('Channel for diplomacy')
+						.setDescription('Channel for diplomacy. Omit to create one')
 						.setRequired(false)
 						.addChannelTypes(ChannelType.GuildForum),
 				),

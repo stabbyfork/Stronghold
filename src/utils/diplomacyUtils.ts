@@ -29,7 +29,7 @@ import { Guild as DbGuild } from '../models/guild.js';
 export async function isDiploReady(guild: Guild) {
 	const dbGuild = await Data.models.Guild.findOne({ where: { guildId: guild.id } });
 	if (!dbGuild) return false;
-	return dbGuild.tag !== null && dbGuild.ready && dbGuild.dpmChannelId;
+	return dbGuild.tag !== null && dbGuild.ready && dbGuild.dpmChannelId !== null;
 }
 
 export async function changeRelation({

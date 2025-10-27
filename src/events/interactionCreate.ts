@@ -23,6 +23,7 @@ import { GuildRelation } from '../models/relatedGuild.js';
 import { Op } from '@sequelize/core';
 import { client } from '../client.js';
 import { SessionParticipantAssociations } from '../models/sessionParticipant.js';
+import ms from 'ms';
 
 export default createEvent({
 	name: Events.InteractionCreate,
@@ -389,7 +390,12 @@ export default createEvent({
 								});
 								await Logging.log({
 									data: interaction,
-									formatData: `${userMention(member.id)} left the session`,
+									formatData: `${userMention(member.id)} left the session and has spent a total of ${ms(
+										participant.timeSpent,
+										{
+											long: true,
+										},
+									)}`,
 									logType: Logging.Type.Info,
 									extents: [GuildFlag.LogInfo],
 								});

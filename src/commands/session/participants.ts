@@ -24,28 +24,6 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		await reportErrorToUser(interaction, constructError([ErrorReplies.NoExistingSession]), true);
 		return;
 	}
-	/*const inSessionRoleId = dbGuild.inSessionRoleId;
-	if (!inSessionRoleId) {
-		await reportErrorToUser(
-			interaction,
-			constructError(
-				[ErrorReplies.OnlySubstitute, ErrorReplies.ReportToOwner],
-				'Guild does not have in session role',
-			),
-			true,
-		);
-		return;
-	}*/
-
-	/*const users = (await guild.roles.fetch(inSessionRoleId, { force: true }))?.members;
-	if (!users) {
-		await reportErrorToUser(
-			interaction,
-			constructError([ErrorReplies.OnlySubstitute, ErrorReplies.ReportToOwner], 'In session role does not exist'),
-			true,
-		);
-		return;
-	}*/
 
 	const typeOfParticipants = getOption(interaction, args, 'type');
 	let participants: SessionParticipant[];
@@ -83,7 +61,15 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	if (participants.length === 0) {
 		await interaction.reply({
 			embeds: [
-				defaultEmbed().setTitle('Participants').setColor('Red').setDescription('Nobody matches the criteria.'),
+				defaultEmbed()
+					.setTitle('Participants')
+					.setColor('Red')
+					.setDescription(
+						'Nobody matches the criteria.' +
+							(typeOfParticipants === SessionParticipantsOptions.MetQuota
+								? `\nThe time quota is ${ms(session.timeQuota, { long: true })}`
+								: ''),
+					),
 			],
 		});
 		return;

@@ -7,6 +7,7 @@ import { reportErrorToUser, constructError } from '../../utils/errorsUtils.js';
 import { hasPermissions, Permission } from '../../utils/permissionsUtils.js';
 import { defaultEmbed } from '../../utils/discordUtils.js';
 import { GuildAssociations } from '../../models/guild.js';
+import { Logging } from '../../utils/loggingUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.session.kick) => {
 	if (!(await reportErrorIfNotSetup(interaction))) return;
@@ -94,4 +95,5 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				.setDescription(`Kicked ${userMention(userToKick.id)} from the session.`),
 		],
 	});
+	Logging.quickInfo(interaction, `Kicked ${userMention(userToKick.id)} from the session`);
 };

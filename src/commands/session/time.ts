@@ -1,15 +1,15 @@
-import { ChatInputCommandInteraction, GuildMember, MessageFlags, userMention } from 'discord.js';
+import { ChatInputCommandInteraction, GuildMember, userMention } from 'discord.js';
 import { commandOptions } from '../../cmdOptions.js';
 import { Data } from '../../data.js';
+import { GuildAssociations } from '../../models/guild.js';
 import { ErrorReplies } from '../../types/errors.js';
 import { reportErrorToUser, constructError } from '../../utils/errorsUtils.js';
 import { hasPermissions, Permission } from '../../utils/permissionsUtils.js';
-import { getOption, reportErrorIfNotSetup } from '../../utils/subcommandsUtils.js';
+import { reportErrorIfNotSetup, getOption } from '../../utils/subcommandsUtils.js';
 import { defaultEmbed } from '../../utils/discordUtils.js';
-import { GuildAssociations } from '../../models/guild.js';
-import { Logging } from '../../utils/loggingUtils.js';
+import ms from 'ms';
 
-export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.session.remove) => {
+export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.session.time) => {
 	if (!(await reportErrorIfNotSetup(interaction))) return;
 	const guild = interaction.guild;
 	if (!guild) {
@@ -44,55 +44,45 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		await reportErrorToUser(interaction, ErrorReplies.NoExistingSession, true);
 		return;
 	}
-	const userToRemove = getOption(interaction, args, 'user');
+	const userToCheck = getOption(interaction, args, 'user');
 	const dbUser = await Data.models.User.findOne({
-		where: { userId: userToRemove.id, guildId: guild.id },
+		where: { userId: userToCheck.id, guildId: guild.id },
 	});
 	if (!dbUser) {
 		await reportErrorToUser(
 			interaction,
-			constructError([ErrorReplies.UserNotFoundSubstitute], userToRemove.id),
+			constructError([ErrorReplies.UserNotFoundSubstitute], userToCheck.id),
 			true,
 		);
 		return;
 	}
 	const dbParticipant = (await session.getParticipants({ where: { userId: dbUser.id, sessionId: session.id } }))[0];
 	// May be undefined if the user is not in the session
-	if (!dbParticipant?.inSession) {
-		await reportErrorToUser(interaction, constructError([ErrorReplies.UserNotInSession], userToRemove.id), true);
-		return;
-	}
-
-	const roleId = dbGuild.inSessionRoleId;
-	if (!roleId) {
+	if (!dbParticipant) {
 		await reportErrorToUser(
 			interaction,
-			constructError(
-				[ErrorReplies.OnlySubstitute, ErrorReplies.ReportToOwner],
-				'Guild does not have in session role',
-			),
+			constructError([ErrorReplies.UserNotFoundSubstitute], userToCheck.id),
 			true,
 		);
 		return;
 	}
-	const inSessionRole = guild.roles.cache.get(roleId) ?? (await guild.roles.fetch(roleId));
-	if (!inSessionRole) {
-		await reportErrorToUser(interaction, constructError([ErrorReplies.RoleNotFoundSubstitute], roleId));
-		return;
-	}
-
-	const memberToRemove = guild.members.cache.get(userToRemove.id) ?? (await guild.members.fetch(userToRemove.id));
-	await Data.mainDb.transaction(async (transaction) => {
-		await memberToRemove.roles.remove(inSessionRole, 'Removed from the session');
-		await session.removeParticipant(dbParticipant.id, { transaction, destroy: true });
-	});
+	const timeSpent =
+		dbParticipant.timeSpent + (dbParticipant.inSession ? Date.now() - dbParticipant.joinedAt!.getTime() : 0);
+	const passesQuota = timeSpent >= session.timeQuota;
 	await interaction.reply({
 		embeds: [
 			defaultEmbed()
-				.setTitle('Success')
-				.setDescription(`Removed ${userMention(userToRemove.id)} from the session.`)
-				.setColor('Green'),
+				.setTitle('Time spent')
+				.setDescription(
+					`${userMention(userToCheck.id)} has spent ${ms(timeSpent, { long: true })} in this session.\nThey ${passesQuota ? 'have' : 'have not'} passed the quota of ${ms(
+						session.timeQuota,
+						{
+							long: true,
+						},
+					)}`,
+				)
+				.setColor(passesQuota ? 'Green' : 'Red'),
 		],
+		allowedMentions: { roles: [], users: [] },
 	});
-	Logging.quickInfo(interaction, `Removed ${userMention(userToRemove.id)} from the session`);
 };

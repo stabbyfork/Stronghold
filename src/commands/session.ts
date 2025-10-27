@@ -124,6 +124,12 @@ export default createCommand<{}, 'session'>({
 				.setName('remove')
 				.setDescription("Remove a user from this session's participant list")
 				.addUserOption((option) => option.setName('user').setDescription('User to remove').setRequired(true)),
+		)
+		.addSubcommand((cmd) =>
+			cmd
+				.setName('time')
+				.setDescription('Get the amount of time a user has spent in this session')
+				.addUserOption((option) => option.setName('user').setDescription('User to check').setRequired(true)),
 		),
 	description: {
 		edit_default:

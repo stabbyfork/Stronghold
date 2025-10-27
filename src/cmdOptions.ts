@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON MON, 27 OCT 2025 13:33:55 GMT WITH 10 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON MON, 27 OCT 2025 19:42:39 GMT WITH 10 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct } from "./types/commandTypes.js";
 
@@ -395,7 +395,7 @@ session: {
           "value": 1
         },
         {
-          "name": "Participants who have met the quota",
+          "name": "Participants who have met the time quota",
           "value": 2
         }
       ],
@@ -415,6 +415,12 @@ session: {
     }
   },
   "remove": {
+    "user": {
+      "type": "user",
+      "required": true
+    }
+  },
+  "time": {
     "user": {
       "type": "user",
       "required": true
@@ -537,6 +543,7 @@ session: {
   participants: T,
   kick: T,
   quota: T,
-  remove: T
+  remove: T,
+  time: T
 },	
 };

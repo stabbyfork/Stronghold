@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON MON, 27 OCT 2025 13:33:55 GMT WITH 10 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON MON, 27 OCT 2025 19:42:39 GMT WITH 10 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct, CommandExecute } from './types/commandTypes.js';
 
@@ -66,6 +66,7 @@ import session_participants from './commands/session/participants.js';
 import session_kick from './commands/session/kick.js';
 import session_quota from './commands/session/quota.js';
 import session_remove from './commands/session/remove.js';
+import session_time from './commands/session/time.js';
 
 export const commands = {
   'activity': activity,
@@ -158,7 +159,8 @@ session: {
   participants: session_participants,
   kick: session_kick,
   quota: session_quota,
-  remove: session_remove
+  remove: session_remove,
+  time: session_time
 },
 } as const satisfies {
 	[K in keyof Partial<typeof commands>]: { [key: string]: CommandExecute<any> | { [key: string]: CommandExecute<any> } };

@@ -190,5 +190,5 @@ export default async (interaction: ChatInputCommandInteraction) => {
 		],
 		flags: MessageFlags.Ephemeral,
 	});
-	Logging.quickInfo(interaction, `Stopped session in ${channelMention(session.channelId)}.`);
+	Logging.quickInfo(interaction, `Stopped session in ${channelMention(session.channelId)}`);
 };

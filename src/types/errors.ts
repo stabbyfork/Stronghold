@@ -72,6 +72,7 @@ export const ErrorReplies = {
 	AlreadyAllied: 'You are already allied with this guild.',
 	AlreadyNeutral: 'You are already at peace with this guild.',
 	UserNotInSession: 'This user is not in the session.',
+	UserHasNotJoinedSession: 'This user has not joined the session.',
 } as const;
 
 export namespace Errors {

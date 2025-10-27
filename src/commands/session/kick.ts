@@ -50,11 +50,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		where: { userId: userToKick.id, guildId: guild.id },
 	});
 	if (!dbUser) {
-		await reportErrorToUser(
-			interaction,
-			constructError([ErrorReplies.UserNotFoundSubstitute], userToKick.id),
-			true,
-		);
+		await reportErrorToUser(interaction, constructError([ErrorReplies.UserHasNotJoinedSession]), true);
 		return;
 	}
 	const participant = (await session.getParticipants({ where: { userId: dbUser.id, sessionId: session.id } }))[0];

@@ -49,21 +49,13 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		where: { userId: userToCheck.id, guildId: guild.id },
 	});
 	if (!dbUser) {
-		await reportErrorToUser(
-			interaction,
-			constructError([ErrorReplies.UserNotFoundSubstitute], userToCheck.id),
-			true,
-		);
+		await reportErrorToUser(interaction, constructError([ErrorReplies.UserHasNotJoinedSession]), true);
 		return;
 	}
 	const dbParticipant = (await session.getParticipants({ where: { userId: dbUser.id, sessionId: session.id } }))[0];
 	// May be undefined if the user is not in the session
 	if (!dbParticipant) {
-		await reportErrorToUser(
-			interaction,
-			constructError([ErrorReplies.UserNotFoundSubstitute], userToCheck.id),
-			true,
-		);
+		await reportErrorToUser(interaction, constructError([ErrorReplies.UserHasNotJoinedSession]), true);
 		return;
 	}
 	const timeSpent =
@@ -74,12 +66,12 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			defaultEmbed()
 				.setTitle('Time spent')
 				.setDescription(
-					`${userMention(userToCheck.id)} has spent ${ms(timeSpent, { long: true })} in this session.\nThey ${passesQuota ? 'have' : 'have not'} passed the quota of ${ms(
+					`${userMention(userToCheck.id)} has spent ${ms(timeSpent, { long: true })} in this session.\nThey ${passesQuota ? '**have**' : '**have not**'} passed the quota of ${ms(
 						session.timeQuota,
 						{
 							long: true,
 						},
-					)}`,
+					)}.`,
 				)
 				.setColor(passesQuota ? 'Green' : 'Red'),
 		],

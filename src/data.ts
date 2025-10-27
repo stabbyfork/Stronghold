@@ -17,6 +17,7 @@ import { UserPermission } from './models/userPermission.js';
 import { Errors } from './types/errors.js';
 import { Debug } from './utils/errorsUtils.js';
 import { RelatedGuild } from './models/relatedGuild.js';
+import { SessionParticipant } from './models/sessionParticipant.js';
 
 const dbConfg = Config.get('database');
 
@@ -35,6 +36,7 @@ export namespace Data {
 		GuildSession,
 		SessionOptions,
 		RelatedGuild,
+		SessionParticipant,
 	};
 	export const mainDb =
 		process.env.NODE_ENV === 'prod'

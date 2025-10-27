@@ -191,7 +191,7 @@ export namespace DPM {
 		[TransactionType.AllyRequest]: GenericTransaction;
 		[TransactionType.NeutralQuery]: GenericTransaction;
 		[TransactionType.EnemyDeclare]: GenericTransaction;
-		[TransactionType.MessageSend]: GenericTransaction;
+		[TransactionType.MessageSend]: GenericTransaction & { sourceTag: string; targetTag: string };
 		[TransactionType.AllyCancel]: GenericTransaction;
 		[TransactionType.NeutralCancel]: GenericTransaction;
 	}
@@ -375,18 +375,18 @@ export namespace DPM {
 			await setRelation(GuildRelation.Enemy, id);
 		},
 		[TransactionType.MessageSend]: async ({ id, params, threads }) => {
-			const { message, author } = params;
+			const { message, author, targetTag, sourceTag } = params;
 			await sendGenericToThread({
 				thread: threads.source,
 				message,
 				author,
-				title: `Sent message to \`${id.target.name}\``,
+				title: `Sent message to \`${id.target.name}\` (\`${targetTag}\`)`,
 			});
 			await sendGenericToThread({
 				thread: threads.target,
 				message,
 				author,
-				title: `Message from \`${id.source.name}\``,
+				title: `Message from \`${id.source.name}\` (\`${sourceTag}\`)`,
 			});
 		},
 		[TransactionType.AllyCancel]: async ({ id, params, threads }) => {
@@ -602,6 +602,7 @@ export namespace DPM {
 		});
 		await transactionHandlers[tType]({
 			id: cleanId,
+			//@ts-expect-error Typescript doesn't like this for some reason, but intellisense works ¯\_(ツ)_/¯
 			params: params,
 			threads,
 			currentRelation: existingRelation?.relation,

@@ -3,6 +3,7 @@ import {
 	DataTypes,
 	HasManyAddAssociationMixin,
 	HasManyCreateAssociationMixin,
+	HasManyGetAssociationsMixin,
 	HasManyHasAssociationMixin,
 	HasManyRemoveAssociationMixin,
 	HasManySetAssociationsMixin,
@@ -16,10 +17,11 @@ import {
 import { Attribute, HasMany, HasOne } from '@sequelize/core/decorators-legacy';
 import { SessionOptions } from './sessionOptions.js';
 import { User } from './user.js';
+import { SessionParticipant } from './sessionParticipant.js';
 
 export enum GuildSessionAssociations {
 	DefaultOptions = 'defaultOptions',
-	TotalUsers = 'totalUsers',
+	Participants = 'participants',
 }
 
 export class GuildSession extends Model<InferAttributes<GuildSession>, InferCreationAttributes<GuildSession>> {
@@ -57,14 +59,19 @@ export class GuildSession extends Model<InferAttributes<GuildSession>, InferCrea
 	declare getDefaultOptions: HasOneGetAssociationMixin<SessionOptions>;
 
 	/** Users that have ever joined (even if currently not in) this session */
-	@HasMany(() => User, { foreignKey: { name: 'sessionId', onUpdate: 'CASCADE', onDelete: 'SET NULL' } })
-	declare totalUsers?: NonAttribute<User[]>;
+	@HasMany(() => SessionParticipant, { foreignKey: { name: 'sessionId', onUpdate: 'CASCADE', onDelete: 'CASCADE' } })
+	declare participants?: NonAttribute<SessionParticipant[]>;
 
-	declare createTotalUser: HasManyCreateAssociationMixin<User, 'sessionId'>;
-	declare addTotalUser: HasManyAddAssociationMixin<User, User['id']>;
-	declare hasTotalUser: HasManyHasAssociationMixin<User, User['id']>;
-	declare removeTotalUser: HasManyRemoveAssociationMixin<User, User['id']>;
-	declare setTotalUsers: HasManySetAssociationsMixin<User, User['id']>;
+	declare createParticipant: HasManyCreateAssociationMixin<SessionParticipant, 'sessionId'>;
+	declare addParticipant: HasManyAddAssociationMixin<SessionParticipant, SessionParticipant['id']>;
+	declare hasParticipant: HasManyHasAssociationMixin<SessionParticipant, SessionParticipant['id']>;
+	declare removeParticipant: HasManyRemoveAssociationMixin<SessionParticipant, SessionParticipant['id']>;
+	declare setParticipants: HasManySetAssociationsMixin<SessionParticipant, SessionParticipant['id']>;
+	declare getParticipants: HasManyGetAssociationsMixin<SessionParticipant>;
+
+	/** Time required to be spent in the session (in milliseconds) */
+	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, allowNull: false, defaultValue: 0 })
+	declare timeQuota: CreationOptional<number>;
 
 	@Attribute({ type: DataTypes.DATE, allowNull: false })
 	declare createdAt: CreationOptional<Date>;

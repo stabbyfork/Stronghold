@@ -2,6 +2,12 @@ import { ChannelType, SlashCommandBuilder } from 'discord.js';
 import { createCommand } from '../types/commandTypes.js';
 import { UsageScope } from '../utils/usageLimitsUtils.js';
 
+export enum SessionParticipantsOptions {
+	CurrentlyInSession,
+	AllParticipants,
+	MetQuota,
+}
+
 export default createCommand<{}, 'session'>({
 	data: new SlashCommandBuilder()
 		.setName('session')
@@ -75,7 +81,49 @@ export default createCommand<{}, 'session'>({
 				),
 		)
 		.addSubcommand((cmd) =>
-			cmd.setName('participants').setDescription('List the participants of the current session'),
+			cmd
+				.setName('participants')
+				.setDescription('List the participants of the current session')
+				.addIntegerOption((option) =>
+					option
+						.setName('type')
+						.setDescription('Type of participants to list')
+						.addChoices(
+							{
+								name: 'Participants currently in the session',
+								value: SessionParticipantsOptions.CurrentlyInSession,
+							},
+							{
+								name: 'All participants',
+								value: SessionParticipantsOptions.AllParticipants,
+							},
+							{
+								name: 'Participants who have met the quota',
+								value: SessionParticipantsOptions.MetQuota,
+							},
+						)
+						.setRequired(true),
+				),
+		)
+		.addSubcommand((cmd) =>
+			cmd
+				.setName('kick')
+				.setDescription('Kick a participant from this session. Only removes the status')
+				.addUserOption((option) => option.setName('user').setDescription('User to kick').setRequired(true)),
+		)
+		.addSubcommand((cmd) =>
+			cmd
+				.setName('quota')
+				.setDescription('Set/remove a time quota for this session')
+				.addStringOption((option) =>
+					option.setName('time').setDescription('Time required. Omit to remove quota'),
+				),
+		)
+		.addSubcommand((cmd) =>
+			cmd
+				.setName('remove')
+				.setDescription("Remove a user from this session's participant list")
+				.addUserOption((option) => option.setName('user').setDescription('User to remove').setRequired(true)),
 		),
 	description: {
 		edit_default:

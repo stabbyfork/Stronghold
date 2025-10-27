@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON TUE, 14 OCT 2025 17:37:08 GMT WITH 9 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON MON, 27 OCT 2025 13:33:55 GMT WITH 10 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct, CommandExecute } from './types/commandTypes.js';
 
@@ -7,6 +7,7 @@ import dpm from './commands/dpm.js';
 import permissions from './commands/permissions.js';
 import ranking from './commands/ranking.js';
 import session from './commands/session.js';
+import feedback from './commands/utility/feedback.js';
 import help from './commands/utility/help.js';
 import invite from './commands/utility/invite.js';
 import ping from './commands/utility/ping.js';
@@ -62,6 +63,9 @@ import session_stop from './commands/session/stop.js';
 import session_edit from './commands/session/edit.js';
 import session_edit_default from './commands/session/edit_default.js';
 import session_participants from './commands/session/participants.js';
+import session_kick from './commands/session/kick.js';
+import session_quota from './commands/session/quota.js';
+import session_remove from './commands/session/remove.js';
 
 export const commands = {
   'activity': activity,
@@ -69,6 +73,7 @@ export const commands = {
   'permissions': permissions,
   'ranking': ranking,
   'session': session,
+  'feedback': feedback,
   'help': help,
   'invite': invite,
   'ping': ping,
@@ -150,7 +155,10 @@ session: {
   stop: session_stop,
   edit: session_edit,
   edit_default: session_edit_default,
-  participants: session_participants
+  participants: session_participants,
+  kick: session_kick,
+  quota: session_quota,
+  remove: session_remove
 },
 } as const satisfies {
 	[K in keyof Partial<typeof commands>]: { [key: string]: CommandExecute<any> | { [key: string]: CommandExecute<any> } };

@@ -19,5 +19,10 @@ export default createEvent({
 		}
 		const dbGuilds = await Data.models.Guild.count();
 		console.log('Started with', dbGuilds, 'guilds');
+		const joinedGuilds = client.guilds.cache;
+		console.log(`In ${joinedGuilds.size} guilds:`);
+		for (const guild of joinedGuilds.values()) {
+			console.log(guild.name, guild.id);
+		}
 	},
 });

@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON TUE, 14 OCT 2025 17:37:08 GMT WITH 9 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON MON, 27 OCT 2025 13:33:55 GMT WITH 10 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct } from "./types/commandTypes.js";
 
@@ -381,6 +381,64 @@ session: {
       "type": "string",
       "required": false
     }
+  },
+  "participants": {
+    "type": {
+      "required": true,
+      "choices": [
+        {
+          "name": "Participants currently in the session",
+          "value": 0
+        },
+        {
+          "name": "All participants",
+          "value": 1
+        },
+        {
+          "name": "Participants who have met the quota",
+          "value": 2
+        }
+      ],
+      "type": "integer"
+    }
+  },
+  "kick": {
+    "user": {
+      "type": "user",
+      "required": true
+    }
+  },
+  "quota": {
+    "time": {
+      "type": "string",
+      "required": false
+    }
+  },
+  "remove": {
+    "user": {
+      "type": "user",
+      "required": true
+    }
+  }
+},
+feedback: {
+  "type": {
+    "required": true,
+    "choices": [
+      {
+        "name": "Bug",
+        "value": 0
+      },
+      {
+        "name": "Feature",
+        "value": 1
+      },
+      {
+        "name": "Miscellaneous",
+        "value": 2
+      }
+    ],
+    "type": "integer"
   }
 },
 help: {
@@ -476,6 +534,9 @@ session: {
   stop: T,
   edit: T,
   edit_default: T,
-  participants: T
+  participants: T,
+  kick: T,
+  quota: T,
+  remove: T
 },	
 };

@@ -12,7 +12,7 @@ export const ErrorReplies = {
 	UnknownError: 'An unexpected error has occurred.',
 	PermissionError: 'You do not have permission to use this command.',
 	CommandNotFound: 'Command not found.',
-	ReportToOwner: `Please report this to the bot owner: <@${Config.get('appOwnerId')}>.`,
+	ReportToOwner: `Please report this to the bot owner: <@${Config.get('appOwnerId')}>. You may use the \`/feedback\` command or DM them.`,
 	PrefixWithError: 'Error: \`!{ERROR}\`',
 	OnlySubstitute: '\`!{ERROR}\`',
 	CommandNotFoundSubstitute: 'Command not found: \`!{ERROR}\`.',
@@ -28,7 +28,7 @@ export const ErrorReplies = {
 	PermissionsNeededSubstitute: 'You need the following permissions to use this command: \`!{ERROR}\`',
 	MustBeServerOwner: 'You must be the server owner to use this command.',
 	ActivityCheckExists: 'An activity check already exists in this guild. Please delete that one first.',
-	InvalidTimeFormat: 'Invalid time format, could not parse.',
+	InvalidTimeFormat: 'Invalid time format, could not parse. Use this format: `10m`, `5h`, `1d`, etc.',
 	DurationTooShort: 'Duration too short.',
 	DurationTooLong: 'Duration too long.',
 	NotSetup: 'This server is not set up. Please run `/setup` first.',
@@ -56,7 +56,7 @@ export const ErrorReplies = {
 	DMSendLimitReachedSubstitute: 'Sending DMs is rate limited. Try again in !{ERROR}.',
 	InvalidColorSubstitute: 'Invalid color: !{ERROR}.',
 	SeeHelp: 'See the help entry of this command for more information.',
-	NoExistingSession: 'There is no session active. See `/session start`.',
+	NoExistingSession: 'There is no active session. See `/session start`.',
 	ChannelNotFoundSubstitute: 'Channel not found (id): !{ERROR}.',
 	MessageNotFoundSubstitute: 'Message not found (id): !{ERROR}.',
 	CantBeStackableAndLimited: 'Role cannot be stackable and limited at the same time.',
@@ -71,6 +71,7 @@ export const ErrorReplies = {
 	NoNeutralRequest: 'There is no active peace request for this guild.',
 	AlreadyAllied: 'You are already allied with this guild.',
 	AlreadyNeutral: 'You are already at peace with this guild.',
+	UserNotInSession: 'This user is not in the session.',
 } as const;
 
 export namespace Errors {

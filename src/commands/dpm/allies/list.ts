@@ -3,10 +3,11 @@ import { isDiploReady } from '../../../utils/diplomacyUtils.js';
 import { ErrorReplies } from '../../../types/errors.js';
 import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js';
 import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
-import { Pages } from '../../../utils/discordUtils.js';
+import { listGuilds, Pages } from '../../../utils/discordUtils.js';
 import { Data } from '../../../data.js';
 import { GuildRelation, RelatedGuildAssociations } from '../../../models/relatedGuild.js';
 import { Op } from '@sequelize/core';
+import { AssetId, Assets } from '../../../utils/assets.js';
 
 export default async (interaction: ChatInputCommandInteraction) => {
 	const guild = interaction.guild;
@@ -36,7 +37,9 @@ export default async (interaction: ChatInputCommandInteraction) => {
 			relation: GuildRelation.Ally,
 			guildId: guild.id,
 		},
-		include: [{ model: Data.models.Guild, as: RelatedGuildAssociations.TargetGuild, attributes: ['tag'] }],
+		include: [
+			{ model: Data.models.Guild, as: RelatedGuildAssociations.TargetGuild, attributes: ['tag', 'guildId'] },
+		],
 		distinct: true,
 	});
 	const pages = new Pages({
@@ -44,7 +47,7 @@ export default async (interaction: ChatInputCommandInteraction) => {
 		totalItems: allies.count,
 		createPage: async (index, perPage) => {
 			const start = index * perPage;
-			return new ContainerBuilder().addTextDisplayComponents(
+			/*new ContainerBuilder().addTextDisplayComponents(
 				(text) => text.setContent('## List of allies'),
 				(text) =>
 					text.setContent(
@@ -59,6 +62,10 @@ export default async (interaction: ChatInputCommandInteraction) => {
 									.join('\n')
 							: 'No allies exist.',
 					),
+			);*/
+			return listGuilds(
+				allies.rows.slice(start, start + perPage).map((a) => a.targetGuild!),
+				Assets.getAsFile(AssetId.DefaultGuildIcon),
 			);
 		},
 	});

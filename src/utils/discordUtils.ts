@@ -1,30 +1,36 @@
 //#region Discord
 
 import {
+	ActionRowBuilder,
+	AttachmentBuilder,
+	ButtonBuilder,
+	ButtonInteraction,
+	ButtonStyle,
+	ChatInputCommandInteraction,
+	ComponentType,
+	ContainerBuilder,
 	EmbedBuilder,
 	Interaction,
 	InteractionCallbackResponse,
-	ButtonInteraction,
-	MessageComponentType,
-	TextDisplayBuilder,
-	ActionRowBuilder,
-	MessageActionRowComponentBuilder,
-	ButtonBuilder,
-	ButtonStyle,
-	RepliableInteraction,
-	MessageFlags,
-	ComponentType,
 	InteractionReplyOptions,
-	ChatInputCommandInteraction,
-	AttachmentBuilder,
+	MessageActionRowComponentBuilder,
+	MessageComponentType,
+	MessageFlags,
+	RepliableInteraction,
+	SectionBuilder,
+	TextDisplayBuilder,
+	time,
+	TimestampStyles,
+	userMention,
 } from 'discord.js';
 import { client } from '../client.js';
-import { Config } from '../config.js';
 import { Data } from '../data.js';
 import { ActivityCheckSequence } from '../types/activityChecks.js';
-import { Errors, ErrorReplies } from '../types/errors.js';
-import { Page, CreatePageFunction } from '../types/pagesTypes.js';
-import { Debug, reportErrorToUser, constructError } from './errorsUtils.js';
+import { ErrorReplies, Errors } from '../types/errors.js';
+import { CreatePageFunction, Page } from '../types/pagesTypes.js';
+import { constructError, Debug, reportErrorToUser } from './errorsUtils.js';
+import { Guild } from '../models/guild.js';
+import _ from 'lodash';
 
 /**
  * Creates a default embed for Discord messages.
@@ -487,6 +493,46 @@ export function getAttachment<A extends AttachmentBuilder[], I extends number>(
 	index: I,
 ): `attachment://${A[I]['name']}` {
 	return `attachment://${attachments[index].name}`;
+}
+
+/**
+ * Creates a ContainerBuilder with a list of guilds. Only requires the `tag` and `guildId` fields of the targets
+ * @param target - An array of Guild objects to list.
+ * @param defaultGuildIcon - An AttachmentBuilder representing the default guild icon.
+ * @returns A ContainerBuilder with a list of guilds.
+ */
+export async function listGuilds(targets: Guild[], defaultGuildIcon: AttachmentBuilder) {
+	const guilds = await Promise.all(
+		targets.map(async (a) => client.guilds.cache.get(a.guildId) ?? (await client.guilds.fetch(a.guildId))),
+	);
+	const out = new ContainerBuilder().addTextDisplayComponents((text) => text.setContent('## List of guilds'));
+	if (targets.length === 0) {
+		out.addTextDisplayComponents((text) => text.setContent('None on this page.'));
+		return out;
+	}
+	const files = [defaultGuildIcon];
+	out.addSectionComponents(
+		_.zip(guilds, targets).map(([g, t]) => {
+			if (!g || !t) throw new Error('Guild (or target) not found');
+			const section = new SectionBuilder();
+			const icon = g.iconURL();
+			if (icon) section.setThumbnailAccessory((image) => image.setURL(icon).setDescription(g.name));
+			else
+				section.setThumbnailAccessory((image) =>
+					image.setDescription(`Default guild icon for ${g.name}`).setURL(getAttachment(files, 0)),
+				);
+			section.addTextDisplayComponents(
+				(text) =>
+					text.setContent(
+						`### ${g.name}\nTag: \`${t.tag}\` | Members: ${g.memberCount} | Owner: ${userMention(g.ownerId)}`,
+					),
+				(text) =>
+					text.setContent(`-# ID: \`${g.id}\` | Created on: ${time(g.createdAt, TimestampStyles.LongDate)}`),
+			);
+			return section;
+		}),
+	);
+	return out;
 }
 
 /*export namespace CustomIdFormatting {

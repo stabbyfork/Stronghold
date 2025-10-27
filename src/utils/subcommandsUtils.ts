@@ -1,6 +1,7 @@
 //#region Subcommands
 
 import {
+	APIApplicationCommandOptionChoice,
 	APIApplicationCommandSubcommandGroupOption,
 	ApplicationCommandOptionType,
 	AutocompleteInteraction,
@@ -83,23 +84,27 @@ export async function isSetup(guild: Guild) {
 	return true;
 }
 
-export function getOption<
-	P extends CommandOptionDictDeclare,
-	N extends keyof P,
-	T extends keyof CommandOptionStrToType | null = P[N]['type'],
->(
+type ChoiceValue<C> = C extends (infer U extends APIApplicationCommandOptionChoice<any>)[] ? U['value'] : undefined;
+
+type OptionReturn<P extends CommandOptionDictDeclare, N extends keyof P> = P[N]['required'] extends true
+	? ChoiceValue<P[N]['choices']> extends undefined
+		? CommandOptionStrToType[NonNullable<P[N]['type']>]
+		: ChoiceValue<P[N]['choices']>
+	: ChoiceValue<P[N]['choices']> extends undefined
+		? CommandOptionStrToType[NonNullable<P[N]['type']>] | null
+		: ChoiceValue<P[N]['choices']> | null;
+
+export function getOption<P extends CommandOptionDictDeclare, N extends keyof P>(
 	interaction: ChatInputCommandInteraction,
 	args: P,
 	name: N,
-): P[N]['required'] extends true
-	? CommandOptionStrToType[NonNullable<T>]
-	: CommandOptionStrToType[NonNullable<T>] | null {
+): OptionReturn<P, N> {
 	const required = args[name].required;
 	const type = args[name].type ?? '';
 	const defaultVal = args[name].defaultValue ?? null;
 	const method = `get${capitalise(type)}` as keyof ChatInputCommandInteraction['options'];
 
-	// @ts-expect-error: dynamic method call is valid
+	// @ts-expect-error dynamic method call
 	return interaction.options[method](name, required) ?? defaultVal;
 }
 

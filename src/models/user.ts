@@ -86,9 +86,6 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
 	declare getNextRank: BelongsToGetAssociationMixin<Rank>;
 	declare setNextRank: BelongsToSetAssociationMixin<Rank, Rank['rankId']>;
 
-	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, allowNull: true })
-	declare sessionId: CreationOptional<number>;
-
 	@Attribute({ type: DataTypes.DATE })
 	declare createdAt: CreationOptional<Date>;
 	@Attribute({ type: DataTypes.DATE })

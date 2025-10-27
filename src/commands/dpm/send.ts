@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, GuildMember } from 'discord.js';
+import { ChatInputCommandInteraction, GuildMember, MessageFlags } from 'discord.js';
 import { ErrorReplies } from '../../types/errors.js';
 import { DPM, isDiploReady } from '../../utils/diplomacyUtils.js';
 import { reportErrorToUser, constructError } from '../../utils/errorsUtils.js';
@@ -38,9 +38,27 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		await reportErrorToUser(interaction, constructError([ErrorReplies.GuildTagNotFound], tag), true);
 		return;
 	}
+	const dbGuild = await Data.models.Guild.findOne({ where: { guildId: guild.id } });
+	if (!dbGuild) {
+		await reportErrorToUser(
+			interaction,
+			constructError(
+				[ErrorReplies.OnlySubstitute, ErrorReplies.ReportToOwner],
+				'Guild could not be found in the database',
+			),
+			true,
+		);
+		return;
+	}
+	if (!dbGuild.tag) {
+		await reportErrorToUser(interaction, constructError([ErrorReplies.DiploNotSetup]), true);
+		return;
+	}
 	await DPM.transaction({ source: guild.id, target: target.guildId }, DPM.TransactionType.MessageSend, {
 		message,
 		author: interaction.user,
+		targetTag: tag,
+		sourceTag: dbGuild.tag,
 	});
 	await interaction.reply({
 		embeds: [
@@ -48,5 +66,6 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				.setTitle('Message sent')
 				.setDescription(`Sent message to guild with tag \`${tag}\`:\n${message}`),
 		],
+		flags: MessageFlags.Ephemeral,
 	});
 };

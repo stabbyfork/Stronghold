@@ -205,6 +205,7 @@ export type CommandOptionDeclare<T extends OptionType, Required extends boolean 
 	type: Required extends true ? T : T | null;
 	required: Required;
 	defaultValue?: CommandOptionStrToType[T];
+	choices?: APIApplicationCommandOptionChoice[];
 };
 
 export type CommandChoiceDeclare<T extends OptionType, Required extends boolean = boolean> = {
@@ -229,7 +230,7 @@ export type CommandChoice<T extends OptionType, Required extends boolean = boole
 };
 
 export type CommandOptionDictDeclare = {
-	[option: string]: CommandChoiceDeclare<OptionType> | CommandOptionDeclare<OptionType>;
+	[option: string]: CommandOptionDeclare<OptionType>;
 };
 
 export type CommandOptionDict = {

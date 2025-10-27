@@ -36,7 +36,6 @@ import { Logging } from '../../utils/loggingUtils.js';
 import { Permission, PermissionBits } from '../../utils/permissionsUtils.js';
 import { getOption } from '../../utils/subcommandsUtils.js';
 import { Usages, UsageScope } from '../../utils/usageLimitsUtils.js';
-import setup from '../dpm/setup.js';
 
 const enum RoleNames {
 	InSession = 'In Session',

@@ -22,6 +22,7 @@ import { DPM } from '../utils/diplomacyUtils.js';
 import { GuildRelation } from '../models/relatedGuild.js';
 import { Op } from '@sequelize/core';
 import { client } from '../client.js';
+import { SessionParticipantAssociations } from '../models/sessionParticipant.js';
 
 export default createEvent({
 	name: Events.InteractionCreate,
@@ -211,7 +212,24 @@ export default createEvent({
 							});
 							return;
 						}
-						if (member.roles.cache.has(inSessionRole.id)) {
+						/*if (member.roles.cache.has(inSessionRole.id)) {
+							await interaction.reply({
+								content: '❌ You are already in the session',
+								flags: MessageFlags.Ephemeral,
+							});
+							return;
+						}*/
+						const participant = await Data.models.SessionParticipant.findOne({
+							where: { sessionId: session.id },
+							include: [
+								{
+									model: Data.models.User,
+									as: SessionParticipantAssociations.User,
+									where: { userId: member.id },
+								},
+							],
+						});
+						if (participant?.inSession) {
 							await interaction.reply({
 								content: '❌ You are already in the session',
 								flags: MessageFlags.Ephemeral,
@@ -221,17 +239,26 @@ export default createEvent({
 						try {
 							await Data.mainDb.transaction(async (transaction) => {
 								await member.roles.add(inSessionRole, 'Joined session');
-								const usr = await Data.models.User.findOne({
-									where: { userId: member.id, guildId: guild.id },
-									transaction,
-								});
-								if (usr) {
-									await session.addTotalUser(usr, { transaction });
+								if (participant) {
+									await participant.update(
+										{ inSession: true, joinedAt: new Date() },
+										{ transaction },
+									);
+									await session.addParticipant(participant, { transaction });
 								} else {
-									await session.createTotalUser(
-										{
+									const [usr] = await Data.models.User.findOrCreate({
+										where: { userId: member.id, guildId: guild.id },
+										defaults: {
 											userId: member.id,
 											guildId: guild.id,
+										},
+										transaction,
+									});
+									await session.createParticipant(
+										{
+											userId: usr.id,
+											inSession: true,
+											joinedAt: new Date(),
 										},
 										{
 											transaction,
@@ -323,17 +350,49 @@ export default createEvent({
 							});
 							return;
 						}
-						if (member.roles.cache.has(inSessionRole.id)) {
-							await member.roles.remove(inSessionRole, 'Left session');
-							await interaction.reply({
-								content: '✅ Successfully left session',
-								flags: MessageFlags.Ephemeral,
-							});
-							await Logging.log({
-								data: interaction,
-								formatData: `${userMention(member.id)} left the session`,
-								logType: Logging.Type.Info,
-								extents: [GuildFlag.LogInfo],
+						const participant = await Data.models.SessionParticipant.findOne({
+							where: { sessionId: session.id },
+							include: [
+								{
+									model: Data.models.User,
+									as: SessionParticipantAssociations.User,
+									where: { userId: member.id },
+								},
+							],
+						});
+						//member.roles.cache.has(inSessionRole.id)
+						if (participant?.inSession) {
+							await Data.mainDb.transaction(async (transaction) => {
+								await member.roles.remove(inSessionRole, 'Left session');
+								if (!participant.joinedAt) {
+									await reportErrorToUser(
+										interaction,
+										constructError(
+											[ErrorReplies.OnlySubstitute, ErrorReplies.ReportToOwner],
+											'Participant joinedAt is null',
+										),
+										true,
+									);
+									return;
+								}
+								await participant.update(
+									{
+										inSession: false,
+										timeSpent:
+											participant.timeSpent + (Date.now() - participant.joinedAt.getTime()),
+									},
+									{ transaction },
+								);
+								await interaction.reply({
+									content: '✅ Successfully left session',
+									flags: MessageFlags.Ephemeral,
+								});
+								await Logging.log({
+									data: interaction,
+									formatData: `${userMention(member.id)} left the session`,
+									logType: Logging.Type.Info,
+									extents: [GuildFlag.LogInfo],
+								});
 							});
 						} else {
 							await interaction.reply({

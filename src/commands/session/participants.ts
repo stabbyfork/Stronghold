@@ -89,7 +89,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				.setTitle('Participants')
 				.setColor('Green')
 				.setDescription(
-					`The following users have met the time quota (${ms(session.timeQuota * 1000, { long: false })}): ${participants.map((u) => userMention(u.user!.userId)).join(', ')}`,
+					`The following users have met the time quota (${ms(session.timeQuota, { long: false })}): ${participants.map((u) => userMention(u.user!.userId)).join(', ')}`,
 				);
 			break;
 		case SessionParticipantsOptions.AllParticipants:

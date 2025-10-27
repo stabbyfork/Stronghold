@@ -44,9 +44,18 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		return;
 	}
 	const userToRemove = getOption(interaction, args, 'user');
-	const dbParticipant = (
-		await session.getParticipants({ where: { userId: userToRemove.id, sessionId: session.id } })
-	)[0];
+	const dbUser = await Data.models.User.findOne({
+		where: { userId: userToRemove.id, guildId: guild.id },
+	});
+	if (!dbUser) {
+		await reportErrorToUser(
+			interaction,
+			constructError([ErrorReplies.UserNotFoundSubstitute], userToRemove.id),
+			true,
+		);
+		return;
+	}
+	const dbParticipant = (await session.getParticipants({ where: { userId: dbUser.id, sessionId: session.id } }))[0];
 	// May be undefined if the user is not in the session
 	if (!dbParticipant?.inSession) {
 		await reportErrorToUser(interaction, constructError([ErrorReplies.UserNotInSession], userToRemove.id), true);

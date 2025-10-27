@@ -45,7 +45,18 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	}
 	const userToKick = getOption(interaction, args, 'user');
 
-	const participant = (await session.getParticipants({ where: { userId: userToKick.id, sessionId: session.id } }))[0];
+	const dbUser = await Data.models.User.findOne({
+		where: { userId: userToKick.id, guildId: guild.id },
+	});
+	if (!dbUser) {
+		await reportErrorToUser(
+			interaction,
+			constructError([ErrorReplies.UserNotFoundSubstitute], userToKick.id),
+			true,
+		);
+		return;
+	}
+	const participant = (await session.getParticipants({ where: { userId: dbUser.id, sessionId: session.id } }))[0];
 	// May be undefined if the user is not in the session
 	if (!participant?.inSession) {
 		await reportErrorToUser(interaction, ErrorReplies.UserNotInSession, true);

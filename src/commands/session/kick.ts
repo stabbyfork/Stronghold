@@ -83,7 +83,10 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 
 	const memberToKick = guild.members.cache.get(userToKick.id) ?? (await guild.members.fetch(userToKick.id));
 	await Data.mainDb.transaction(async (transaction) => {
-		await participant.update({ inSession: false }, { transaction });
+		await participant.update(
+			{ inSession: false, timeSpent: Date.now() - participant.joinedAt!.getTime() },
+			{ transaction },
+		);
 		await memberToKick.roles.remove(inSessionRole, 'Kicked from the session');
 	});
 

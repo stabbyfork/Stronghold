@@ -44,7 +44,8 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 					time === 0
 						? 'Cleared session time quota.'
 						: `Set session time quota to ${ms(time, { long: true })}.`,
-				),
+				)
+				.setColor('Green'),
 		],
 		flags: MessageFlags.Ephemeral,
 	});

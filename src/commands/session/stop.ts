@@ -23,6 +23,7 @@ import { hasPermissions, Permission } from '../../utils/permissionsUtils.js';
 import { reportErrorIfNotSetup } from '../../utils/subcommandsUtils.js';
 import { client } from '../../client.js';
 import { memoize } from 'lodash';
+import { SessionParticipantAssociations } from '../../models/sessionParticipant.js';
 
 export default async (interaction: ChatInputCommandInteraction) => {
 	if (!(await reportErrorIfNotSetup(interaction))) return;
@@ -41,7 +42,13 @@ export default async (interaction: ChatInputCommandInteraction) => {
 	}
 	const session = await Data.models.GuildSession.findOne({
 		where: { guildId: guild.id },
-		include: [GuildSessionAssociations.Participants],
+		include: [
+			{
+				model: Data.models.SessionParticipant,
+				as: GuildSessionAssociations.Participants,
+				include: [SessionParticipantAssociations.User],
+			},
+		],
 	});
 	if (!session || !session.active) {
 		await reportErrorToUser(interaction, constructError([ErrorReplies.NoExistingSession]), true);

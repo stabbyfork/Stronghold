@@ -67,7 +67,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 					.setDescription(
 						'Nobody matches the criteria.' +
 							(typeOfParticipants === SessionParticipantsOptions.MetTimeQuota
-								? `\nThe time quota is ${ms(session.timeQuota, { long: true })}`
+								? `\nThe time quota is ${ms(session.timeQuota, { long: true })}.`
 								: ''),
 					),
 			],

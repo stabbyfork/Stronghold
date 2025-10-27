@@ -103,7 +103,14 @@ export default async (interaction: ChatInputCommandInteraction) => {
 			embed.addFields({
 				name: 'Participants',
 				value:
-					participants.length > 0 ? participants.map((m) => userMention(m.user!.userId)).join(', ') : 'None',
+					participants.length > 0
+						? participants
+								.map(
+									(m) =>
+										`${userMention(m.user!.userId)} (${ms(m.timeSpent + (m.inSession ? Date.now() - m.joinedAt!.getTime() : 0))})`,
+								)
+								.join(', ')
+						: 'None',
 				inline: true,
 			});
 		} else {

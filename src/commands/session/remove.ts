@@ -74,7 +74,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	const memberToRemove = guild.members.cache.get(userToRemove.id) ?? (await guild.members.fetch(userToRemove.id));
 	await Data.mainDb.transaction(async (transaction) => {
 		await memberToRemove.roles.remove(inSessionRole, 'Removed from the session');
-		await session.removeParticipant(dbParticipant.id, { transaction });
+		await session.removeParticipant(dbParticipant.id, { transaction, destroy: true });
 	});
 	await interaction.reply({
 		embeds: [

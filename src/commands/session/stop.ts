@@ -163,7 +163,7 @@ export default async (interaction: ChatInputCommandInteraction) => {
 	}
 	await Data.mainDb.transaction(async (transaction) => {
 		await session.update({ endedAt: new Date(), sessionMessageId: null, active: false }, { transaction });
-		await session.setParticipants([], { transaction });
+		await session.setParticipants([], { transaction, destroyPrevious: true });
 	});
 	await interaction.reply({
 		embeds: [

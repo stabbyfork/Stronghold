@@ -35,7 +35,7 @@ export default async (interaction: ChatInputCommandInteraction) => {
 	await Data.mainDb.transaction(async (transaction) => {
 		for (const user of dbMembers) {
 			if (members.get(user.userId) === null) continue;
-			await Promise.all([Data.promoteUser(user, transaction), Data.reconcileRanks(user, transaction)]);
+			await Data.promoteUser(user, transaction);
 		}
 	});
 	await interaction.followUp({

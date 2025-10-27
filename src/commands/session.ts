@@ -5,7 +5,7 @@ import { UsageScope } from '../utils/usageLimitsUtils.js';
 export enum SessionParticipantsOptions {
 	CurrentlyInSession,
 	AllParticipants,
-	MetQuota,
+	MetTimeQuota,
 }
 
 export default createCommand<{}, 'session'>({
@@ -98,8 +98,8 @@ export default createCommand<{}, 'session'>({
 								value: SessionParticipantsOptions.AllParticipants,
 							},
 							{
-								name: 'Participants who have met the quota',
-								value: SessionParticipantsOptions.MetQuota,
+								name: 'Participants who have met the time quota',
+								value: SessionParticipantsOptions.MetTimeQuota,
 							},
 						)
 						.setRequired(true),

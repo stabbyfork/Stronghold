@@ -37,12 +37,12 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				include: [SessionParticipantAssociations.User],
 			});
 			break;
-		case SessionParticipantsOptions.MetQuota:
+		case SessionParticipantsOptions.MetTimeQuota:
 			participants = await session.getParticipants({ include: [SessionParticipantAssociations.User] });
 			// Don't do unnecessary checks
 			if (session.timeQuota !== 0) {
 				participants = participants.filter(
-					(p) => p.timeSpent + (p.joinedAt ? Date.now() - p.joinedAt.getTime() : 0) >= session.timeQuota,
+					(p) => p.timeSpent + (p.inSession ? Date.now() - p.joinedAt!.getTime() : 0) >= session.timeQuota,
 				);
 			}
 			break;
@@ -66,7 +66,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 					.setColor('Red')
 					.setDescription(
 						'Nobody matches the criteria.' +
-							(typeOfParticipants === SessionParticipantsOptions.MetQuota
+							(typeOfParticipants === SessionParticipantsOptions.MetTimeQuota
 								? `\nThe time quota is ${ms(session.timeQuota, { long: true })}`
 								: ''),
 					),
@@ -84,7 +84,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 					`The following users are currently in the session: ${participants.map((u) => userMention(u.user!.userId)).join(', ')}`,
 				);
 			break;
-		case SessionParticipantsOptions.MetQuota:
+		case SessionParticipantsOptions.MetTimeQuota:
 			toReply = defaultEmbed()
 				.setTitle('Participants')
 				.setColor('Green')

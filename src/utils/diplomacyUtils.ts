@@ -526,7 +526,7 @@ export namespace DPM {
 					}
 				} else {
 					sourceThread = await sourceChannel.threads.create({
-						name: `${sourceGuild.name} - ${targetGuild.name}`,
+						name: `${targetGuild.name}`,
 						autoArchiveDuration: ThreadAutoArchiveDuration.OneDay,
 						message: { content: `Diplomacy between \`${sourceGuild.name}\` and \`${targetGuild.name}\`` },
 					});
@@ -563,7 +563,7 @@ export namespace DPM {
 					}
 				} else {
 					targetThread = await targetChannel.threads.create({
-						name: `${targetGuild.name} - ${sourceGuild.name}`,
+						name: `${sourceGuild.name}`,
 						autoArchiveDuration: ThreadAutoArchiveDuration.OneDay,
 						message: { content: `Diplomacy between \`${targetGuild.name}\` and \`${sourceGuild.name}\`` },
 					});

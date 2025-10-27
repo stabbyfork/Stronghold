@@ -201,7 +201,7 @@ export default createCommand<typeof commandOptions.feedback>({
 		});
 	},
 	limits: {
-		usesPerInterval: 3,
+		usesPerInterval: 5,
 		intervalMs: 3 * 60 * 1000,
 		useCooldown: 15 * 1000,
 		scope: UsageScope.GuildMember,

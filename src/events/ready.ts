@@ -16,8 +16,11 @@ export default createEvent({
 		console.log('Started with', dbGuilds, 'set-up guilds');
 		const joinedGuilds = client.guilds.cache;
 		console.log(`In ${joinedGuilds.size} guilds:`);
+		let totalMembers = 0;
 		for (const guild of joinedGuilds.values()) {
 			console.log(guild.name, guild.id);
+			totalMembers += guild.memberCount;
 		}
+		console.log(`Total members: ${totalMembers}`);
 	},
 });

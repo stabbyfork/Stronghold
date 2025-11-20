@@ -649,7 +649,9 @@ export default createCommand<typeof commandOptions.setup>({
 					'Next steps:\n- View all commands using \`/help\`\n- Set up diplomacy using \`/dpm setup\`\n- Add ranks using \`/ranking ranks add\`',
 				),
 			(text) =>
-				text.setContent("If you have any questions, please join our support server! (linked in the bot's bio)"),
+				text.setContent(
+					"If you have any questions, please join our support server (linked in the bot's bio)! Report any issues using `/feedback`.",
+				),
 		);
 
 		if (setupConfig.createLogChannel) {

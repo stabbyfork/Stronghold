@@ -63,7 +63,7 @@ export default createCommand<typeof commandOptions.feedback>({
 							new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
 								new TextInputBuilder()
 									.setCustomId(CustomId.BugDescription)
-									.setLabel('Describe the bug: errors, arguments, context')
+									.setLabel('Describe the bug: errors, options, context')
 									.setStyle(TextInputStyle.Paragraph)
 									.setMaxLength(3600)
 									.setPlaceholder(

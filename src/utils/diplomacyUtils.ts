@@ -250,7 +250,7 @@ export namespace DPM {
 		actionRow?: ActionRowBuilder<MessageActionRowComponentBuilder>;
 	}) {
 		const embed = defaultEmbed()
-			.setAuthor({ name: author.username, iconURL: author.displayAvatarURL() })
+			.setAuthor({ name: `${author.globalName} (@${author.username})`, iconURL: author.displayAvatarURL() })
 			.setDescription(message)
 			.setTitle(title);
 		return thread.send({

@@ -268,9 +268,6 @@ export default createCommand<{}, 'dpm'>({
 		},
 	},
 	description: {
-		allies: {
-			add: 'Changes the relation of a guild if it already exists.',
-		},
-		setup: 'Must not contain spaces or exclamation marks (!). Must be within 2-8 characters. Converted to lowercase.',
+		setup: 'Tags must not contain spaces or exclamation marks (!). Converted to lowercase internally, so capitalisation of letters does not matter.',
 	},
 });

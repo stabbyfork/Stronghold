@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction } from 'discord.js';
+import { APIEmbedField, ChatInputCommandInteraction, RestOrArray } from 'discord.js';
 import { defaultEmbed } from '../../utils/discordUtils.js';
 import { Permission } from '../../utils/permissionsUtils.js';
 
@@ -21,20 +21,34 @@ const fields = [
 	{
 		name: Permission.ManagePermissions,
 		value: 'Users with this permission can manage (add/remove) BOT-SPECIFIC (**NOT DISCORD/SERVER**) permissions of roles and users (NOT themselves), EXCEPT removing or adding administrator and this permission.',
+		inline: true,
 	},
 	{
 		name: Permission.ManagePoints,
 		value: 'Users with this permission can manage (add/remove) points.',
+		inline: true,
 	},
 	{
 		name: Permission.ManageRanks,
 		value: 'Users with this permission can manage (add/remove) ranks.',
+		inline: true,
 	},
 	{
 		name: Permission.ManageSessions,
 		value: 'Users with this permission can manage (add/remove) sessions.',
+		inline: true,
 	},
-] as const;
+	{
+		name: Permission.ManageRelations,
+		value: 'Users with this permission can manage (add/remove) relations (allies, enemies, peace, etc.).',
+		inline: true,
+	},
+	{
+		name: Permission.DiplomacyMessages,
+		value: 'Users with this permission can send messages to other guilds via the diplomacy system (see `/dpm setup`).',
+		inline: true,
+	},
+] as const as RestOrArray<APIEmbedField>;
 
 export default async (interaction: ChatInputCommandInteraction) => {
 	interaction.reply({

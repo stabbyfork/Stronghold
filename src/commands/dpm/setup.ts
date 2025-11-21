@@ -44,7 +44,20 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	const newTag = getOption(interaction, args, 'tag').toLowerCase();
 	const existingGuild = await Data.models.Guild.findOne({ where: { tag: newTag } });
 	if (existingGuild && existingGuild.guildId !== guild.id) {
-		await reportErrorToUser(interaction, 'This tag is already in use. Please choose another one.', true);
+		const suggestedTag = guild.nameAcronym.toLowerCase();
+		const canUseSuggestedTag =
+			suggestedTag !== newTag &&
+			suggestedTag.length >= 2 &&
+			suggestedTag.length <= 8 &&
+			(await Data.models.Guild.findOne({
+				where: { tag: suggestedTag },
+				attributes: [],
+			})) === null;
+		await reportErrorToUser(
+			interaction,
+			`This tag is already in use. Please choose another one.${canUseSuggestedTag ? ` Perhaps you can use \`${suggestedTag}\` as your tag?` : ''}`,
+			true,
+		);
 		return;
 	}
 	const row = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(

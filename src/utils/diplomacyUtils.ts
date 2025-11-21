@@ -253,9 +253,8 @@ export namespace DPM {
 	}) {
 		const embed = defaultEmbed()
 			.setAuthor({ name: `${author.globalName} (@${author.username})`, iconURL: author.displayAvatarURL() })
-			.setDescription(message)
+			.setDescription(message + (footer ? `\n\n-# ${footer}` : ''))
 			.setTitle(title);
-		if (footer) embed.setFooter({ text: footer });
 		return thread.send({
 			embeds: [embed],
 			allowedMentions: { users: [], roles: [] },
@@ -386,14 +385,14 @@ export namespace DPM {
 				message,
 				author,
 				title: `Sent message`,
-				footer: `To ${targetTag}`,
+				footer: `To \`${targetTag}\``,
 			});
 			await sendGenericToThread({
 				thread: threads.target,
 				message,
 				author,
 				title: `Received message`,
-				footer: `From ${sourceTag}`,
+				footer: `From \`${sourceTag}\``,
 			});
 		},
 		[TransactionType.AllyCancel]: async ({ id, params, threads }) => {

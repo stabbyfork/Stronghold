@@ -12,6 +12,7 @@ import {
 	ModalActionRowComponentBuilder,
 	ModalBuilder,
 	ModalSubmitInteraction,
+	PermissionFlagsBits,
 	TextInputBuilder,
 	TextInputStyle,
 	time,
@@ -193,6 +194,39 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	let sentMessage: Message | undefined;
 	await Data.mainDb.transaction(async (transaction) => {
 		if (channel.isSendable()) {
+			const meUser = guild.members.me;
+			if (!meUser) {
+				await reportErrorToUser(
+					interaction,
+					constructError([ErrorReplies.ClientUserNotFoundInGuild, ErrorReplies.ReportToOwner]),
+					true,
+				);
+				return;
+			}
+			const gChannel = guild.channels.cache.get(channel.id) ?? (await guild.channels.fetch(channel.id));
+			if (!gChannel) {
+				await reportErrorToUser(
+					interaction,
+					constructError(
+						[ErrorReplies.ChannelNotFoundSubstitute, ErrorReplies.ReportToOwner],
+						channelMention(channel.id),
+					),
+					true,
+				);
+				return;
+			}
+			const channelPerms = gChannel.permissionsFor(meUser);
+			if (!channelPerms.has(PermissionFlagsBits.SendMessages)) {
+				await reportErrorToUser(
+					interaction,
+					constructError(
+						[ErrorReplies.ClientPermissionsMissingSubstitute],
+						`Send Messages in channel ${channelMention(channel.id)}`,
+					),
+					true,
+				);
+				return;
+			}
 			sentMessage = await channel.send({
 				components: [toSend],
 				flags: MessageFlags.IsComponentsV2,

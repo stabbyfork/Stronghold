@@ -1,7 +1,9 @@
 import Sequelize, { Op, sql } from '@sequelize/core';
-import { Guild, GuildMember } from 'discord.js';
+import { ChatInputCommandInteraction, Guild, GuildChannel, GuildMember, PermissionsBitField, User } from 'discord.js';
 import { Data } from '../data.js';
 import { checkBits } from './genericsUtils.js';
+import { constructError, reportErrorToUser } from './errorsUtils.js';
+import { ErrorReplies, Errors } from '../types/errors.js';
 
 //#region Permissions
 export type PermissionField = number;
@@ -97,6 +99,30 @@ export async function hasPermissions(
 			(includesAllPermissions(role.permissions, ...permissions) ||
 				(allowAdmin && includesAllPermissions(role.permissions, Permission.Administrator))),
 	);
+}
+
+export namespace DCPerms {
+	export async function getPermissions(
+		interaction: ChatInputCommandInteraction,
+		scope: { guild: Guild; channel: GuildChannel; user?: User | GuildMember },
+		...permissions: (keyof typeof PermissionsBitField.Flags)[]
+	) {
+		const { guild, channel, user } = scope;
+		const member = user
+			? (guild.members.cache.get(user.id) ?? (await guild.members.fetch(user.id)))
+			: guild.members.me;
+		if (!member) {
+			await reportErrorToUser(
+				interaction,
+				constructError(
+					[ErrorReplies.UserNotFoundSubstitute, ErrorReplies.ReportToOwner],
+					user ? user.id : 'the bot client',
+				),
+			);
+			throw new Errors.HandledError('User not found');
+		}
+		return channel.permissionsFor(member);
+	}
 }
 
 //#endregion

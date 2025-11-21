@@ -201,12 +201,41 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 					if (existingInDb) {
 						await reportErrorToUser(
 							interaction,
-							'A role with this ID already exists: ' +
+							'A rank with this role ID already exists: ' +
 								existingId +
 								'\nIf you want to update it, use `/ranking ranks edit`.',
 							true,
 						);
 						throw new Errors.HandledError('Role already exists');
+					}
+					const meUser = guild.members.me;
+					if (!meUser) {
+						await reportErrorToUser(
+							interaction,
+							constructError(
+								[ErrorReplies.OnlySubstitute, ErrorReplies.ReportToOwner],
+								"Could not find the bot's user in this guild.",
+							),
+							true,
+						);
+						throw new Errors.HandledError('Client user not found');
+					}
+					const role = guild.roles.cache.get(existingId) ?? (await guild.roles.fetch(existingId));
+					if (!role) {
+						await reportErrorToUser(
+							interaction,
+							constructError([ErrorReplies.RoleNotFoundSubstitute], existingId),
+							true,
+						);
+						throw new Errors.HandledError('Role not found');
+					}
+					if (meUser.roles.highest.position < role.position) {
+						await reportErrorToUser(
+							interaction,
+							constructError([ErrorReplies.RoleIsHigherThanClientSubstitute], roleMention(existingId)),
+							true,
+						);
+						throw new Errors.HandledError("Role is higher than client's highest role");
 					}
 				}
 				let role = existingId

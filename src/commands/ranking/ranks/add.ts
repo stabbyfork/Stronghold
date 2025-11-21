@@ -9,6 +9,7 @@ import { constructError, reportErrorToUser } from '../../../utils/errorsUtils.js
 import { Logging } from '../../../utils/loggingUtils.js';
 import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
 import { getOption, reportErrorIfNotSetup } from '../../../utils/subcommandsUtils.js';
+import { client } from '../../../client.js';
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.ranking.ranks.add) => {
 	if (!(await reportErrorIfNotSetup(interaction))) return;
@@ -30,18 +31,36 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	const stack = getOption(interaction, args, 'stackable') ?? false;
 	const showInRanking = getOption(interaction, args, 'show_in_ranking') ?? true;
 	if (!existing && !name) {
-		await interaction.reply({
-			embeds: [
-				defaultEmbed().setTitle('Error').setDescription('You must either provide a name OR an existing role.'),
-			],
-			flags: MessageFlags.Ephemeral,
-		});
+		await reportErrorToUser(interaction, 'You must either provide a name OR an existing role.', true);
+		return;
 	}
 	if (existing && name) {
 		await guild.roles.edit(existing, {
 			name,
 			reason: `Renamed by /ranking ranks add, supplied with both an existing role and name. By: ${interaction.user.id}`,
 		});
+	}
+	if (existing) {
+		const meUser = guild.members.me;
+		if (!meUser) {
+			await reportErrorToUser(
+				interaction,
+				constructError(
+					[ErrorReplies.OnlySubstitute, ErrorReplies.ReportToOwner],
+					'Could not find the client user in this guild.',
+				),
+				true,
+			);
+			return;
+		}
+		if (meUser.roles.highest.position < existing.position) {
+			await reportErrorToUser(
+				interaction,
+				constructError([ErrorReplies.RoleIsHigherThanClientSubstitute], roleMention(existing.id)),
+				true,
+			);
+			return;
+		}
 	}
 	if (limit !== -1 && stack) {
 		await reportErrorToUser(interaction, constructError([ErrorReplies.CantBeStackableAndLimited]), true);

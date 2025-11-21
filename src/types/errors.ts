@@ -57,8 +57,8 @@ export const ErrorReplies = {
 	InvalidColorSubstitute: 'Invalid color: !{ERROR}.',
 	SeeHelp: 'See the help entry of this command for more information.',
 	NoExistingSession: 'There is no active session. See `/session start`.',
-	ChannelNotFoundSubstitute: 'Channel not found (id): !{ERROR}.',
-	MessageNotFoundSubstitute: 'Message not found (id): !{ERROR}.',
+	ChannelNotFoundSubstitute: 'Channel not found: !{ERROR}.',
+	MessageNotFoundSubstitute: 'Message not found: !{ERROR}.',
 	CantBeStackableAndLimited: 'Role cannot be stackable and limited at the same time.',
 	DiploNotSetup: 'Diplomacy is not set up. Please run `/dpm setup` first.',
 	DiploAlreadySetup: 'Diplomacy is already set up.',
@@ -73,6 +73,10 @@ export const ErrorReplies = {
 	AlreadyNeutral: 'You are already at peace with this guild.',
 	UserNotInSession: 'This user is not in the session.',
 	UserHasNotJoinedSession: 'This user has not joined the session.',
+	ClientPermissionsMissingSubstitute: 'The bot requires the following permissions: !{ERROR}.',
+	RoleIsHigherThanClientSubstitute:
+		"Cannot manage roles above the bot's highest role. You can either move the role(s) below the bot's highest role or move the bot's highest role higher.",
+	ClientUserNotFoundInGuild: "Could not find the bot's user in this guild.",
 } as const;
 
 export namespace Errors {

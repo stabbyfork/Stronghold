@@ -289,9 +289,10 @@ export namespace DPM {
 	}
 
 	const transactionHandlers = {
-		[TransactionType.AllyRequest]: async ({ id, params, threads, currentRelation }) => {
+		[TransactionType.AllyRequest]: async ({ id, params, threads, currentRelation, activeChange }) => {
 			const { message, author } = params;
 			if (currentRelation === GuildRelation.Ally) throw new Errors.DPMError('You are already allies.');
+			if (activeChange) throw new Errors.DPMError(ErrorReplies.RelationChangeInProgress);
 			await sendGenericToThread({
 				thread: threads.target,
 				message,
@@ -308,7 +309,7 @@ export namespace DPM {
 			});
 			await setActiveChange(GuildRelation.Ally, id);
 		},
-		[TransactionType.NeutralQuery]: async ({ id, params, threads, currentRelation }) => {
+		[TransactionType.NeutralQuery]: async ({ id, params, threads, currentRelation, activeChange }) => {
 			const { message, author } = params;
 			if (currentRelation === GuildRelation.Neutral) throw new Errors.DPMError('You are already neutral.');
 			if (currentRelation === GuildRelation.Ally) {
@@ -326,6 +327,7 @@ export namespace DPM {
 				});
 				await setRelation(GuildRelation.Neutral, id);
 			} else if (currentRelation === GuildRelation.Enemy) {
+				if (activeChange) throw new Errors.DPMError(ErrorReplies.RelationChangeInProgress);
 				await sendGenericToThread({
 					thread: threads.source,
 					message,
@@ -432,6 +434,7 @@ export namespace DPM {
 			params: TransactionParams[T];
 			threads: Threads;
 			currentRelation?: GuildRelation;
+			activeChange?: GuildRelation;
 			//dbId: DbCleanIdentifier;
 		}) => Promise<void>;
 	};
@@ -606,6 +609,7 @@ export namespace DPM {
 			params: params,
 			threads,
 			currentRelation: existingRelation?.relation,
+			activeChange: existingRelation?.activeChange ?? undefined,
 		});
 	}
 

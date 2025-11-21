@@ -24,7 +24,7 @@ export default createEvent({
 		console.log(`Total members: ${totalMembers}`);
 		fs.writeFileSync(
 			'guild-data.json',
-			`In ${joinedGuilds.size} guilds, with ${totalMembers} members in total, ${dbGuilds.count} of which are set up:\n${JSON.stringify([...joinedGuilds.values().map((g) => Object.assign(g, { setup: dbGuilds.rows.find((r) => r.guildId === g.id) }))], null, 2)}`,
+			`In ${joinedGuilds.size} guilds, with ${totalMembers} members in total, ${dbGuilds.count} of which are set up:\n${JSON.stringify([...joinedGuilds.values().map((g) => Object.assign(g, { setup: dbGuilds.rows.find((r) => r.guildId === g.id) ?? null }))], null, 2)}`,
 		);
 	},
 });

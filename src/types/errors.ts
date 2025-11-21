@@ -77,6 +77,7 @@ export const ErrorReplies = {
 	RoleIsHigherThanClientSubstitute:
 		"Cannot manage roles above the bot's highest role. You can either move the role(s) below the bot's highest role or move the bot's highest role higher.",
 	ClientUserNotFoundInGuild: "Could not find the bot's user in this guild.",
+	RelationChangeInProgress: 'A relation change is already in progress. Cancel that one before starting another.',
 } as const;
 
 export namespace Errors {

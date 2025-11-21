@@ -29,9 +29,13 @@ async function registerEvents() {
 async function safeShutdown(signal: NodeJS.Signals) {
 	console.log('Shutting down with signal', signal);
 	await Promise.all([client.destroy(), Data.closeDb(), clearInterval(activityChecksId)])
-		.then(() => process.exit(0))
+		.then(() => {
+			console.log('-----------------SHUTDOWN COMPLETE-----------------');
+			process.exit(0);
+		})
 		.catch((err) => {
 			Debug.error(err);
+			console.error('-----------------SHUTDOWN FAILED-----------------');
 			process.exit(1);
 		});
 }
@@ -88,6 +92,7 @@ if (process.env.NODE_ENV !== 'prod') {
 } else {
 	await client.login(Config.get('token'));
 }
+
 tx2.action('update:production', (reply) => {
 	exec('npm run pullAndRestart:production', (error, stdout, stderr) => {
 		if (error) {

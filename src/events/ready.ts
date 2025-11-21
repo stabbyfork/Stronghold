@@ -2,6 +2,7 @@ import { ActivityType, Events } from 'discord.js';
 import { commands } from '../commands.js';
 import { Data } from '../data.js';
 import { createEvent } from '../types/eventTypes.js';
+import fs from 'fs';
 
 export default createEvent({
 	name: Events.ClientReady,
@@ -12,16 +13,19 @@ export default createEvent({
 		for (const cmd of Object.values(commands)) {
 			await cmd.once?.();
 		}
-		const dbGuilds = await Data.models.Guild.count();
-		console.log('Started with', dbGuilds, 'set-up guilds');
+		const dbGuilds = await Data.models.Guild.findAndCountAll();
 		const joinedGuilds = client.guilds.cache;
-		console.log(`In ${joinedGuilds.size} guilds:`);
+		console.log('Started with', dbGuilds.count, 'set-up guilds and', joinedGuilds.size, 'total guilds');
 		let totalMembers = 0;
 		for (const guild of joinedGuilds.values()) {
 			const members = guild.memberCount;
-			console.log(`${guild.name} (${guild.id}), members: ${members}`);
 			totalMembers += members;
 		}
 		console.log(`Total members: ${totalMembers}`);
+		fs.writeFileSync(
+			'../guild-data.json',
+			`In ${joinedGuilds.size} guilds, with ${totalMembers} members in total, ${dbGuilds.count} of which are set up:\n${JSON.stringify([...joinedGuilds.values().map((g) => Object.assign(g, { setup: dbGuilds.rows.find((r) => r.guildId === g.id) }).toJSON())], null, 2)}`,
+			{ mode: 'w' },
+		);
 	},
 });

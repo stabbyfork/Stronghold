@@ -386,14 +386,14 @@ export namespace DPM {
 				message,
 				author,
 				title: `Sent message`,
-				footer: `To \`${targetTag}\``,
+				footer: `To ${targetTag}`,
 			});
 			await sendGenericToThread({
 				thread: threads.target,
 				message,
 				author,
 				title: `Received message`,
-				footer: `From \`${sourceTag}\``,
+				footer: `From ${sourceTag}`,
 			});
 		},
 		[TransactionType.AllyCancel]: async ({ id, params, threads }) => {

@@ -242,17 +242,20 @@ export namespace DPM {
 		author,
 		title,
 		actionRow,
+		footer,
 	}: {
 		thread: ForumThreadChannel;
 		message: string;
 		author: User;
 		title: string;
 		actionRow?: ActionRowBuilder<MessageActionRowComponentBuilder>;
+		footer?: string;
 	}) {
 		const embed = defaultEmbed()
 			.setAuthor({ name: `${author.globalName} (@${author.username})`, iconURL: author.displayAvatarURL() })
 			.setDescription(message)
 			.setTitle(title);
+		if (footer) embed.setFooter({ text: footer });
 		return thread.send({
 			embeds: [embed],
 			allowedMentions: { users: [], roles: [] },
@@ -382,13 +385,15 @@ export namespace DPM {
 				thread: threads.source,
 				message,
 				author,
-				title: `Sent message to \`${id.target.name}\` (\`${targetTag}\`)`,
+				title: `Sent message`,
+				footer: `To \`${targetTag}\``,
 			});
 			await sendGenericToThread({
 				thread: threads.target,
 				message,
 				author,
-				title: `Message from \`${id.source.name}\` (\`${sourceTag}\`)`,
+				title: `Received message`,
+				footer: `From \`${sourceTag}\``,
 			});
 		},
 		[TransactionType.AllyCancel]: async ({ id, params, threads }) => {

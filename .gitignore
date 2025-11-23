@@ -2,4 +2,4 @@ node_modules
 config.json
 dist
 dependency-graph.svg
-guild-list.json
+guild-data.json

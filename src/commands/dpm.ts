@@ -83,7 +83,7 @@ export default createCommand<{}, 'dpm'>({
 								.setMaxLength(1024),
 						),
 				)
-				.addSubcommand((cmd) => cmd.setName('list').setDescription('List all alliances')),
+				.addSubcommand((cmd) => cmd.setName('list').setDescription('List all allies')),
 		)
 		.addSubcommandGroup((group) =>
 			group
@@ -129,7 +129,7 @@ export default createCommand<{}, 'dpm'>({
 								.setMaxLength(1024),
 						),
 				)
-				.addSubcommand((cmd) => cmd.setName('list').setDescription('List all enemy')),
+				.addSubcommand((cmd) => cmd.setName('list').setDescription('List all enemies')),
 		)
 		.addSubcommandGroup((group) =>
 			group

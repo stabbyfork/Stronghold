@@ -39,7 +39,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	await interaction.reply({
 		embeds: [
 			defaultEmbed()
-				.setTitle(suppliedUser ? `${suppliedUser.username}'s permissions` : 'Your permissions')
+				.setTitle(suppliedUser ? `@${suppliedUser.username}'s permissions` : 'Your permissions')
 				.setDescription(
 					`${suppliedUser ? `${userMention(suppliedUser.id)}'s` : 'Your'} bot permissions, including permissions given by roles, are: ${permsString ? permsString : 'none'}.`,
 				),

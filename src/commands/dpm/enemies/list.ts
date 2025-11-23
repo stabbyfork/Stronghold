@@ -63,6 +63,7 @@ export default async (interaction: ChatInputCommandInteraction) => {
 			return listGuilds(
 				enemies.rows.slice(start, start + perPage).map((a) => a.targetGuild!),
 				Assets.getAsFile(AssetId.DefaultGuildIcon),
+				'List of enemies',
 			);
 		},
 	});

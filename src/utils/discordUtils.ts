@@ -501,11 +501,15 @@ export function getAttachment<A extends AttachmentBuilder[], I extends number>(
  * @param defaultGuildIcon - An AttachmentBuilder representing the default guild icon.
  * @returns A ContainerBuilder with a list of guilds.
  */
-export async function listGuilds(targets: Guild[], defaultGuildIcon: AttachmentBuilder) {
+export async function listGuilds(
+	targets: Guild[],
+	defaultGuildIcon: AttachmentBuilder,
+	title: string = 'List of guilds',
+) {
 	const guilds = await Promise.all(
 		targets.map(async (a) => client.guilds.cache.get(a.guildId) ?? (await client.guilds.fetch(a.guildId))),
 	);
-	const out = new ContainerBuilder().addTextDisplayComponents((text) => text.setContent('## List of guilds'));
+	const out = new ContainerBuilder().addTextDisplayComponents((text) => text.setContent(`## ${title}`));
 	if (targets.length === 0) {
 		out.addTextDisplayComponents((text) => text.setContent('None on this page.'));
 		return out;

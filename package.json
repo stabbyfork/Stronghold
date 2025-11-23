@@ -50,7 +50,8 @@
 		"bundle": "node esbuild.js",
 		"bundleAndRestart": "npm run bundle && pm2 flush && pm2 restart --cron-restart 0 ./ecosystem.config.cjs",
 		"bundleAndRestart:production": "npm run bundle && pm2 flush && npm run start:production",
-		"pullAndRestart:production": "git pull && npm run bundleAndRestart:production"
+		"pullAndRestart:production": "git pull && npm run bundleAndRestart:production",
+		"announceUpdate": "pm2 trigger stronghold logUpdate"
 	},
 	"version": "1.2.6",
 	"name": "stronghold",

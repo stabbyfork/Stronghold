@@ -12,7 +12,7 @@ import { Debug } from './utils/errorsUtils.js';
 import { intDiv } from './utils/genericsUtils.js';
 //@ts-ignore
 import * as Events from './events/*';
-import { ForumChannel, ThreadAutoArchiveDuration, userMention } from 'discord.js';
+import { ForumChannel, Guild, ThreadAutoArchiveDuration, userMention } from 'discord.js';
 
 let activityChecksId: NodeJS.Timeout;
 
@@ -119,7 +119,13 @@ tx2.action('logUpdate', {}, async (params, reply) => {
 	const message = (params as string).replace(/\\n/g, '\n');
 	const versionStr = `Update v${(await import('../package.json')).default.version}`;
 	for (const dbGuild of await Data.models.Guild.findAll({ where: { logChannelId: { [Op.ne]: null } } })) {
-		const guild = client.guilds.cache.get(dbGuild.guildId) ?? (await client.guilds.fetch(dbGuild.guildId));
+		let guild: Guild;
+		try {
+			guild = client.guilds.cache.get(dbGuild.guildId) ?? (await client.guilds.fetch(dbGuild.guildId));
+		} catch {
+			Debug.error(`Guild ${dbGuild.guildId} not found during update announcement`);
+			continue;
+		}
 		if (!dbGuild.logChannelId) continue;
 		const channel = (guild.channels.cache.get(dbGuild.logChannelId) ??
 			(await guild.channels.fetch(dbGuild.logChannelId))) as ForumChannel | null;

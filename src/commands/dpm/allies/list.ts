@@ -66,6 +66,7 @@ export default async (interaction: ChatInputCommandInteraction) => {
 			return listGuilds(
 				allies.rows.slice(start, start + perPage).map((a) => a.targetGuild!),
 				Assets.getAsFile(AssetId.DefaultGuildIcon),
+				'List of allies',
 			);
 		},
 	});

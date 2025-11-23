@@ -25,7 +25,7 @@ export const ErrorReplies = {
 		'This interaction does not have an associated guild member. This may be because of an internal error or because the interaction was not created in a guild.',
 	InteractionHasNoChannel:
 		'This interaction does not have an associated channel. This may be because of an internal error or because the interaction was not created in a guild.',
-	PermissionsNeededSubstitute: 'You need the following permissions to use this command: \`!{ERROR}\`',
+	PermissionsNeededSubstitute: 'You need the following permission(s) to use this command: \`!{ERROR}\`',
 	MustBeServerOwner: 'You must be the server owner to use this command.',
 	ActivityCheckExists: 'An activity check already exists in this guild. Please delete that one first.',
 	InvalidTimeFormat: 'Invalid time format, could not parse. Use this format: `10m`, `5h`, `1d`, etc.',

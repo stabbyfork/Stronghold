@@ -8,7 +8,6 @@ import {
 } from '@sequelize/core';
 import { Attribute, BelongsTo, Table } from '@sequelize/core/decorators-legacy';
 import { Guild } from './guild.js';
-import { Data } from '../data.js';
 
 export enum GuildRelation {
 	Ally = 'Ally',
@@ -18,9 +17,6 @@ export enum GuildRelation {
 
 export enum RelatedGuildAssociations {
 	TargetGuild = 'targetGuild',
-}
-
-export enum RelatedGuildAssociations {
 	Guild = 'guild',
 }
 
@@ -44,10 +40,10 @@ export class RelatedGuild extends Model<InferAttributes<RelatedGuild>, InferCrea
 	@Attribute({ type: DataTypes.ENUM(GuildRelation), allowNull: false })
 	declare relation: GuildRelation;
 
-	@Attribute({ type: DataTypes.STRING(20), allowNull: true })
+	@Attribute({ type: DataTypes.STRING(20), allowNull: true, unique: true })
 	declare targetThreadId: string | null;
 
-	@Attribute({ type: DataTypes.STRING(20), allowNull: true })
+	@Attribute({ type: DataTypes.STRING(20), allowNull: true, unique: true })
 	declare sourceThreadId: string | null;
 
 	@Attribute({ type: DataTypes.ENUM(GuildRelation), allowNull: true })

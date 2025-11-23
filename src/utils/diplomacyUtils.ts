@@ -31,6 +31,12 @@ export async function isDiploReady(guild: Guild) {
 	return dbGuild.tag !== null && dbGuild.ready && dbGuild.dpmChannelId !== null;
 }
 
+async function getGuildTag(guild: Guild) {
+	const dbGuild = await Data.models.Guild.findOne({ where: { guildId: guild.id } });
+	if (!dbGuild) return null;
+	return dbGuild.tag;
+}
+
 export async function changeRelation({
 	interaction,
 	relationTag,
@@ -173,7 +179,7 @@ export namespace DPM {
 		Collection<[firstGuild: string, secondGuild: string], ForumThreadChannel>,
 	];
 	type Identifier = { source: Guild | Interaction | string; target: Guild | string };
-	type CleanIdentifier = { source: Guild; target: Guild };
+	type CleanIdentifier = { source: Guild; target: Guild; sourceTag: string; targetTag: string };
 	type Threads = {
 		source: ForumThreadChannel;
 		target: ForumThreadChannel;
@@ -191,7 +197,7 @@ export namespace DPM {
 		[TransactionType.AllyRequest]: GenericTransaction;
 		[TransactionType.NeutralQuery]: GenericTransaction;
 		[TransactionType.EnemyDeclare]: GenericTransaction;
-		[TransactionType.MessageSend]: GenericTransaction & { sourceTag: string; targetTag: string };
+		[TransactionType.MessageSend]: GenericTransaction /*& { sourceTag: string; targetTag: string }*/;
 		[TransactionType.AllyCancel]: GenericTransaction;
 		[TransactionType.NeutralCancel]: GenericTransaction;
 	}
@@ -253,8 +259,9 @@ export namespace DPM {
 	}) {
 		const embed = defaultEmbed()
 			.setAuthor({ name: `${author.globalName} (@${author.username})`, iconURL: author.displayAvatarURL() })
-			.setDescription(message + (footer ? `\n\n-# ${footer}` : ''))
+			.setDescription(message /*+ (footer ? `\n\n-# ${footer}` : '')*/)
 			.setTitle(title);
+		if (footer) embed.setFooter({ text: footer });
 		return thread.send({
 			embeds: [embed],
 			allowedMentions: { users: [], roles: [] },
@@ -299,15 +306,17 @@ export namespace DPM {
 				thread: threads.target,
 				message,
 				author,
-				title: `Ally request from \`${id.source.name}\``,
+				title: `Received ally request`,
 				actionRow: createTargetActionRow([CustomId.AcceptAlly, CustomId.DeclineAlly], id),
+				footer: `From: ${id.sourceTag}`,
 			});
 			await sendGenericToThread({
 				thread: threads.source,
 				message,
 				author,
-				title: `Ally request sent to \`${id.target.name}\``,
+				title: `Sent ally request`,
 				actionRow: createSourceActionRow(CustomId.CancelAlly, id),
+				footer: `To: ${id.targetTag}`,
 			});
 			await setActiveChange(GuildRelation.Ally, id);
 		},
@@ -319,13 +328,15 @@ export namespace DPM {
 					thread: threads.target,
 					message,
 					author,
-					title: `\`${id.source.name}\` broke ties`,
+					title: `Broke ties`,
+					footer: `From: ${id.sourceTag}`,
 				});
 				await sendGenericToThread({
 					thread: threads.source,
 					message,
 					author,
-					title: `Broke ties with \`${id.target.name}\``,
+					title: `Broke ties`,
+					footer: `To: ${id.targetTag}`,
 				});
 				await setRelation(GuildRelation.Neutral, id);
 			} else if (currentRelation === GuildRelation.Enemy) {
@@ -334,15 +345,17 @@ export namespace DPM {
 					thread: threads.source,
 					message,
 					author,
-					title: `Sent peace request to \`${id.target.name}\``,
+					title: `Sent peace request`,
 					actionRow: createSourceActionRow(CustomId.CancelNeutral, id),
+					footer: `To: ${id.targetTag}`,
 				});
 				await sendGenericToThread({
 					thread: threads.target,
 					message,
 					author,
-					title: `Peace request from \`${id.source.name}\``,
+					title: `Received peace request`,
 					actionRow: createTargetActionRow([CustomId.AcceptNeutral, CustomId.DeclineNeutral], id),
+					footer: `From: ${id.sourceTag}`,
 				});
 				await setActiveChange(GuildRelation.Neutral, id);
 			} else {
@@ -350,13 +363,15 @@ export namespace DPM {
 					thread: threads.source,
 					message,
 					author,
-					title: `Marked \`${id.target.name}\` neutral`,
+					title: `Marked neutral`,
+					footer: `To: ${id.targetTag}`,
 				});
 				await sendGenericToThread({
 					thread: threads.target,
 					message,
 					author,
-					title: `Neutrality declaration from \`${id.source.name}\``,
+					title: `Received neutrality declaration`,
+					footer: `From: ${id.sourceTag}`,
 				});
 				await setRelation(GuildRelation.Neutral, id);
 			}
@@ -368,46 +383,50 @@ export namespace DPM {
 				thread: threads.source,
 				message,
 				author,
-				title: `Declared \`${id.target.name}\` an enemy`,
+				title: `Sent enemy declaration`,
+				footer: `To: ${id.targetTag}`,
 			});
 			await sendGenericToThread({
 				thread: threads.target,
 				message,
 				author,
-				title: `Enemy declaration from \`${id.source.name}\``,
+				title: `Received enemy declaration`,
+				footer: `From: ${id.sourceTag}`,
 			});
 			await setRelation(GuildRelation.Enemy, id);
 		},
 		[TransactionType.MessageSend]: async ({ id, params, threads }) => {
-			const { message, author, targetTag, sourceTag } = params;
+			const { message, author } = params;
 			await sendGenericToThread({
 				thread: threads.source,
 				message,
 				author,
 				title: `Sent message`,
-				footer: `To \`${targetTag}\``,
+				footer: `To: ${id.targetTag}`,
 			});
 			await sendGenericToThread({
 				thread: threads.target,
 				message,
 				author,
 				title: `Received message`,
-				footer: `From \`${sourceTag}\``,
+				footer: `From: ${id.sourceTag}`,
 			});
 		},
 		[TransactionType.AllyCancel]: async ({ id, params, threads }) => {
 			const { author } = params;
 			await sendGenericToThread({
 				thread: threads.source,
-				message: 'No reason can be provided.',
+				message: '',
 				author,
-				title: `Cancelled ally request to \`${id.target.name}\``,
+				title: `Cancelled alliance request`,
+				footer: `To: ${id.targetTag}`,
 			});
 			await sendGenericToThread({
 				thread: threads.target,
-				message: 'No reason can be provided.',
+				message: '',
 				author,
-				title: `Ally request from \`${id.source.name}\` was cancelled`,
+				title: `Alliance request was cancelled`,
+				footer: `By: ${id.sourceTag}`,
 			});
 			await setActiveChange(null, id);
 		},
@@ -415,15 +434,17 @@ export namespace DPM {
 			const { author } = params;
 			await sendGenericToThread({
 				thread: threads.source,
-				message: 'No reason can be provided.',
+				message: '',
 				author,
-				title: `Cancelled peace request to \`${id.target.name}\``,
+				title: `Cancelled peace request`,
+				footer: `To: ${id.targetTag}`,
 			});
 			await sendGenericToThread({
 				thread: threads.target,
-				message: 'No reason can be provided.',
+				message: '',
 				author,
-				title: `Peace request from \`${id.source.name}\` was cancelled`,
+				title: `Peace request was cancelled`,
+				footer: `By: ${id.sourceTag}`,
 			});
 			await setActiveChange(null, id);
 		},
@@ -599,9 +620,14 @@ export namespace DPM {
 		const cleanTarget = typeof target === 'string' ? await getOrFetchGuild(target) : target;
 		if (cleanSource.id === cleanTarget.id)
 			throw new Errors.ValueError('Cannot diplomatise with self (source = target)');
+		const tags = await Promise.all([getGuildTag(cleanSource), getGuildTag(cleanTarget)]);
+		if (!tags[0]) throw new Errors.NotFoundError('Source guild tag not found');
+		if (!tags[1]) throw new Errors.NotFoundError('Target guild tag not found');
 		const cleanId: CleanIdentifier = {
 			source: cleanSource,
+			sourceTag: tags[0],
 			target: cleanTarget,
+			targetTag: tags[1],
 		};
 		const threads = await getThreads(cleanId);
 		const existingRelation = await Data.models.RelatedGuild.findOne({
@@ -609,7 +635,7 @@ export namespace DPM {
 		});
 		await transactionHandlers[tType]({
 			id: cleanId,
-			//@ts-expect-error Typescript doesn't like this for some reason, but intellisense works ¯\_(ツ)_/¯
+			//-@ts-expect-error Typescript doesn't like this for some reason, but intellisense works ¯\_(ツ)_/¯
 			params: params,
 			threads,
 			currentRelation: existingRelation?.relation,

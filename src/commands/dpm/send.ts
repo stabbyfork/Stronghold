@@ -57,8 +57,6 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	await DPM.transaction({ source: guild.id, target: target.guildId }, DPM.TransactionType.MessageSend, {
 		message,
 		author: interaction.user,
-		targetTag: tag,
-		sourceTag: dbGuild.tag,
 	});
 	await interaction.reply({
 		embeds: [

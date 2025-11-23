@@ -52,7 +52,7 @@
 		"bundleAndRestart:production": "npm run bundle && pm2 flush && npm run start:production",
 		"pullAndRestart:production": "git pull && npm run bundleAndRestart:production"
 	},
-	"version": "1.2.5",
+	"version": "1.2.6",
 	"name": "stronghold",
 	"displayName": "Stronghold"
 }

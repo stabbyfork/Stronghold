@@ -42,7 +42,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	let channel = getOption(interaction, args, 'diplomacy_channel') as ForumChannel | null;
 
 	const newTag = getOption(interaction, args, 'tag').toLowerCase();
-	const existingGuild = await Data.models.Guild.findOne({ where: { tag: newTag } });
+	const existingGuild = await Data.models.Guild.findOne({ where: { tag: newTag }, attributes: ['guildId'] });
 	if (existingGuild && existingGuild.guildId !== guild.id) {
 		const suggestedTag = guild.nameAcronym.toLowerCase();
 		const canUseSuggestedTag =
@@ -51,7 +51,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			suggestedTag.length <= 8 &&
 			(await Data.models.Guild.findOne({
 				where: { tag: suggestedTag },
-				attributes: [],
+				attributes: ['guildId'],
 			})) === null;
 		await reportErrorToUser(
 			interaction,

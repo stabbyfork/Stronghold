@@ -9,6 +9,7 @@ import {
 	MessageCreateOptions,
 	ThreadAutoArchiveDuration,
 	TimestampStyles,
+	channelMention,
 	time,
 	userMention,
 } from 'discord.js';
@@ -16,6 +17,8 @@ import { client } from '../client.js';
 import { Data } from '../data.js';
 import { defaultEmbed } from './discordUtils.js';
 import { GuildFlag, GuildFlagBits, GuildFlagField } from './guildFlagsUtils.js';
+import { constructError, Debug, reportErrorToUser } from './errorsUtils.js';
+import { ErrorReplies } from '../types/errors.js';
 
 export namespace Logging {
 	export enum Type {
@@ -198,7 +201,15 @@ export namespace Logging {
 		const todayThread = await getTodayThread(logChannel);
 		const intr = data instanceof ChatInputCommandInteraction ? data : undefined;
 		const formatted = formatters[logType](formatData as any, intr);
-		await todayThread.send(formatted);
+		try {
+			await todayThread.send(formatted);
+		} catch {
+			if (data instanceof ChatInputCommandInteraction) {
+				await reportErrorToUser(data, constructError([ErrorReplies.ClientPermissionsMissingSubstitute], `\`Send Messages\` in ${channelMention(logChannel.id)}`), true);
+			} else {
+				Debug.error(`Failed to send log message to ${logChannel.id} for guild ${guildId}`);
+			}
+		}
 	}
 
 	/**

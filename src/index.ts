@@ -118,7 +118,10 @@ tx2.action('alterSyncDb', async (reply) => {
 tx2.action('logUpdate', {}, async (params, reply) => {
 	const message = (params as string).replace(/\\n/g, '\n');
 	const versionStr = `Update v${(await import('../package.json')).default.version}`;
+	let numAnnounced = 0;
+	let total = 0;
 	for (const dbGuild of await Data.models.Guild.findAll({ where: { logChannelId: { [Op.ne]: null } } })) {
+		total++;
 		let guild: Guild;
 		try {
 			guild = client.guilds.cache.get(dbGuild.guildId) ?? (await client.guilds.fetch(dbGuild.guildId));
@@ -141,8 +144,10 @@ tx2.action('logUpdate', {}, async (params, reply) => {
 		} else {
 			await thread.send(guildMsg);
 		}
+		numAnnounced++;
 	}
-	reply({ success: true });
+	reply({ success: true, numAnnounced, total });
+	console.log(`Announced update to ${numAnnounced} of ${total} guilds`);
 });
 
 process.send?.('ready');

@@ -1,7 +1,7 @@
 import { Lock, Op, Sequelize, Transaction } from '@sequelize/core';
 import { MySqlDialect } from '@sequelize/mysql';
 import { SqliteDialect } from '@sequelize/sqlite3';
-import { userMention } from 'discord.js';
+import { PermissionsBitField, roleMention, userMention } from 'discord.js';
 import { client } from './client.js';
 import { Config } from './config.js';
 import { ActivityCheck } from './models/activityCheck.js';
@@ -18,6 +18,8 @@ import { Errors } from './types/errors.js';
 import { Debug } from './utils/errorsUtils.js';
 import { RelatedGuild } from './models/relatedGuild.js';
 import { SessionParticipant } from './models/sessionParticipant.js';
+import { Logger } from 'sequelize/types/utils/logger.js';
+import { Logging } from './utils/loggingUtils.js';
 
 const dbConfg = Config.get('database');
 
@@ -147,10 +149,17 @@ export namespace Data {
 		});
 		const [added, removed] = diffRanks(newRanks, currentRanks);
 		if (added.length !== 0) {
-			await member.roles.add(
-				added.map((r) => r.roleId),
-				'Gained enough points for this rank.',
-			);
+			try {
+				await member.roles.add(
+					added.map((r) => r.roleId),
+					'Gained enough points for this rank.',
+				);
+			} catch {
+				throw new Errors.NotAllowedError(
+					`Could not add some roles ${added.map((r) => roleMention(r.roleId)).join(', ')} to ${userMention(user.userId)}. Perhaps the bot is missing the \`Manage Roles\` permission or the roles are higher than the bot's highest role?`,
+				);
+			}
+
 			await user.addRanks(added, { transaction });
 		}
 		if (removed.length !== 0) {

@@ -25,6 +25,7 @@ const enum FeedbackType {
 	Bug,
 	Feature,
 	Misc,
+	Report,
 }
 
 const enum CustomId {
@@ -34,6 +35,8 @@ const enum CustomId {
 	Bug = 'bug',
 	Feature = 'feature',
 	Other = 'other',
+	Report = 'report',
+	ReportDescription = 'report-description',
 }
 
 export default createCommand<typeof commandOptions.feedback>({
@@ -49,6 +52,7 @@ export default createCommand<typeof commandOptions.feedback>({
 					{ name: 'Bug', value: FeedbackType.Bug },
 					{ name: 'Feature', value: FeedbackType.Feature },
 					{ name: 'Miscellaneous', value: FeedbackType.Misc },
+					{ name: 'Report a server', value: FeedbackType.Report },
 				),
 		),
 	execute: async (interaction, args: typeof commandOptions.feedback) => {
@@ -112,6 +116,25 @@ export default createCommand<typeof commandOptions.feedback>({
 						),
 				);
 				break;
+			case FeedbackType.Report:
+				await interaction.showModal(
+					new ModalBuilder()
+						.setTitle('Report a server')
+						.setCustomId(CustomId.Report)
+						.addComponents(
+							new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
+								new TextInputBuilder()
+									.setCustomId(CustomId.ReportDescription)
+									.setLabel('Description of the violation')
+									.setStyle(TextInputStyle.Paragraph)
+									.setMaxLength(3600)
+									.setPlaceholder(
+										'The server is... and has an inappropriate tag... (please identify the server)',
+									),
+							),
+						),
+				);
+				break;
 			default:
 				throw new Error('Invalid feedback type, got: ' + feedbackType);
 		}
@@ -119,7 +142,10 @@ export default createCommand<typeof commandOptions.feedback>({
 			const submitted = await interaction.awaitModalSubmit({
 				time: 15 * 60 * 1000,
 				filter: (i) =>
-					i.customId === CustomId.Bug || i.customId === CustomId.Feature || i.customId === CustomId.Other,
+					i.customId === CustomId.Bug ||
+					i.customId === CustomId.Feature ||
+					i.customId === CustomId.Other ||
+					i.customId === CustomId.Report,
 			});
 			await submitted.deferUpdate();
 			const ownerId = Config.get('appOwnerId');
@@ -174,6 +200,21 @@ export default createCommand<typeof commandOptions.feedback>({
 						],
 					};
 					break;
+				case FeedbackType.Report:
+					toSend = {
+						embeds: [
+							defaultEmbed()
+								.setTitle('Report a server')
+								.setAuthor({
+									name: interaction.user.username,
+									iconURL: interaction.user.displayAvatarURL(),
+								})
+								.setDescription(
+									`From ${userMention(interaction.user.id)}:\n${submitted.fields.getTextInputValue(CustomId.ReportDescription)}`,
+								)
+								.setColor('Red'),
+						],
+					};
 				default:
 					await reportErrorToUser(
 						interaction,

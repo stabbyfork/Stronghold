@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON MON, 27 OCT 2025 19:42:39 GMT WITH 10 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON MON, 24 NOV 2025 20:40:17 GMT WITH 10 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct } from "./types/commandTypes.js";
 
@@ -442,6 +442,10 @@ feedback: {
       {
         "name": "Miscellaneous",
         "value": 2
+      },
+      {
+        "name": "Report a server",
+        "value": 3
       }
     ],
     "type": "integer"

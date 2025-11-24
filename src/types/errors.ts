@@ -1,5 +1,6 @@
 import { Transaction } from '@sequelize/core';
 import { Config } from '../config.js';
+import { PermissionsBitField } from 'discord.js';
 
 //#region Errors
 /**
@@ -259,6 +260,14 @@ export namespace Errors {
 			super(message);
 			this.name = 'DPMError';
 			Object.setPrototypeOf(this, DPMError.prototype);
+		}
+	}
+	/** Thrown when the bot does not have proper permissions to do something */
+	export class PermissionError extends InformedError<PermissionsBitField> {
+		constructor(message: string, requiredPermissions: PermissionsBitField) {
+			super(message, requiredPermissions);
+			this.name = 'PermissionError';
+			Object.setPrototypeOf(this, PermissionError.prototype);
 		}
 	}
 }

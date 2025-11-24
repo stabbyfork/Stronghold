@@ -83,7 +83,11 @@ export async function setPointsWithInteraction(
 				await Data.promoteUser(data, transaction).catch(async (e) => {
 					// Send to user
 					if (e instanceof Errors.DatabaseError) {
-						reportErrorToUser(interaction, constructError([ErrorReplies.OnlySubstitute], e.message), true);
+						await reportErrorToUser(
+							interaction,
+							constructError([ErrorReplies.OnlySubstitute], e.message),
+							true,
+						);
 					} else {
 						// Unexpected
 						throw e;

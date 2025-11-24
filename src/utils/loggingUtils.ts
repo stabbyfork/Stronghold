@@ -126,6 +126,7 @@ export namespace Logging {
 	 * @param create Whether to create a new thread if the thread does not exist.
 	 * @returns The thread at the given date if it exists, or undefined if it does not exist and create is false.
 	 * If create is true, the returned thread will be the newly created thread.
+	 * @throws If missing access
 	 */
 	export async function getThreadAtDay<T extends boolean = false>(
 		logChannel: ForumChannel,
@@ -198,17 +199,42 @@ export namespace Logging {
 		}
 		if ((logExtents & exts) !== exts) return;
 		if (!logChannel) return;
-		const todayThread = await getTodayThread(logChannel);
+		let todayThread: ForumThreadChannel | undefined;
+		try {
+			todayThread = await getTodayThread(logChannel);
+		} catch {
+			if (data instanceof ChatInputCommandInteraction) {
+				await reportErrorToUser(
+					data,
+					constructError(
+						[ErrorReplies.ClientPermissionsMissingSubstitute],
+						`\`Send Messages\` in ${channelMention(logChannel.id)}`,
+					),
+					true,
+				);
+			} else {
+				Debug.error(`Failed to get today's log thread for guild ${guildId}`);
+			}
+			return;
+		}
 		const intr = data instanceof ChatInputCommandInteraction ? data : undefined;
 		const formatted = formatters[logType](formatData as any, intr);
 		try {
 			await todayThread.send(formatted);
 		} catch {
 			if (data instanceof ChatInputCommandInteraction) {
-				await reportErrorToUser(data, constructError([ErrorReplies.ClientPermissionsMissingSubstitute], `\`Send Messages\` in ${channelMention(logChannel.id)}`), true);
+				await reportErrorToUser(
+					data,
+					constructError(
+						[ErrorReplies.ClientPermissionsMissingSubstitute],
+						`\`Send Messages\` in ${channelMention(logChannel.id)}`,
+					),
+					true,
+				);
 			} else {
 				Debug.error(`Failed to send log message to ${logChannel.id} for guild ${guildId}`);
 			}
+			return;
 		}
 	}
 

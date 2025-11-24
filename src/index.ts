@@ -13,6 +13,8 @@ import { intDiv } from './utils/genericsUtils.js';
 //@ts-ignore
 import * as Events from './events/*';
 import { ForumChannel, Guild, ThreadAutoArchiveDuration, userMention } from 'discord.js';
+import { Logging } from './utils/loggingUtils.js';
+import { GuildFlag } from './utils/guildFlagsUtils.js';
 
 let activityChecksId: NodeJS.Timeout;
 
@@ -129,10 +131,16 @@ tx2.action('logUpdate', {}, async (params, reply) => {
 			Debug.error(`Guild ${dbGuild.guildId} not found during update announcement`);
 			continue;
 		}
-		if (!dbGuild.logChannelId) continue;
+		if (!dbGuild.logChannelId) {
+			Debug.error(`Guild ${dbGuild.guildId} has no log channel`);
+			continue;
+		}
 		const channel = (guild.channels.cache.get(dbGuild.logChannelId) ??
 			(await guild.channels.fetch(dbGuild.logChannelId))) as ForumChannel | null;
-		if (!channel) continue;
+		if (!channel) {
+			Debug.error(`Guild ${dbGuild.guildId}'s log channel ${dbGuild.logChannelId} not found`);
+			continue;
+		}
 		const guildMsg = message.replace(/@OWNER/, userMention(guild.ownerId));
 		const thread = channel.threads.cache.find((t) => t.name === versionStr);
 		if (!thread) {
@@ -144,12 +152,34 @@ tx2.action('logUpdate', {}, async (params, reply) => {
 				});
 			} catch {
 				Debug.error(`Failed to create thread for guild ${dbGuild.guildId}`);
+				await Logging.log({
+					logType: Logging.Type.Warning,
+					extents: [GuildFlag.LogWarnings],
+					data: { guildId: guild.id },
+					formatData: {
+						msg: 'Failed to send an update announcement message to a thread in this guild due to an error',
+						cause: 'Thread could not be created by the bot',
+						action: 'Update announcement',
+					},
+				});
+				continue;
 			}
 		} else {
 			try {
 				await thread.send(guildMsg);
-			} catch {
-				Debug.error(`Failed to send message to thread for guild ${dbGuild.guildId}`);
+			} catch (e) {
+				Debug.error(`Failed to send message to thread for guild ${dbGuild.guildId} due to: ${e}`);
+				await Logging.log({
+					logType: Logging.Type.Warning,
+					extents: [GuildFlag.LogWarnings],
+					data: { guildId: guild.id },
+					formatData: {
+						msg: 'Failed to send an update announcement message to a thread in this guild due to an error',
+						cause: 'Thread could not be sent to by the bot',
+						action: 'Update announcement',
+					},
+				});
+				continue;
 			}
 		}
 		numAnnounced++;

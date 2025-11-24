@@ -136,13 +136,21 @@ tx2.action('logUpdate', {}, async (params, reply) => {
 		const guildMsg = message.replace(/@OWNER/, userMention(guild.ownerId));
 		const thread = channel.threads.cache.find((t) => t.name === versionStr);
 		if (!thread) {
-			await channel.threads.create({
-				name: versionStr,
-				autoArchiveDuration: ThreadAutoArchiveDuration.OneDay,
-				message: { content: guildMsg },
-			});
+			try {
+				await channel.threads.create({
+					name: versionStr,
+					autoArchiveDuration: ThreadAutoArchiveDuration.OneDay,
+					message: { content: guildMsg },
+				});
+			} catch {
+				Debug.error(`Failed to create thread for guild ${dbGuild.guildId}`);
+			}
 		} else {
-			await thread.send(guildMsg);
+			try {
+				await thread.send(guildMsg);
+			} catch {
+				Debug.error(`Failed to send message to thread for guild ${dbGuild.guildId}`);
+			}
 		}
 		numAnnounced++;
 	}

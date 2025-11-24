@@ -136,8 +136,6 @@ export default createCommand({
 				}
 			}
 			if (nextCmd?.split(' ')[0] !== cmdParts[0]) {
-				const nextNextCmd = commandArray[cmdI + 2]?.split(' ');
-				console.log(currentCmd, cmdParts, nextCmd, nextNextCmd);
 				if (
 					(cmdParts.length === 1 && nextCmd?.split(' ').length !== 1) ||
 					(cmdParts.length !== 1 && nextCmd?.split(' ').length === 1)

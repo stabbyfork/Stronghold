@@ -45,7 +45,6 @@ export default createCommand({
 			const command = commandArray[i];
 			const parts = command.split(' ');
 			for (let j = 0; j < parts.length; j++) {
-				const part = parts[j];
 				const joined = parts.slice(0, j + 1).join(' ');
 				if (!commandArray.includes(joined)) {
 					commandArray.splice(i + j, 0, joined);
@@ -54,6 +53,7 @@ export default createCommand({
 		}
 		let currentCmd = [] as string[];
 		let outStr = '';
+		const outPages = [] as string[];
 		let lastDescendant = false;
 		let finalBranch = false;
 		for (let cmdI = 0; cmdI < commandArray.length; cmdI++) {
@@ -135,9 +135,21 @@ export default createCommand({
 					outStr += `${i > 0 ? `${(!finalBranch ? '│  ' : '   ').repeat(i - 1)}${lastDescendant || (finalBranch && i === 1) ? '└─ ' : '├─ '}` : ''}${cmdOut}\n`;
 				}
 			}
+			if (nextCmd?.split(' ')[0] !== cmdParts[0]) {
+				const nextNextCmd = commandArray[cmdI + 2]?.split(' ');
+				console.log(currentCmd, cmdParts, nextCmd, nextNextCmd);
+				if (
+					(cmdParts.length === 1 && nextCmd?.split(' ').length !== 1) ||
+					(cmdParts.length !== 1 && nextCmd?.split(' ').length === 1)
+				) {
+					outPages.push(outStr);
+					outStr = '';
+				}
+			}
 			currentCmd = cmdParts;
 		}
-		splitHelpText = outStr.split('\n');
+		outPages.push(outStr);
+		splitHelpText = outPages;
 	},
 	execute: async (interaction, args: typeof commandOptions.help) => {
 		const msg = new ContainerBuilder();
@@ -233,16 +245,13 @@ export default createCommand({
 		} else {
 			// All commands
 			const pages = new Pages({
-				itemsPerPage: 20,
+				itemsPerPage: 1,
 				totalItems: splitHelpText.length - 1,
 				createPage: async (index, perPage) => {
 					const start = index * perPage;
 					return new ContainerBuilder().addTextDisplayComponents(
 						(text) => text.setContent('## List of commands'),
-						(text) =>
-							text.setContent(
-								'```ansi\n' + splitHelpText.slice(start, start + perPage).join('\n') + '\n```',
-							),
+						(text) => text.setContent('```ansi\n' + splitHelpText[start] + '\n```'),
 					);
 				},
 			});

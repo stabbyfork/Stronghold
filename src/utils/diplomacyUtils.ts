@@ -397,6 +397,8 @@ export namespace DPM {
 		},
 		[TransactionType.MessageSend]: async ({ id, params, threads }) => {
 			const { message, author } = params;
+			if (message.length == 0) throw new Errors.DPMError(ErrorReplies.MessageTooShort);
+			if (message.length > 2000) throw new Errors.DPMError(ErrorReplies.MessageTooLong);
 			await sendGenericToThread({
 				thread: threads.source,
 				message,

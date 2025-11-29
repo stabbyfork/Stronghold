@@ -5,6 +5,7 @@ import {
 	ComponentType,
 	ContainerComponent,
 	GuildMember,
+	Message,
 	MessageActionRowComponent,
 	MessageFlags,
 	time,
@@ -72,10 +73,21 @@ export default async (interaction: ChatInputCommandInteraction) => {
 	}
 	let endTime: Date | null = null;
 	if (session.sessionMessageId) {
-		const message = await channel.messages.fetch({ message: session.sessionMessageId, force: true });
-		if (!message) {
-			await reportErrorToUser(interaction, constructError([ErrorReplies.MessageNotFoundSubstitute]), true);
-			return;
+		let message: Message | undefined = undefined;
+		try {
+			message = await channel.messages.fetch({ message: session.sessionMessageId, force: true });
+		} catch {
+			await Logging.log({
+				logType: Logging.Type.Warning,
+				data: interaction,
+				extents: [GuildFlag.LogWarnings],
+				formatData: {
+					msg: `Could not find session message`,
+					userId: interaction.user.id,
+					action: 'Session ended',
+					cause: `Session message with ID ${session.sessionMessageId} could not be found in channel ${channelMention(session.channelId)}`,
+				},
+			});
 		}
 		endTime = new Date();
 		const startTime = session.startedAt;
@@ -157,16 +169,24 @@ export default async (interaction: ChatInputCommandInteraction) => {
 				});
 			}
 		}
-		// Removes last component (action row for buttons)
-		(message.components[0] as ContainerComponent).components.pop();
-		await message.edit({
-			components: [...message.components],
-			allowedMentions: { roles: [], users: [] },
-		});
-		await message.reply({
-			embeds: [embed],
-			allowedMentions: { roles: [], users: [] },
-		});
+		if (message) {
+			// Removes last component (action row for buttons)
+			(message.components[0] as ContainerComponent).components.pop();
+			await message.edit({
+				components: [...message.components],
+				allowedMentions: { roles: [], users: [] },
+			});
+			await message.reply({
+				embeds: [embed],
+				allowedMentions: { roles: [], users: [] },
+			});
+		} else {
+			// In case the message was deleted or not found
+			await channel.send({
+				embeds: [embed],
+				allowedMentions: { roles: [], users: [] },
+			});
+		}
 	} else {
 		await reportErrorToUser(
 			interaction,

@@ -50,8 +50,10 @@ export namespace DPM {
 	};
 	export enum TransactionType {
 		AllyRequest,
+		AllyAccept,
 		AllyCancel,
 		NeutralQuery,
+		NeutralAccept,
 		NeutralCancel,
 		EnemyDeclare,
 		MessageSend,
@@ -61,9 +63,11 @@ export namespace DPM {
 		[TransactionType.AllyRequest]: GenericTransaction;
 		[TransactionType.NeutralQuery]: GenericTransaction;
 		[TransactionType.EnemyDeclare]: GenericTransaction;
-		[TransactionType.MessageSend]: GenericTransaction /*& { sourceTag: string; targetTag: string }*/;
+		[TransactionType.MessageSend]: GenericTransaction;
 		[TransactionType.AllyCancel]: GenericTransaction;
 		[TransactionType.NeutralCancel]: GenericTransaction;
+		[TransactionType.AllyAccept]: GenericTransaction;
+		[TransactionType.NeutralAccept]: GenericTransaction;
 	}
 	/** name:targetGuildId */
 	export enum CustomId {
@@ -313,6 +317,42 @@ export namespace DPM {
 				footer: `By: ${id.sourceTag}`,
 			});
 			await setActiveChange(null, id);
+		},
+		[TransactionType.AllyAccept]: async ({ id, params, threads }) => {
+			const { author } = params;
+			await sendGenericToThread({
+				thread: threads.source,
+				message: '',
+				author,
+				title: `Alliance request was accepted`,
+				footer: `By: ${id.targetTag}`,
+			});
+			await sendGenericToThread({
+				thread: threads.target,
+				message: '',
+				author,
+				title: `Accepted alliance request`,
+				footer: `From: ${id.sourceTag}`,
+			});
+			await setRelation(GuildRelation.Ally, id);
+		},
+		[TransactionType.NeutralAccept]: async ({ id, params, threads }) => {
+			const { author } = params;
+			await sendGenericToThread({
+				thread: threads.source,
+				message: '',
+				author,
+				title: `Peace request was accepted`,
+				footer: `By: ${id.targetTag}`,
+			});
+			await sendGenericToThread({
+				thread: threads.target,
+				message: '',
+				author,
+				title: `Accepted peace request`,
+				footer: `From: ${id.sourceTag}`,
+			});
+			await setRelation(GuildRelation.Neutral, id);
 		},
 	} as const satisfies {
 		[T in TransactionType]: ({

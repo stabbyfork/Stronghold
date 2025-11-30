@@ -411,6 +411,7 @@ export default createEvent({
 					break;
 			}
 			if (handled) return;
+			// Parse custom IDs with data attached
 			if (InformedCustomId.isValid(interaction.customId)) {
 				const { name, data } = InformedCustomId.deformat(interaction.customId);
 				const sourceGuild = interaction.guild;
@@ -439,7 +440,7 @@ export default createEvent({
 								);
 								return;
 							}
-							// Swap around to find where the request is coming from
+							// Swap around the guilds to find where the request is coming from
 							const dbRel = await Data.models.RelatedGuild.findOne({
 								where: {
 									guildId: targetGuildId,
@@ -463,7 +464,16 @@ export default createEvent({
 								);
 								return;
 							}
-							await Data.mainDb.transaction(async (transaction) => {
+							// Swap around the guilds to find where the request is coming from
+							await DPM.transaction(
+								{ source: targetGuildId, target: sourceGuild },
+								DPM.TransactionType.AllyAccept,
+								{
+									author: interaction.user,
+									message: '',
+								},
+							);
+							/*await Data.mainDb.transaction(async (transaction) => {
 								await Data.models.RelatedGuild.update(
 									{ relation: GuildRelation.Ally },
 									{
@@ -476,7 +486,7 @@ export default createEvent({
 										transaction,
 									},
 								);
-							});
+							});*/
 							await interaction.reply({
 								content: `✅ Successfully accepted ally request from ${client.guilds.cache.get(targetGuildId)?.name ?? 'an unknown guild'}`,
 							});
@@ -630,7 +640,19 @@ export default createEvent({
 								await reportErrorToUser(interaction, constructError([ErrorReplies.AlreadyNeutral]));
 								return;
 							}
-							await Data.mainDb.transaction(async (transaction) => {
+							await DPM.transaction(
+								{
+									// Swap them around since targetGuildId is the initiator and sourceGuild is the target
+									source: targetGuildId,
+									target: sourceGuild,
+								},
+								DPM.TransactionType.NeutralAccept,
+								{
+									author: interaction.user,
+									message: '',
+								},
+							);
+							/*await Data.mainDb.transaction(async (transaction) => {
 								await Data.models.RelatedGuild.update(
 									{ relation: GuildRelation.Neutral },
 									{
@@ -643,7 +665,7 @@ export default createEvent({
 										transaction,
 									},
 								);
-							});
+							});*/
 							await interaction.reply({
 								content: `✅ Successfully accepted peace request from ${client.guilds.cache.get(targetGuildId)?.name ?? 'an unknown guild'}.`,
 							});

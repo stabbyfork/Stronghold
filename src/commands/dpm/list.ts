@@ -21,7 +21,7 @@ export default async (interaction: ChatInputCommandInteraction) => {
 				attributes: ['guildId', 'tag', 'createdAt'],
 			});
 			if (!(await Data.models.Guild.findOne({ offset: (index + 1) * perPage, limit: 1 }))) {
-				pages.setTotalItems(perPage * (index + 1));
+				pages.setTotalItems(perPage * index);
 			}
 			return listGuilds(targets, files[0]);
 		},

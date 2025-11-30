@@ -283,17 +283,17 @@ export namespace DPM {
 			});
 		},
 		[TransactionType.AllyCancel]: async ({ id, params, threads }) => {
-			const { author } = params;
+			const { author, message } = params;
 			await sendGenericToThread({
 				thread: threads.source,
-				message: '',
+				message,
 				author,
 				title: `Cancelled alliance request`,
 				footer: `To: ${id.targetTag}`,
 			});
 			await sendGenericToThread({
 				thread: threads.target,
-				message: '',
+				message,
 				author,
 				title: `Alliance request was cancelled`,
 				footer: `By: ${id.sourceTag}`,
@@ -301,17 +301,17 @@ export namespace DPM {
 			await setActiveChange(null, id);
 		},
 		[TransactionType.NeutralCancel]: async ({ id, params, threads }) => {
-			const { author } = params;
+			const { author, message } = params;
 			await sendGenericToThread({
 				thread: threads.source,
-				message: '',
+				message,
 				author,
 				title: `Cancelled peace request`,
 				footer: `To: ${id.targetTag}`,
 			});
 			await sendGenericToThread({
 				thread: threads.target,
-				message: '',
+				message,
 				author,
 				title: `Peace request was cancelled`,
 				footer: `By: ${id.sourceTag}`,
@@ -319,17 +319,17 @@ export namespace DPM {
 			await setActiveChange(null, id);
 		},
 		[TransactionType.AllyAccept]: async ({ id, params, threads }) => {
-			const { author } = params;
+			const { author, message } = params;
 			await sendGenericToThread({
 				thread: threads.source,
-				message: '',
+				message,
 				author,
 				title: `Alliance request was accepted`,
 				footer: `By: ${id.targetTag}`,
 			});
 			await sendGenericToThread({
 				thread: threads.target,
-				message: '',
+				message,
 				author,
 				title: `Accepted alliance request`,
 				footer: `From: ${id.sourceTag}`,
@@ -337,17 +337,17 @@ export namespace DPM {
 			await setRelation(GuildRelation.Ally, id);
 		},
 		[TransactionType.NeutralAccept]: async ({ id, params, threads }) => {
-			const { author } = params;
+			const { author, message } = params;
 			await sendGenericToThread({
 				thread: threads.source,
-				message: '',
+				message,
 				author,
 				title: `Peace request was accepted`,
 				footer: `By: ${id.targetTag}`,
 			});
 			await sendGenericToThread({
 				thread: threads.target,
-				message: '',
+				message,
 				author,
 				title: `Accepted peace request`,
 				footer: `From: ${id.sourceTag}`,

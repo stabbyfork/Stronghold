@@ -470,7 +470,7 @@ export default createEvent({
 								DPM.TransactionType.AllyAccept,
 								{
 									author: interaction.user,
-									message: '',
+									message: 'No message can be provided.',
 								},
 							);
 							/*await Data.mainDb.transaction(async (transaction) => {
@@ -649,7 +649,7 @@ export default createEvent({
 								DPM.TransactionType.NeutralAccept,
 								{
 									author: interaction.user,
-									message: '',
+									message: 'No message can be provided.',
 								},
 							);
 							/*await Data.mainDb.transaction(async (transaction) => {

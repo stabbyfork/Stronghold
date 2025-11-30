@@ -4,6 +4,7 @@ import {
 	EmbedBuilder,
 	EmojiIdentifierResolvable,
 	GuildMember,
+	Message,
 	MessageFlags,
 } from 'discord.js';
 import ms from 'ms';
@@ -12,7 +13,7 @@ import { commandOptions } from '../../../cmdOptions.js';
 import { Data } from '../../../data.js';
 import { ActivityCheckEvent, ActivityCheckSequence } from '../../../types/activityChecks.js';
 import { ErrorReplies, Errors } from '../../../types/errors.js';
-import { constructError, reportErrorToUser } from '../../../utils/errorsUtils.js';
+import { constructError, Debug, reportErrorToUser } from '../../../utils/errorsUtils.js';
 import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
 import { getOption } from '../../../utils/subcommandsUtils.js';
 import { Logging } from '../../../utils/loggingUtils.js';
@@ -112,20 +113,42 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		lastRun: Math.floor(Date.now() / 1000),
 		maxStrikes,
 	});
-	await Data.mainDb.transaction(async (transaction) => {
-		if (channel.isSendable()) {
-			const msg = await channel.send(createActivityCheckEmbed(getDefaultActivityCheckEmoji(), maxStrikes));
-			await msg.react(getDefaultActivityCheckEmoji());
-			activityCheck.currentMessageId = msg.id;
+	try {
+		await Data.mainDb.transaction(async (transaction) => {
+			if (channel.isSendable()) {
+				let msg: Message;
+				try {
+					msg = await channel.send(createActivityCheckEmbed(getDefaultActivityCheckEmoji(), maxStrikes));
+				} catch (e) {
+					await reportErrorToUser(
+						interaction,
+						'The bot could not send the activity check message to this channel. Make sure it has the necessary permissions to send messages.',
+					);
+					throw new Errors.HandledError('Failed to send activity check message: ' + e);
+				}
+				await msg.react(getDefaultActivityCheckEmoji());
+				activityCheck.currentMessageId = msg.id;
+			} else {
+				await reportErrorToUser(
+					interaction,
+					constructError(
+						[ErrorReplies.OnlySubstitute, ErrorReplies.ReportToOwner],
+						'Channel cannot be sent to regularly.',
+					),
+					true,
+				);
+				throw new Errors.HandledError('Channel is not sendable.');
+			}
+			await activityCheck.save({ transaction });
+		});
+	} catch (e) {
+		if (e instanceof Errors.HandledError) {
+			console.warn(`Failed to create activity check in guild ${guild.id}: ${e.message}`);
+			return;
 		} else {
-			await reportErrorToUser(
-				interaction,
-				constructError([ErrorReplies.OnlySubstitute, ErrorReplies.ReportToOwner]),
-				true,
-			);
+			throw e;
 		}
-		await activityCheck.save({ transaction });
-	});
+	}
 
 	await interaction.editReply({
 		embeds: [

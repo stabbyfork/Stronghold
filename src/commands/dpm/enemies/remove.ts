@@ -1,13 +1,11 @@
-import { ChatInputCommandInteraction, GuildMember, MessageFlags } from 'discord.js';
-import { changeRelation, DPM, isDiploReady } from '../../../utils/diplomacyUtils.js';
-import { ChangeType } from '../../../types/diplomacyTypes.js';
-import { ErrorReplies, Errors } from '../../../types/errors.js';
-import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js';
-import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
-import { GuildRelation } from '../../../models/relatedGuild.js';
-import { defaultEmbed } from '../../../utils/discordUtils.js';
-import { getOption } from '../../../utils/subcommandsUtils.js';
+import { ChatInputCommandInteraction, GuildMember } from 'discord.js';
 import { commandOptions } from '../../../cmdOptions.js';
+import { ErrorReplies, Errors } from '../../../types/errors.js';
+import { DPM, isDiploReady } from '../../../utils/diplomacyUtils.js';
+import { defaultEmbed } from '../../../utils/discordUtils.js';
+import { constructError, reportErrorToUser } from '../../../utils/errorsUtils.js';
+import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
+import { getOption } from '../../../utils/subcommandsUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.dpm.enemies.remove) => {
 	const guild = interaction.guild;

@@ -335,6 +335,7 @@ export namespace DPM {
 				footer: `From: ${id.sourceTag}`,
 			});
 			await setRelation(GuildRelation.Ally, id);
+			await setActiveChange(null, id);
 		},
 		[TransactionType.NeutralAccept]: async ({ id, params, threads }) => {
 			const { author, message } = params;
@@ -353,6 +354,7 @@ export namespace DPM {
 				footer: `From: ${id.sourceTag}`,
 			});
 			await setRelation(GuildRelation.Neutral, id);
+			await setActiveChange(null, id);
 		},
 	} as const satisfies {
 		[T in TransactionType]: ({

@@ -23,14 +23,6 @@ export default async (interaction: ChatInputCommandInteraction) => {
 		await reportErrorToUser(interaction, constructError([ErrorReplies.InteractionHasNoMember]), true);
 		return;
 	}
-	if (!(await hasPermissions(member, guild, true, Permission.ManageRelations))) {
-		await reportErrorToUser(
-			interaction,
-			constructError([ErrorReplies.PermissionsNeededSubstitute], Permission.ManageRelations),
-			true,
-		);
-		return;
-	}
 	const neutrals = await Data.models.RelatedGuild.findAndCountAll({
 		where: {
 			guildId: guild.id,

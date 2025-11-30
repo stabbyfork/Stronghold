@@ -1,19 +1,9 @@
-import {
-	AttachmentBuilder,
-	ChatInputCommandInteraction,
-	ContainerBuilder,
-	SectionBuilder,
-	time,
-	TimestampStyles,
-	userMention,
-} from 'discord.js';
-import { Data } from '../../data.js';
-import { getAttachment, listGuilds, Pages } from '../../utils/discordUtils.js';
 import { Op } from '@sequelize/core';
-import { client } from '../../client.js';
-import _ from 'lodash';
-import { reportErrorToUser } from '../../utils/errorsUtils.js';
+import { AttachmentBuilder, ChatInputCommandInteraction } from 'discord.js';
+import { Data } from '../../data.js';
 import { AssetId, Assets } from '../../utils/assets.js';
+import { listGuilds, Pages } from '../../utils/discordUtils.js';
+import { reportErrorToUser } from '../../utils/errorsUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction) => {
 	const pages = new Pages({

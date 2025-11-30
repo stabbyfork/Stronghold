@@ -1,13 +1,11 @@
-import { ChatInputCommandInteraction, ContainerBuilder, GuildMember } from 'discord.js';
-import { isDiploReady } from '../../../utils/diplomacyUtils.js';
-import { ErrorReplies } from '../../../types/errors.js';
-import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js';
-import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
-import { listGuilds, Pages } from '../../../utils/discordUtils.js';
+import { ChatInputCommandInteraction, GuildMember } from 'discord.js';
 import { Data } from '../../../data.js';
 import { GuildRelation, RelatedGuildAssociations } from '../../../models/relatedGuild.js';
-import { Op } from '@sequelize/core';
+import { ErrorReplies } from '../../../types/errors.js';
 import { AssetId, Assets } from '../../../utils/assets.js';
+import { isDiploReady } from '../../../utils/diplomacyUtils.js';
+import { listGuilds, Pages } from '../../../utils/discordUtils.js';
+import { constructError, reportErrorToUser } from '../../../utils/errorsUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction) => {
 	const guild = interaction.guild;
@@ -22,14 +20,6 @@ export default async (interaction: ChatInputCommandInteraction) => {
 	const member = interaction.member as GuildMember | null;
 	if (!member) {
 		await reportErrorToUser(interaction, constructError([ErrorReplies.InteractionHasNoMember]), true);
-		return;
-	}
-	if (!(await hasPermissions(member, guild, true, Permission.ManageRelations))) {
-		await reportErrorToUser(
-			interaction,
-			constructError([ErrorReplies.PermissionsNeededSubstitute], Permission.ManageRelations),
-			true,
-		);
 		return;
 	}
 	const allies = await Data.models.RelatedGuild.findAndCountAll({

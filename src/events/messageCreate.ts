@@ -2,6 +2,7 @@ import { Events } from 'discord.js';
 import { createEvent } from '../types/eventTypes.js';
 import { DPM } from '../utils/diplomacyUtils.js';
 import { Data } from '../data.js';
+import { Debug } from '../utils/errorsUtils.js';
 
 export default createEvent({
 	name: Events.MessageCreate,
@@ -23,6 +24,11 @@ export default createEvent({
 					DPM.TransactionType.MessageSend,
 					{ message: message.content, author: message.author },
 				);
+				try {
+					await message.delete();
+				} catch (e) {
+					Debug.error(`Failed to delete reply to DPM message: ${e}`);
+				}
 			}
 		}
 	},

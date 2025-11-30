@@ -587,7 +587,7 @@ export default createEvent({
 								DPM.TransactionType.AllyCancel,
 								{
 									author: interaction.user,
-									message: 'No reason can be provided.',
+									message: 'No message can be provided.',
 								},
 							);
 							await interaction.reply({
@@ -764,7 +764,7 @@ export default createEvent({
 								DPM.TransactionType.NeutralCancel,
 								{
 									author: interaction.user,
-									message: 'No reason can be provided.',
+									message: 'No message can be provided.',
 								},
 							);
 							await interaction.reply({

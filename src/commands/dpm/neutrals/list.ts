@@ -28,13 +28,16 @@ export default async (interaction: ChatInputCommandInteraction) => {
 			guildId: guild.id,
 			relation: GuildRelation.Neutral,
 		},
-		include: [{ model: Data.models.Guild, as: RelatedGuildAssociations.TargetGuild, attributes: ['tag'] }],
+		include: [
+			{ model: Data.models.Guild, as: RelatedGuildAssociations.TargetGuild, attributes: ['tag', 'guildId'] },
+		],
 		distinct: true,
 	});
 	const pages = new Pages({
 		itemsPerPage: 20,
 		totalItems: neutrals.count,
-		createPage: async (index, perPage) => {
+		files: [Assets.getAsFile(AssetId.DefaultGuildIcon)],
+		createPage: async (index, perPage, files) => {
 			const start = index * perPage;
 			/* new ContainerBuilder().addTextDisplayComponents(
 				(text) => text.setContent('## List of neutral guilds'),
@@ -54,10 +57,10 @@ export default async (interaction: ChatInputCommandInteraction) => {
 			);*/
 			return listGuilds(
 				neutrals.rows.slice(start, start + perPage).map((a) => a.targetGuild!),
-				Assets.getAsFile(AssetId.DefaultGuildIcon),
-				'List of neutral guilds',
+				files[0],
+				'Neutral guilds',
 			);
 		},
 	});
-	await pages.replyTo(interaction, false);
+	await pages.replyTo(interaction, false, [0]);
 };

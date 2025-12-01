@@ -37,8 +37,8 @@ export class RelatedGuild extends Model<InferAttributes<RelatedGuild>, InferCrea
 	@BelongsTo(() => Guild, 'targetGuildId')
 	declare targetGuild?: NonAttribute<Guild>;
 
-	@Attribute({ type: DataTypes.ENUM(GuildRelation), allowNull: false })
-	declare relation: GuildRelation;
+	@Attribute({ type: DataTypes.ENUM(GuildRelation), allowNull: true })
+	declare relation: GuildRelation | null;
 
 	@Attribute({ type: DataTypes.STRING(20), allowNull: true, unique: true })
 	declare targetThreadId: string | null;

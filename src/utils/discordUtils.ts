@@ -496,10 +496,11 @@ export function getAttachment<A extends AttachmentBuilder[], I extends number>(
 }
 
 /**
- * Creates a ContainerBuilder with a list of guilds. Only requires the `tag` and `guildId` fields of the targets
- * @param target - An array of Guild objects to list.
- * @param defaultGuildIcon - An AttachmentBuilder representing the default guild icon.
- * @returns A ContainerBuilder with a list of guilds.
+ * Lists the guilds in the `targets` array.
+ * @param targets - The array of guilds to list.
+ * @param defaultGuildIcon - The default guild icon to use if a guild does not have an icon.
+ * @param title - The title of the list of guilds.
+ * @returns A container builder with the list of guilds.
  */
 export async function listGuilds(
 	targets: Guild[],

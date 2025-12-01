@@ -231,15 +231,15 @@ export namespace DPM {
 					thread: threads.source,
 					message,
 					author,
-					title: `Marked neutral`,
+					title: `Declared neutral`,
 					footer: `To: ${id.targetTag}`,
 				});
 				await sendGenericToThread({
 					thread: threads.target,
 					message,
 					author,
-					title: `Received neutrality declaration`,
-					footer: `From: ${id.sourceTag}`,
+					title: `Declared neutral`,
+					footer: `By: ${id.sourceTag}`,
 				});
 				await setRelation(GuildRelation.Neutral, id);
 			}
@@ -251,15 +251,15 @@ export namespace DPM {
 				thread: threads.source,
 				message,
 				author,
-				title: `Sent enemy declaration`,
+				title: `Declared an enemy`,
 				footer: `To: ${id.targetTag}`,
 			});
 			await sendGenericToThread({
 				thread: threads.target,
 				message,
 				author,
-				title: `Received enemy declaration`,
-				footer: `From: ${id.sourceTag}`,
+				title: `Declared an enemy`,
+				footer: `By: ${id.sourceTag}`,
 			});
 			await setRelation(GuildRelation.Enemy, id);
 		},
@@ -295,7 +295,7 @@ export namespace DPM {
 				thread: threads.target,
 				message,
 				author,
-				title: `Alliance request was cancelled`,
+				title: `Cancelled alliance request`,
 				footer: `By: ${id.sourceTag}`,
 			});
 			await setActiveChange(null, id);
@@ -313,7 +313,7 @@ export namespace DPM {
 				thread: threads.target,
 				message,
 				author,
-				title: `Peace request was cancelled`,
+				title: `Cancelled peace request`,
 				footer: `By: ${id.sourceTag}`,
 			});
 			await setActiveChange(null, id);
@@ -435,7 +435,7 @@ export namespace DPM {
 		else {
 			const [relation1] = await Data.models.RelatedGuild.findOrCreate({
 				where: { guildId: sourceGuild.id, targetGuildId: targetGuild.id },
-				defaults: { relation: GuildRelation.Neutral, guildId: sourceGuild.id, targetGuildId: targetGuild.id },
+				defaults: { relation: null, guildId: sourceGuild.id, targetGuildId: targetGuild.id },
 			});
 			if (!sourceThread) {
 				if (relation1.sourceThreadId) {
@@ -472,7 +472,7 @@ export namespace DPM {
 			}
 			const [relation2] = await Data.models.RelatedGuild.findOrCreate({
 				where: { guildId: targetGuild.id, targetGuildId: sourceGuild.id },
-				defaults: { relation: GuildRelation.Neutral, guildId: targetGuild.id, targetGuildId: sourceGuild.id },
+				defaults: { relation: null, guildId: targetGuild.id, targetGuildId: sourceGuild.id },
 			});
 			if (!targetThread) {
 				if (relation2.sourceThreadId) {
@@ -546,7 +546,7 @@ export namespace DPM {
 			//-@ts-expect-error Typescript doesn't like this for some reason, but intellisense works ¯\_(ツ)_/¯
 			params: params,
 			threads,
-			currentRelation: existingRelation?.relation,
+			currentRelation: existingRelation?.relation ?? undefined,
 			activeChange: existingRelation?.activeChange ?? undefined,
 		});
 	}

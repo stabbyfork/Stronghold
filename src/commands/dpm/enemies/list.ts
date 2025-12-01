@@ -33,7 +33,8 @@ export default async (interaction: ChatInputCommandInteraction) => {
 	const pages = new Pages({
 		itemsPerPage: 20,
 		totalItems: enemies.count,
-		createPage: async (index, perPage) => {
+		files: [Assets.getAsFile(AssetId.DefaultGuildIcon)],
+		createPage: async (index, perPage, files) => {
 			const start = index * perPage;
 			/* new ContainerBuilder().addTextDisplayComponents(
 				(text) => text.setContent('## List of enemies'),
@@ -53,10 +54,10 @@ export default async (interaction: ChatInputCommandInteraction) => {
 			);*/
 			return listGuilds(
 				enemies.rows.slice(start, start + perPage).map((a) => a.targetGuild!),
-				Assets.getAsFile(AssetId.DefaultGuildIcon),
-				'List of enemies',
+				files[0],
+				'Enemies',
 			);
 		},
 	});
-	await pages.replyTo(interaction, false);
+	await pages.replyTo(interaction, false, [0]);
 };

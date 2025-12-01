@@ -35,7 +35,8 @@ export default async (interaction: ChatInputCommandInteraction) => {
 	const pages = new Pages({
 		itemsPerPage: 20,
 		totalItems: allies.count,
-		createPage: async (index, perPage) => {
+		files: [Assets.getAsFile(AssetId.DefaultGuildIcon)],
+		createPage: async (index, perPage, files) => {
 			const start = index * perPage;
 			/*new ContainerBuilder().addTextDisplayComponents(
 				(text) => text.setContent('## List of allies'),
@@ -55,10 +56,10 @@ export default async (interaction: ChatInputCommandInteraction) => {
 			);*/
 			return listGuilds(
 				allies.rows.slice(start, start + perPage).map((a) => a.targetGuild!),
-				Assets.getAsFile(AssetId.DefaultGuildIcon),
-				'List of allies',
+				files[0],
+				'Allies',
 			);
 		},
 	});
-	await pages.replyTo(interaction, false);
+	await pages.replyTo(interaction, false, [0]);
 };

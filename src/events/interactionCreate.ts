@@ -24,6 +24,7 @@ import { Op } from '@sequelize/core';
 import { client } from '../client.js';
 import { SessionParticipantAssociations } from '../models/sessionParticipant.js';
 import ms from 'ms';
+import { messageCompCollector } from '../utils/discordUtils.js';
 
 export default createEvent({
 	name: Events.InteractionCreate,
@@ -487,6 +488,14 @@ export default createEvent({
 									},
 								);
 							});*/
+							try {
+								await interaction.message.edit({
+									components: [],
+									embeds: interaction.message.embeds,
+								});
+							} catch (e) {
+								Debug.error(e);
+							}
 							await interaction.reply({
 								content: `✅ Successfully accepted ally request from ${client.guilds.cache.get(targetGuildId)?.name ?? 'an unknown guild'}`,
 							});
@@ -534,6 +543,14 @@ export default createEvent({
 								return;
 							}
 							await dbRel.update({ activeChange: null });
+							try {
+								await interaction.message.edit({
+									components: [],
+									embeds: interaction.message.embeds,
+								});
+							} catch (e) {
+								Debug.error(e);
+							}
 							await interaction.reply({
 								content: `✅ Successfully declined ally request from ${client.guilds.cache.get(targetGuildId)?.name ?? 'an unknown guild'}`,
 							});
@@ -590,6 +607,14 @@ export default createEvent({
 									message: 'No message can be provided.',
 								},
 							);
+							try {
+								await interaction.message.edit({
+									components: [],
+									embeds: interaction.message.embeds,
+								});
+							} catch (e) {
+								Debug.error(e);
+							}
 							await interaction.reply({
 								content: `✅ Successfully cancelled ally request to ${client.guilds.cache.get(targetGuildId)?.name ?? 'an unknown guild'}`,
 							});
@@ -666,6 +691,14 @@ export default createEvent({
 									},
 								);
 							});*/
+							try {
+								await interaction.message.edit({
+									components: [],
+									embeds: interaction.message.embeds,
+								});
+							} catch (e) {
+								Debug.error(e);
+							}
 							await interaction.reply({
 								content: `✅ Successfully accepted peace request from ${client.guilds.cache.get(targetGuildId)?.name ?? 'an unknown guild'}.`,
 							});
@@ -712,6 +745,14 @@ export default createEvent({
 								return;
 							}
 							await dbRel.update({ activeChange: null });
+							try {
+								await interaction.message.edit({
+									components: [],
+									embeds: interaction.message.embeds,
+								});
+							} catch (e) {
+								Debug.error(e);
+							}
 							await interaction.reply({
 								content: `✅ Successfully declined peace request from ${client.guilds.cache.get(targetGuildId)?.name ?? 'an unknown guild'}`,
 							});
@@ -767,6 +808,14 @@ export default createEvent({
 									message: 'No message can be provided.',
 								},
 							);
+							try {
+								await interaction.message.edit({
+									components: [],
+									embeds: interaction.message.embeds,
+								});
+							} catch (e) {
+								Debug.error(e);
+							}
 							await interaction.reply({
 								content: `✅ Successfully cancelled peace request from ${client.guilds.cache.get(targetGuildId)?.name ?? 'an unknown guild'}`,
 							});

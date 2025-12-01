@@ -11,6 +11,8 @@ export namespace Assets {
 		return `./assets/${id}`;
 	}
 	export function getAsFile(name: string | AssetId): AttachmentBuilder {
-		return new AttachmentBuilder(getByName(name));
+		return new AttachmentBuilder(getByName(name), {
+			name,
+		});
 	}
 }

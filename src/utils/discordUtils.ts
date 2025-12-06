@@ -507,9 +507,22 @@ export async function listGuilds(
 	defaultGuildIcon: AttachmentBuilder,
 	title: string = 'List of guilds',
 ) {
-	const guilds = await Promise.all(
-		targets.map(async (a) => client.guilds.cache.get(a.guildId) ?? (await client.guilds.fetch(a.guildId))),
-	);
+	const guilds = (
+		await Promise.all(
+			targets.map(async (a) => {
+				let guild = client.guilds.cache.get(a.guildId);
+				if (!guild) {
+					try {
+						guild = await client.guilds.fetch(a.guildId);
+					} catch {
+						Debug.error(`Guild ${a.guildId} not found during dpm list`);
+						return null;
+					}
+				}
+				return guild;
+			}),
+		)
+	).filter((a) => a !== null);
 	const out = new ContainerBuilder().addTextDisplayComponents((text) => text.setContent(`## ${title}`));
 	if (targets.length === 0) {
 		out.addTextDisplayComponents((text) => text.setContent('None on this page.'));

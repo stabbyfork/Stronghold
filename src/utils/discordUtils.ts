@@ -507,22 +507,20 @@ export async function listGuilds(
 	defaultGuildIcon: AttachmentBuilder,
 	title: string = 'List of guilds',
 ) {
-	const guilds = (
-		await Promise.all(
-			targets.map(async (a) => {
-				let guild = client.guilds.cache.get(a.guildId);
-				if (!guild) {
-					try {
-						guild = await client.guilds.fetch(a.guildId);
-					} catch {
-						Debug.error(`Guild ${a.guildId} not found during dpm list`);
-						return null;
-					}
+	const guilds = await Promise.all(
+		targets.map(async (a) => {
+			let guild = client.guilds.cache.get(a.guildId);
+			if (!guild) {
+				try {
+					guild = await client.guilds.fetch(a.guildId);
+				} catch {
+					Debug.error(`Guild ${a.guildId} not found during guild listing`);
+					return null;
 				}
-				return guild;
-			}),
-		)
-	).filter((a) => a !== null);
+			}
+			return guild;
+		}),
+	);
 	const out = new ContainerBuilder().addTextDisplayComponents((text) => text.setContent(`## ${title}`));
 	if (targets.length === 0) {
 		out.addTextDisplayComponents((text) => text.setContent('None on this page.'));
@@ -530,25 +528,32 @@ export async function listGuilds(
 	}
 	const files = [defaultGuildIcon];
 	out.addSectionComponents(
-		_.zip(guilds, targets).map(([g, t]) => {
-			if (!g || !t) throw new Error('Guild (or target) not found');
-			const section = new SectionBuilder();
-			const icon = g.iconURL();
-			if (icon) section.setThumbnailAccessory((image) => image.setURL(icon).setDescription(g.name));
-			else
-				section.setThumbnailAccessory((image) =>
-					image.setDescription(`Default guild icon for ${g.name}`).setURL(getAttachment(files, 0)),
+		_.zip(guilds, targets)
+			.map(([g, t]) => {
+				if (!g || !t) {
+					Debug.error('Guild (or target) not found');
+					return null;
+				}
+				const section = new SectionBuilder();
+				const icon = g.iconURL();
+				if (icon) section.setThumbnailAccessory((image) => image.setURL(icon).setDescription(g.name));
+				else
+					section.setThumbnailAccessory((image) =>
+						image.setDescription(`Default guild icon for ${g.name}`).setURL(getAttachment(files, 0)),
+					);
+				section.addTextDisplayComponents(
+					(text) =>
+						text.setContent(
+							`### ${g.name}\nTag: \`${t.tag}\` | Members: ${g.memberCount} | Owner: ${userMention(g.ownerId)}`,
+						),
+					(text) =>
+						text.setContent(
+							`-# ID: \`${g.id}\` | Created on: ${time(g.createdAt, TimestampStyles.LongDate)}`,
+						),
 				);
-			section.addTextDisplayComponents(
-				(text) =>
-					text.setContent(
-						`### ${g.name}\nTag: \`${t.tag}\` | Members: ${g.memberCount} | Owner: ${userMention(g.ownerId)}`,
-					),
-				(text) =>
-					text.setContent(`-# ID: \`${g.id}\` | Created on: ${time(g.createdAt, TimestampStyles.LongDate)}`),
-			);
-			return section;
-		}),
+				return section;
+			})
+			.filter((a) => a !== null),
 	);
 	return out;
 }

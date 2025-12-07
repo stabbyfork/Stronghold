@@ -36,11 +36,16 @@ import { Logging } from '../../utils/loggingUtils.js';
 import { Permission, PermissionBits } from '../../utils/permissionsUtils.js';
 import { getOption } from '../../utils/subcommandsUtils.js';
 import { Usages, UsageScope } from '../../utils/usageLimitsUtils.js';
+import { Config } from '../../config.js';
+import urlBuilder from 'build-url-ts';
+const { buildUrl } = urlBuilder;
 
 const enum RoleNames {
 	InSession = 'In Session',
 	Inactive = 'Inactive',
 }
+
+const { discordUrl, url: websiteUrl } = Config.get('website');
 
 /**
  * Creates the default Inactive role if it does not exist yet.
@@ -140,9 +145,12 @@ async function createSetupMessage(
 				(text) => text.setContent('## Setup'),
 				(text) =>
 					text.setContent(
-						`This will set up the bot for this server. You (the server owner) will be made a bot administrator automatically. Only you (the server owner) can add or remove bot administrators. This will create the \`${RoleNames.InSession}\` and \`${RoleNames.Inactive}\` roles if they have not been added yet.`,
+						`This will set up the bot for this server. You (the server owner) will be made a bot administrator automatically. Only you (the server owner) can add or remove bot administrators. This will create the \`${RoleNames.InSession}\` and \`${RoleNames.Inactive}\` roles if they have not been added yet.\nAll choices are applied when you click \`Start setup\`.`,
 					),
-				(text) => text.setContent(`All choices are applied when you click \`Start setup\`.`),
+				(text) =>
+					text.setContent(
+						`The Getting Started guide and further documentation are available at ${buildUrl(websiteUrl, { path: 'getting-started' })}.`,
+					),
 			)
 			.setThumbnailAccessory((image) => image.setURL(guild.iconURL() ?? client.user?.avatarURL()!)),
 	);
@@ -646,11 +654,11 @@ export default createCommand<typeof commandOptions.setup>({
 				),
 			(text) =>
 				text.setContent(
-					'Next steps:\n- View all commands using \`/help\`\n- Set up diplomacy using \`/dpm setup\`\n- Add ranks using \`/ranking ranks add\`',
+					`Next steps:\n- Read the documentation at ${websiteUrl}\n- View all commands using \`/help\`\n- Set up diplomacy using \`/dpm setup\``,
 				),
 			(text) =>
 				text.setContent(
-					"If you have any questions, please join our support server (linked in the bot's bio)! Report any issues using `/feedback`.",
+					`If you have any questions, please join our [support server](${discordUrl})! Report any issues using \`/feedback\`.`,
 				),
 		);
 
@@ -659,7 +667,7 @@ export default createCommand<typeof commandOptions.setup>({
 				await guild.channels.create({
 					name: 'logs',
 					type: ChannelType.GuildForum,
-					reason: 'Automatically created by /setup command on request by server owner.',
+					reason: 'Automatically created by the /setup command on request by server owner.',
 					parent: guild.systemChannel ? guild.systemChannel.parent : (channel as TextChannel).parent,
 					topic: 'Logs for this server.',
 					permissionOverwrites: [

@@ -531,7 +531,7 @@ export async function listGuilds(
 		_.zip(guilds, targets)
 			.map(([g, t]) => {
 				if (!g || !t) {
-					Debug.error('Guild (or target) not found');
+					Debug.error(`Guild (or target) not found: guild: ${g}, target: ${t}`);
 					return null;
 				}
 				const section = new SectionBuilder();

@@ -3,17 +3,17 @@ import { Config } from '../config.js';
 import { PermissionsBitField } from 'discord.js';
 
 //#region Errors
+
 /**
  * Always index this instead of using values directly, they may change!
  *
  * For constructing error messages, see {@link constructError}
  */
-
 export const ErrorReplies = {
 	UnknownError: 'An unexpected error has occurred.',
 	PermissionError: 'You do not have permission to use this command.',
 	CommandNotFound: 'Command not found.',
-	ReportToOwner: `Please report this to the bot owner: <@${Config.get('appOwnerId')}>. You may use the \`/feedback\` command or DM them.`,
+	ReportToOwner: `Please report this to the bot developers. You can use the \`/feedback\` command or get support at ${Config.get('website').discordUrl}.`,
 	PrefixWithError: 'Error: \`!{ERROR}\`',
 	OnlySubstitute: '\`!{ERROR}\`',
 	CommandNotFoundSubstitute: 'Command not found: \`!{ERROR}\`.',

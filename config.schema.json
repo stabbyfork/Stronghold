@@ -54,13 +54,22 @@
 			"additionalProperties": false,
 			"required": ["username", "password"]
 		},
-		"allowedRestartUsers": {
-			"type": "array",
-			"description": "A list of user IDs that are allowed to restart the bot",
-			"items": {
-				"type": "string",
-				"pattern": "^[0-9]+$"
-			}
+		"website": {
+			"type": "object",
+			"description": "Properties and options for the website",
+			"properties": {
+				"url": {
+					"type": "string",
+					"description": "The link to the bot's website"
+				},
+				"discordUrl": {
+					"type": "string",
+					"description": "The link to the bot's support Discord server"
+				}
+			},
+			"readOnly": true,
+			"additionalProperties": false,
+			"required": ["url", "discordUrl"]
 		},
 		"dev": {
 			"type": "object",
@@ -89,6 +98,15 @@
 		}
 	},
 	"readOnly": true,
-	"required": ["appOwnerUsername", "token", "clientId", "$schema", "database", "appOwnerId", "assetsDirectory"],
+	"required": [
+		"appOwnerUsername",
+		"token",
+		"clientId",
+		"$schema",
+		"database",
+		"appOwnerId",
+		"assetsDirectory",
+		"website"
+	],
 	"additionalProperties": false
 }

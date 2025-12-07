@@ -55,9 +55,18 @@ export interface Config {
     name?: string;
   };
   /**
-   * A list of user IDs that are allowed to restart the bot
+   * Properties and options for the website
    */
-  allowedRestartUsers?: string[];
+  website: {
+    /**
+     * The link to the bot's website
+     */
+    url: string;
+    /**
+     * The link to the bot's support Discord server
+     */
+    discordUrl: string;
+  };
   /**
    * Properties and options for the development bot. These are not used in production. Used for testing and debugging purposes.
    */
@@ -76,7 +85,7 @@ export interface Config {
     devServerId?: string;
   };
   /**
-   * The directory thats stores assets. Interpreted relatively depending on the module that is reading it
+   * The directory thats stores assets. Interpreted relatively depending on the module that is reading it. CURRENTLY UNUSED
    */
   assetsDirectory: string;
 }

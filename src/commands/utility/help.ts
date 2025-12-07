@@ -18,8 +18,13 @@ import { Pages } from '../../utils/discordUtils.js';
 import { constructError, reportErrorToUser } from '../../utils/errorsUtils.js';
 import { flattenVals, getValue } from '../../utils/genericsUtils.js';
 import { getOption, getSubcommands } from '../../utils/subcommandsUtils.js';
+import { Config } from '../../config.js';
+import urlBuilder from 'build-url-ts';
+const { buildUrl } = urlBuilder;
 const commandArray: string[] = [];
 let splitHelpText: string[] = [];
+
+const { url: websiteUrl } = Config.get('website');
 
 export default createCommand({
 	data: new SlashCommandBuilder()
@@ -225,16 +230,23 @@ export default createCommand({
 					o.type === ApplicationCommandOptionType.SubcommandGroup ||
 					o.type === ApplicationCommandOptionType.Subcommand,
 			);
+			const docLink = buildUrl(websiteUrl, {
+				path: `commands/${cmdParts.join('/')}`,
+			});
 			msg.addTextDisplayComponents(
 				(text) => text.setContent(`## Help for /${cmd}`),
+				(text) => text.setContent(`**Documentation**: ${docLink}`),
 				(text) => text.setContent(`### Description\n${subcommand.description}`),
-				(text) =>
+			);
+			if ((subcommand as any)?.options?.length) {
+				msg.addTextDisplayComponents((text) =>
 					text.setContent(
 						`### ${hasSubcommands ? 'Subcommands' : 'Options'}\n${subcommand?.options
 							?.map((o: APIApplicationCommandOption) => `- \`${o.name}\`: ${o.description}`)
 							.join('\n')}`,
 					),
-			);
+				);
+			}
 			if (cmdLongDesc) {
 				msg.spliceComponents(2, 0, new TextDisplayBuilder({ content: cmdLongDesc }));
 			}

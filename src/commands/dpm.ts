@@ -24,6 +24,19 @@ export default createCommand<{}, 'dpm'>({
 						.setDescription('Channel for diplomacy. Omit to create one')
 						.setRequired(false)
 						.addChannelTypes(ChannelType.GuildForum),
+				)
+				.addStringOption((option) =>
+					option
+						.setName('game')
+						.setDescription('Enter the name of the game the server is based on')
+						.setRequired(false)
+						.setMaxLength(100),
+				)
+				.addBooleanOption((option) =>
+					option
+						.setName('create_invite')
+						.setDescription('Whether to display an invite link to the server publicly')
+						.setRequired(false),
 				),
 		)
 		.addSubcommand((cmd) =>

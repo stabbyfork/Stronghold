@@ -27,7 +27,13 @@ export default async (interaction: ChatInputCommandInteraction) => {
 			guildId: guild.id,
 			relation: GuildRelation.Enemy,
 		},
-		include: [{ model: Data.models.Guild, as: RelatedGuildAssociations.TargetGuild, attributes: ['tag'] }],
+		include: [
+			{
+				model: Data.models.Guild,
+				as: RelatedGuildAssociations.TargetGuild,
+				attributes: ['tag', 'guildId', 'serverInvite', 'dpmGame'],
+			},
+		],
 		distinct: true,
 	});
 	const pages = new Pages({

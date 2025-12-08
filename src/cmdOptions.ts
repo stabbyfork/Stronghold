@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON MON, 24 NOV 2025 20:40:17 GMT WITH 10 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON MON, 08 DEC 2025 15:59:27 GMT WITH 10 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct } from "./types/commandTypes.js";
 
@@ -39,6 +39,14 @@ dpm: {
     },
     "diplomacy_channel": {
       "type": "channel",
+      "required": false
+    },
+    "game": {
+      "type": "string",
+      "required": false
+    },
+    "create_invite": {
+      "type": "boolean",
       "required": false
     }
   },

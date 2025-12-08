@@ -654,7 +654,7 @@ export default createCommand<typeof commandOptions.setup>({
 				),
 			(text) =>
 				text.setContent(
-					`Next steps:\n- Read the documentation at ${websiteUrl}\n- View all commands using \`/help\`\n- Set up diplomacy using \`/dpm setup\``,
+					`Next steps:\n- Read the documentation at ${websiteUrl}\n- Set up diplomacy using \`/dpm setup\``,
 				),
 			(text) =>
 				text.setContent(

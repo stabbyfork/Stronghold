@@ -29,7 +29,11 @@ export default async (interaction: ChatInputCommandInteraction) => {
 			relation: GuildRelation.Neutral,
 		},
 		include: [
-			{ model: Data.models.Guild, as: RelatedGuildAssociations.TargetGuild, attributes: ['tag', 'guildId'] },
+			{
+				model: Data.models.Guild,
+				as: RelatedGuildAssociations.TargetGuild,
+				attributes: ['tag', 'guildId', 'serverInvite', 'dpmGame'],
+			},
 		],
 		distinct: true,
 	});

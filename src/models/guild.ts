@@ -49,9 +49,29 @@ export class Guild extends Model<InferAttributes<Guild>, InferCreationAttributes
 	/** Log channel ID */
 	@Attribute({ allowNull: true, type: DataTypes.STRING(20) })
 	declare logChannelId: string | null;
+
 	/** Diplomacy channel */
 	@Attribute({ allowNull: true, type: DataTypes.STRING(20) })
 	declare dpmChannelId: string | null;
+	/** Selected game */
+	@Attribute({ allowNull: true, type: DataTypes.STRING(100) })
+	declare dpmGame: string | null;
+	/**
+	 * Invite URL to the server
+	 * Only the second half (no discord.gg/)
+	 * Overshoot 10 max characters for safety
+	 * */
+	@Attribute({ allowNull: true, type: DataTypes.STRING(12) })
+	get serverInvite(): string | null {
+		const code = this.getDataValue('serverInvite');
+		if (!code) return null;
+		return 'https://discord.gg/' + code;
+	}
+	/** Get invite URL */
+	get serverUrl(): NonAttribute<string | null> {
+		return this.getDataValue('serverInvite');
+	}
+
 	@Attribute({ allowNull: true, type: DataTypes.STRING(20) })
 	declare inactiveRoleId: string | null;
 	@Attribute({ allowNull: true, type: DataTypes.STRING(20) })

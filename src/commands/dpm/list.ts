@@ -18,7 +18,7 @@ export default async (interaction: ChatInputCommandInteraction) => {
 				where: {
 					tag: { [Op.ne]: null },
 				},
-				attributes: ['guildId', 'tag', 'createdAt'],
+				attributes: ['guildId', 'tag', 'serverInvite', 'dpmGame'],
 			});
 			return listGuilds(targets, files[0]);
 		},

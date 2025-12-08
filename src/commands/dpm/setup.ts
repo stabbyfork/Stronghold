@@ -40,6 +40,8 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		return;
 	}
 	let channel = getOption(interaction, args, 'diplomacy_channel') as ForumChannel | null;
+	const game = getOption(interaction, args, 'game');
+	const createInvite = getOption(interaction, args, 'create_invite') ?? false;
 
 	const newTag = getOption(interaction, args, 'tag').toLowerCase();
 	const previousTag = dbGuild.tag;
@@ -77,7 +79,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			defaultEmbed()
 				.setTitle('Confirmation')
 				.setDescription(
-					`Are you sure you want to use the tag \`${newTag}\`?\n${channel ? `The diplomacy channel will be set to ${channel}.` : 'A new channel for diplomacy will be created.'}${(await isDiploReady(guild)) ? '\nConfirming will reset diplomacy data set in the previous setup.' : ''}\n\n-# Do not click the button to deny.`,
+					`Are you sure you want to use the tag \`${newTag}\`?\n${channel ? `The diplomacy channel will be set to ${channel}.` : 'A new channel for diplomacy will be created.'}${game ? `\nSelected game: \`${game}\`` : ''}${createInvite ? '\nA public invite URL will be created.' : ''}${(await isDiploReady(guild)) ? '\nConfirming will reset diplomacy data set in the previous setup.' : ''}\n\n-# Do not click the button to deny.`,
 				)
 				.setColor('Yellow'),
 		],
@@ -96,15 +98,32 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		});
 		return;
 	}
-	if (channel) {
-		dbGuild.dpmChannelId = channel.id;
-	} else {
-		channel = await DPM.createChannel(guild);
-		dbGuild.dpmChannelId = channel.id;
-	}
-	dbGuild.tag = newTag;
-	dbGuild.ready = true;
-	await dbGuild.save();
+	const serverInvite = createInvite
+		? await guild.invites.create(interaction.channel!.id, {
+				maxAge: 0,
+				maxUses: 0,
+				unique: true,
+				reason: `Created by /dpm setup, by: ${interaction.user.id}`,
+			})
+		: null;
+	await Data.mainDb.transaction(async (transaction) => {
+		if (!channel) {
+			channel = await DPM.createChannel(guild);
+		}
+		await dbGuild.update(
+			{
+				dpmChannelId: channel.id,
+				tag: newTag,
+				ready: true,
+				dpmGame: game,
+				serverInvite: serverInvite?.code ?? null,
+			},
+			{
+				transaction,
+			},
+		);
+	});
+
 	await interaction.followUp({
 		embeds: [
 			defaultEmbed()

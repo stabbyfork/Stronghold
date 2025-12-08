@@ -544,7 +544,7 @@ export async function listGuilds(
 				section.addTextDisplayComponents(
 					(text) =>
 						text.setContent(
-							`### ${g.name}\nTag: \`${t.tag}\` | Members: ${g.memberCount} | Owner: ${userMention(g.ownerId)}`,
+							`### ${g.name}\nTag: \`${t.tag}\`${t.dpmGame ? ` | Game: \`${t.dpmGame}\`` : ''}${t.serverInvite ? ` | Invite: [${t.serverUrl}](${t.serverInvite})` : ''}\nMembers: ${g.memberCount} | Owner: ${userMention(g.ownerId)}`,
 						),
 					(text) =>
 						text.setContent(

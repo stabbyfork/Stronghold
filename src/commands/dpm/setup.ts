@@ -42,6 +42,15 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	let channel = getOption(interaction, args, 'diplomacy_channel') as ForumChannel | null;
 
 	const newTag = getOption(interaction, args, 'tag').toLowerCase();
+	const previousTag = dbGuild.tag;
+	if (previousTag && previousTag !== newTag) {
+		await reportErrorToUser(
+			interaction,
+			'You cannot change your tag. If you want to change it, please contact the bot developers using `/feedback`.',
+			true,
+		);
+		return;
+	}
 	const existingGuild = await Data.models.Guild.findOne({ where: { tag: newTag }, attributes: ['guildId'] });
 	if (existingGuild && existingGuild.guildId !== guild.id) {
 		const suggestedTag = guild.nameAcronym.toLowerCase();

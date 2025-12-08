@@ -95,6 +95,40 @@
 		"assetsDirectory": {
 			"type": "string",
 			"description": "The directory thats stores assets. Interpreted relatively depending on the module that is reading it. CURRENTLY UNUSED"
+		},
+		"news": {
+			"type": "object",
+			"description": "Properties and options for news sending.",
+			"properties": {
+				"endpoints": {
+					"type": "object",
+					"description": "Properties and options for news endpoints.",
+					"properties": {
+						"relationChanges": {
+							"type": "array",
+							"description": "Array of endpoints to send to when a relation between guilds changes.",
+							"items": {
+								"$ref": "#/definitions/httpPattern"
+							},
+							"minItems": 1,
+							"uniqueItems": true,
+							"additionalItems": false,
+							"readOnly": true
+						}
+					},
+					"readOnly": true,
+					"additionalProperties": false
+				}
+			},
+			"readOnly": true,
+			"required": ["endpoints"],
+			"additionalProperties": false
+		}
+	},
+	"definitions": {
+		"httpPattern": {
+			"type": "string",
+			"pattern": "^https?:\/\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\/=]*)$"
 		}
 	},
 	"readOnly": true,

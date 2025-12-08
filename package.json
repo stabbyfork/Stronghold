@@ -4,6 +4,7 @@
 		"@sequelize/mysql": "^7.0.0-alpha.46",
 		"@sequelize/sqlite3": "^7.0.0-alpha.46",
 		"ajv": "^8.17.1",
+		"axios": "^1.13.2",
 		"build-url-ts": "^6.2.0",
 		"discord.js": "^14.21.0",
 		"lodash": "^4.17.21",

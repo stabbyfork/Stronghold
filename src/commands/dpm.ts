@@ -66,7 +66,7 @@ export default createCommand<{}, 'dpm'>({
 				.addSubcommand((cmd) =>
 					cmd
 						.setName('remove')
-						.setDescription('Remove an ally')
+						.setDescription('Break ties with an ally')
 						.addStringOption((option) =>
 							option
 								.setName('tag')
@@ -92,7 +92,7 @@ export default createCommand<{}, 'dpm'>({
 				.addSubcommand((cmd) =>
 					cmd
 						.setName('add')
-						.setDescription('Add an enemy')
+						.setDescription('Declare an enemy')
 						.addStringOption((option) =>
 							option
 								.setName('tag')

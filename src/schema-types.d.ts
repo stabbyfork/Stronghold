@@ -5,6 +5,8 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
+export type HttpPattern = string;
+
 /**
  * The schema for the config.json file
  */
@@ -88,4 +90,20 @@ export interface Config {
    * The directory thats stores assets. Interpreted relatively depending on the module that is reading it. CURRENTLY UNUSED
    */
   assetsDirectory: string;
+  /**
+   * Properties and options for news sending.
+   */
+  news?: {
+    /**
+     * Properties and options for news endpoints.
+     */
+    endpoints: {
+      /**
+       * Array of endpoints to send to when a relation between guilds changes
+       *
+       * @minItems 1
+       */
+      relationChanges?: [HttpPattern, ...HttpPattern[]];
+    };
+  };
 }

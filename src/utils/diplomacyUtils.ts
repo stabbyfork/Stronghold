@@ -3,7 +3,6 @@ import {
 	ButtonBuilder,
 	ButtonStyle,
 	ChannelType,
-	ChatInputCommandInteraction,
 	Collection,
 	ForumChannel,
 	ForumThreadChannel,
@@ -16,14 +15,17 @@ import {
 } from 'discord.js';
 import { client } from '../client.js';
 import { Data } from '../data.js';
-import { GuildRelation } from '../models/relatedGuild.js';
-import { ChangeType } from '../types/diplomacyTypes.js';
+import { GuildRelation, RelatedGuild } from '../models/relatedGuild.js';
 import { ErrorReplies, Errors } from '../types/errors.js';
 import { InformedCustomId } from '../types/eventTypes.js';
 import { defaultEmbed, getOrFetchGuild } from './discordUtils.js';
-import { constructError, Debug, reportErrorToUser } from './errorsUtils.js';
+import { Debug } from './errorsUtils.js';
 import { GuildFlag } from './guildFlagsUtils.js';
 import { Logging } from './loggingUtils.js';
+import { Config } from '../config.js';
+import axios from 'axios';
+
+const endpoints = Config.get('news')?.endpoints;
 
 export async function isDiploReady(guild: Guild) {
 	const dbGuild = await Data.models.Guild.findOne({ where: { guildId: guild.id } });
@@ -207,6 +209,7 @@ export namespace DPM {
 					footer: `To: ${id.targetTag}`,
 				});
 				await setRelation(GuildRelation.Neutral, id);
+				await reportRelationChange(id, currentRelation, GuildRelation.Neutral);
 			} else if (currentRelation === GuildRelation.Enemy) {
 				if (activeChange) throw new Errors.DPMError(ErrorReplies.RelationChangeInProgress);
 				await sendGenericToThread({
@@ -242,6 +245,7 @@ export namespace DPM {
 					footer: `By: ${id.sourceTag}`,
 				});
 				await setRelation(GuildRelation.Neutral, id);
+				// Don't report, because it's a new relation (null -> neutral)
 			}
 		},
 		[TransactionType.EnemyDeclare]: async ({ id, params, threads, currentRelation }) => {
@@ -262,6 +266,7 @@ export namespace DPM {
 				footer: `By: ${id.sourceTag}`,
 			});
 			await setRelation(GuildRelation.Enemy, id);
+			await reportRelationChange(id, currentRelation, GuildRelation.Neutral);
 		},
 		[TransactionType.MessageSend]: async ({ id, params, threads }) => {
 			const { message, author } = params;
@@ -318,7 +323,7 @@ export namespace DPM {
 			});
 			await setActiveChange(null, id);
 		},
-		[TransactionType.AllyAccept]: async ({ id, params, threads }) => {
+		[TransactionType.AllyAccept]: async ({ id, params, threads, currentRelation }) => {
 			const { author, message } = params;
 			await sendGenericToThread({
 				thread: threads.source,
@@ -335,9 +340,10 @@ export namespace DPM {
 				footer: `From: ${id.sourceTag}`,
 			});
 			await setRelation(GuildRelation.Ally, id);
+			await reportRelationChange(id, currentRelation, GuildRelation.Neutral);
 			await setActiveChange(null, id);
 		},
-		[TransactionType.NeutralAccept]: async ({ id, params, threads }) => {
+		[TransactionType.NeutralAccept]: async ({ id, params, threads, currentRelation }) => {
 			const { author, message } = params;
 			await sendGenericToThread({
 				thread: threads.source,
@@ -354,6 +360,8 @@ export namespace DPM {
 				footer: `From: ${id.sourceTag}`,
 			});
 			await setRelation(GuildRelation.Neutral, id);
+			// Know for sure that existing relation is not neutral
+			await reportRelationChange(id, currentRelation, GuildRelation.Neutral);
 			await setActiveChange(null, id);
 		},
 	} as const satisfies {
@@ -549,6 +557,33 @@ export namespace DPM {
 			currentRelation: existingRelation?.relation ?? undefined,
 			activeChange: existingRelation?.activeChange ?? undefined,
 		});
+	}
+
+	async function reportRelationChange(
+		cleanId: CleanIdentifier,
+		existingRelation: GuildRelation | undefined,
+		newRelation: GuildRelation,
+	) {
+		if (endpoints?.relationChanges) {
+			for (const endpoint of endpoints.relationChanges) {
+				axios
+					.post(
+						endpoint,
+						{
+							prev: existingRelation ?? null,
+							type: newRelation ?? null,
+							source: cleanId.sourceTag,
+							target: cleanId.targetTag,
+						},
+						{
+							headers: {
+								'Content-Type': 'application/json',
+							},
+						},
+					)
+					.catch((err) => Debug.error(`Error while posting relation change to ${endpoint}: ${err}`));
+			}
+		}
 	}
 
 	export async function tagToGuild(tag: string) {

@@ -26,7 +26,6 @@ import { ErrorReplies } from '../../types/errors.js';
 import { GlobalCustomIds } from '../../types/eventTypes.js';
 import { defaultEmbed } from '../../utils/discordUtils.js';
 import { constructError, reportErrorToUser } from '../../utils/errorsUtils.js';
-import { GuildFlag } from '../../utils/guildFlagsUtils.js';
 import { Logging } from '../../utils/loggingUtils.js';
 import { hasPermissions, Permission } from '../../utils/permissionsUtils.js';
 import { getOption, reportErrorIfNotSetup } from '../../utils/subcommandsUtils.js';
@@ -48,9 +47,7 @@ export function createSessionMessage(
 		);
 	}
 	msg.addTextDisplayComponents((text) =>
-		text.setContent(
-			`-# Started by ${userMention(userId)} at ${time(new Date(), TimestampStyles.ShortTime)} ||Contains user-generated content. The bot is not responsible for this content.||`,
-		),
+		text.setContent(`-# Started by ${userMention(userId)} at ${time(new Date(), TimestampStyles.ShortTime)}`),
 	).addActionRowComponents((row) =>
 		row.addComponents(
 			new ButtonBuilder()

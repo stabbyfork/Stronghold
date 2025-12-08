@@ -111,7 +111,9 @@ export function createCommand<
 }: {
 	data: CommandData;
 	execute?: (interaction: ChatInputCommandInteraction, args: P) => Promise<void>;
-	autocomplete?: (interaction: AutocompleteInteraction) => Promise<void>;
+	autocomplete?:
+		| RecursivePartial<CommandList<(interaction: AutocompleteInteraction) => Promise<void>>[O]>
+		| ((interaction: AutocompleteInteraction) => Promise<void>);
 	description?: RecursivePartial<CommandList<string>[O]> | string;
 	limits?: RecursivePartial<CommandList<UsageLimitParams>[O]> | UsageLimitParams;
 	once?: () => Promise<void>;
@@ -257,7 +259,9 @@ interface CommandBase<Args extends CommandOptionDictDeclare | void = void> {
 }
 
 interface AutocompletedCommand {
-	autocomplete: (interaction: AutocompleteInteraction) => Promise<void>;
+	autocomplete:
+		| RecursivePartial<CommandList<(interaction: AutocompleteInteraction) => Promise<void>>[keyof CommandList<any>]>
+		| ((interaction: AutocompleteInteraction) => Promise<void>);
 }
 /**
  * The interface for a command.

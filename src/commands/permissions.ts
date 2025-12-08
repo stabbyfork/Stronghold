@@ -2,6 +2,48 @@ import { AutocompleteInteraction, SlashCommandBuilder } from 'discord.js';
 import { createCommand } from '../types/commandTypes.js';
 import { Permission } from '../utils/permissionsUtils.js';
 
+async function genericPermAuto(interaction: AutocompleteInteraction) {
+	const existingPerms = Array.from(
+		new Set(
+			interaction.options
+				.getFocused()
+				.split(' ')
+				.map((x) => x.trim()),
+		),
+	);
+	const possible = Object.values(Permission);
+	if (existingPerms.length === 1 && existingPerms[0] === '') {
+		await interaction.respond(possible.map((x) => ({ name: x, value: x })));
+		return;
+	}
+	const lastPerm = existingPerms.at(-1) ?? existingPerms[0];
+	if (possible.includes(lastPerm as Permission)) {
+		await interaction.respond(
+			possible
+				.filter((x) => !existingPerms.includes(x))
+				.map((x) => {
+					const joined = [...existingPerms.filter((x) => possible.includes(x as Permission)), x].join(' ');
+					return { name: joined, value: joined };
+				}),
+		);
+		return;
+	}
+	const startsWithLast = possible
+		.filter((x) => !existingPerms.includes(x))
+		.filter((x) => x.toLowerCase().startsWith(lastPerm.toLowerCase()));
+	await interaction.respond(
+		startsWithLast.length === 0
+			? possible.map((x) => ({ name: x, value: x }))
+			: startsWithLast.map((x) => {
+					const joined = [
+						...existingPerms.slice(0, -1).filter((y) => possible.includes(y as Permission)),
+						x,
+					].join(' ');
+					return { name: joined, value: joined };
+				}),
+	);
+}
+
 export default createCommand({
 	data: new SlashCommandBuilder()
 		.setName('permissions')
@@ -174,47 +216,5 @@ export default createCommand({
 						.setRequired(false),
 				),
 		),
-	autocomplete: async (interaction: AutocompleteInteraction) => {
-		const existingPerms = Array.from(
-			new Set(
-				interaction.options
-					.getFocused()
-					.split(' ')
-					.map((x) => x.trim()),
-			),
-		);
-		const possible = Object.values(Permission);
-		if (existingPerms.length === 1 && existingPerms[0] === '') {
-			await interaction.respond(possible.map((x) => ({ name: x, value: x })));
-			return;
-		}
-		const lastPerm = existingPerms.at(-1) ?? existingPerms[0];
-		if (possible.includes(lastPerm as Permission)) {
-			await interaction.respond(
-				possible
-					.filter((x) => !existingPerms.includes(x))
-					.map((x) => {
-						const joined = [...existingPerms.filter((x) => possible.includes(x as Permission)), x].join(
-							' ',
-						);
-						return { name: joined, value: joined };
-					}),
-			);
-			return;
-		}
-		const startsWithLast = possible
-			.filter((x) => !existingPerms.includes(x))
-			.filter((x) => x.toLowerCase().startsWith(lastPerm.toLowerCase()));
-		await interaction.respond(
-			startsWithLast.length === 0
-				? possible.map((x) => ({ name: x, value: x }))
-				: startsWithLast.map((x) => {
-						const joined = [
-							...existingPerms.slice(0, -1).filter((y) => possible.includes(y as Permission)),
-							x,
-						].join(' ');
-						return { name: joined, value: joined };
-					}),
-		);
-	},
+	autocomplete: genericPermAuto,
 });

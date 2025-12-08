@@ -20,9 +20,11 @@ import { flattenVals, getValue } from '../../utils/genericsUtils.js';
 import { getOption, getSubcommands } from '../../utils/subcommandsUtils.js';
 import { Config } from '../../config.js';
 import urlBuilder from 'build-url-ts';
+import fuzzysort from 'fuzzysort';
 const { buildUrl } = urlBuilder;
 const commandArray: string[] = [];
 let splitHelpText: string[] = [];
+let preparedCmdsArray: Fuzzysort.Prepared[] = [];
 
 const { url: websiteUrl } = Config.get('website');
 
@@ -153,6 +155,7 @@ export default createCommand({
 		}
 		outPages.push(outStr);
 		splitHelpText = outPages;
+		commandArray.forEach((cmd) => preparedCmdsArray.push(fuzzysort.prepare(cmd)));
 	},
 	execute: async (interaction, args: typeof commandOptions.help) => {
 		const msg = new ContainerBuilder();
@@ -270,17 +273,19 @@ export default createCommand({
 	},
 	autocomplete: async (interaction: AutocompleteInteraction) => {
 		const focusedValue = interaction.options.getFocused();
-		const command = focusedValue.trim();
-		if (command === '') {
+		const input = focusedValue.trim();
+		if (input === '') {
 			await interaction.respond(
 				commandArray.slice(0, Math.min(25, commandArray.length)).map((x) => ({ name: x, value: x })),
 			);
 			return;
 		}
-		const startsWithLast = commandArray.filter((x) => x.startsWith(command));
-		await interaction.respond(
-			startsWithLast.slice(0, Math.min(25, startsWithLast.length)).map((x) => ({ name: x, value: x })),
-		);
+		const matched = fuzzysort.go(input, preparedCmdsArray, {
+			all: false,
+			limit: 25,
+			threshold: 0.4,
+		});
+		await interaction.respond(matched.map((x) => ({ name: x.target, value: x.target })));
 	},
 	description:
 		'The Discord command description character limit is 100 characters, so some commands may have longer descriptions on their help entry.',

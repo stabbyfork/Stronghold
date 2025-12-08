@@ -1,4 +1,12 @@
-import { Events, GuildMember, InteractionReplyOptions, MessageFlags, userMention } from 'discord.js';
+import {
+	AutocompleteInteraction,
+	Events,
+	GuildMember,
+	Interaction,
+	InteractionReplyOptions,
+	MessageFlags,
+	userMention,
+} from 'discord.js';
 import { commands } from '../commands.js';
 import { Data } from '../data.js';
 import { CommandConstruct, CommandExecute, CommandOptionDictDeclare } from '../types/commandTypes.js';
@@ -45,13 +53,23 @@ export default createEvent({
 				return;
 			}
 			let cmdLim: UsageLimit | undefined;
+			const name = getCommandFullName(interaction);
 			try {
 				if (interaction.isAutocomplete()) {
 					// Should exist, autocompletion
-					await (cmd as CommandConstruct<true>).autocomplete?.(interaction).catch(Debug.error);
+					const autoCmd = cmd as CommandConstruct<true>;
+					if (typeof autoCmd.autocomplete === 'function') {
+						await autoCmd.autocomplete?.(interaction).catch(Debug.error);
+					} else {
+						const autoComp = name
+							.slice(1)
+							.reduce((acc, cur) => acc?.[cur as keyof typeof acc], autoCmd.autocomplete) as
+							| undefined
+							| ((interaction: AutocompleteInteraction) => Promise<void>);
+						autoComp?.(interaction).catch(Debug.error);
+					}
 				} else {
 					// Slash command
-					const name = getCommandFullName(interaction);
 					const joinedName = name.join(' ');
 					const [ready, limit] = Usages.isReadyMany([UsageEnum.CommandExecute, joinedName], interaction);
 					if (!ready) {

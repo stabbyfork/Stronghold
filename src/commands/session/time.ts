@@ -16,14 +16,6 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		await reportErrorToUser(interaction, constructError([ErrorReplies.InteractionHasNoGuild]), true);
 		return;
 	}
-	if (!(await hasPermissions(interaction.member as GuildMember, guild, true, Permission.ManageSessions))) {
-		await reportErrorToUser(
-			interaction,
-			constructError([ErrorReplies.PermissionsNeededSubstitute], Permission.ManageSessions),
-			true,
-		);
-		return;
-	}
 	const dbGuild = await Data.models.Guild.findOne({
 		where: { guildId: guild.id },
 		include: [GuildAssociations.Session],
@@ -66,7 +58,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			defaultEmbed()
 				.setTitle('Time spent')
 				.setDescription(
-					`${userMention(userToCheck.id)} has spent ${ms(timeSpent, { long: true })} in this session.\nThey ${passesQuota ? '**have**' : '**have not**'} passed the quota of ${ms(
+					`${userMention(userToCheck.id)} has spent ${ms(timeSpent, { long: true })} in this session.\nThey ${passesQuota ? '**have**' : '**have not**'} met the quota of ${ms(
 						session.timeQuota,
 						{
 							long: true,

@@ -311,11 +311,7 @@ export default createCommand<{}, 'dpm'>({
 	autocomplete: {
 		send: async (interaction: AutocompleteInteraction) => {
 			const input = interaction.options.getFocused().trim().toLowerCase();
-			if (input === '') {
-				await interaction.respond([]);
-				return;
-			}
-			const matched = fuzzysort.go(input, tagCache, { all: false, limit: 25, threshold: 0.5 });
+			const matched = fuzzysort.go(input, tagCache, { all: true, limit: 25, threshold: 0.5 });
 			await interaction.respond(matched.map((x) => ({ name: x.target, value: x.target })));
 		},
 	},

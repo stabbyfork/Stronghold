@@ -59,14 +59,22 @@ export default createEvent({
 					// Should exist, autocompletion
 					const autoCmd = cmd as CommandConstruct<true>;
 					if (typeof autoCmd.autocomplete === 'function') {
-						await autoCmd.autocomplete?.(interaction).catch(Debug.error);
+						if (autoCmd.autocomplete) {
+							await autoCmd.autocomplete(interaction).catch(Debug.error);
+						} else {
+							Debug.error(`Autocomplete function not found for command: ${name.join(' ')}`);
+						}
 					} else {
 						const autoComp = name
 							.slice(1)
 							.reduce((acc, cur) => acc?.[cur as keyof typeof acc], autoCmd.autocomplete) as
 							| undefined
 							| ((interaction: AutocompleteInteraction) => Promise<void>);
-						autoComp?.(interaction).catch(Debug.error);
+						if (autoComp) {
+							await autoComp(interaction).catch(Debug.error);
+						} else {
+							Debug.error(`Autocomplete function not found for command: ${name.join(' ')}`);
+						}
 					}
 				} else {
 					// Slash command

@@ -1,12 +1,12 @@
 import { ChatInputCommandInteraction, GuildMember, MessageFlags } from 'discord.js';
-import { ErrorReplies } from '../../types/errors.js';
-import { DPM, isDiploReady } from '../../utils/diplomacyUtils.js';
-import { reportErrorToUser, constructError } from '../../utils/errorsUtils.js';
-import { hasPermissions, Permission } from '../../utils/permissionsUtils.js';
-import { getOption } from '../../utils/subcommandsUtils.js';
 import { commandOptions } from '../../cmdOptions.js';
 import { Data } from '../../data.js';
+import { ErrorReplies } from '../../types/errors.js';
+import { DPM, isDiploReady } from '../../utils/diplomacyUtils.js';
 import { defaultEmbed } from '../../utils/discordUtils.js';
+import { constructError, reportErrorToUser } from '../../utils/errorsUtils.js';
+import { hasPermissions, Permission } from '../../utils/permissionsUtils.js';
+import { getOption } from '../../utils/subcommandsUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.dpm.send) => {
 	const guild = interaction.guild;

@@ -38,12 +38,14 @@ export type RecursiveFlatKeys<T> =
 	T extends Record<string, any> ? { [K in keyof T]: K | RecursiveFlatKeys<T[K]> }[keyof T] : never;
 
 export type ValueOf<T> = T[keyof T];
-export type RecursivePartial<T> = {
-	[P in keyof T]?: T[P] extends (infer U)[]
-		? RecursivePartial<U>[]
-		: T[P] extends object | undefined
-			? RecursivePartial<T[P]>
-			: T[P];
-};
+export type RecursivePartial<T> = T extends (...args: any[]) => any
+	? T
+	: {
+			[P in keyof T]?: T[P] extends (infer U)[]
+				? RecursivePartial<U>[]
+				: T[P] extends object | undefined
+					? RecursivePartial<T[P]>
+					: T[P];
+		};
 
 //#endregion

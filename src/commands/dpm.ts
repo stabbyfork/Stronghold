@@ -1,8 +1,29 @@
-import { ChannelType, SlashCommandBuilder } from 'discord.js';
+import { AutocompleteInteraction, ChannelType, SlashCommandBuilder } from 'discord.js';
 import { createCommand } from '../types/commandTypes.js';
 import { UsageScope } from '../utils/usageLimitsUtils.js';
+import { Data } from '../data.js';
+import fuzzysort from 'fuzzysort';
+import { Guild } from '../models/guild.js';
+import { Op } from '@sequelize/core';
+
+const tagCache = [] as Fuzzysort.Prepared[];
 
 export default createCommand<{}, 'dpm'>({
+	once: async () => {
+		Data.models.Guild.hooks.addListener('afterUpdate', async (instance: Guild) => {
+			if (instance.tag) tagCache.push(fuzzysort.prepare(instance.tag));
+		});
+		Data.models.Guild.hooks.addListener('afterDestroy', async (instance: Guild) => {
+			if (instance.tag) tagCache.splice(tagCache.indexOf(fuzzysort.prepare(instance.tag)), 1);
+		});
+		Data.models.Guild.findAll({
+			where: { tag: { [Op.ne]: null } },
+		}).then((guilds) =>
+			guilds.forEach((guild) => {
+				tagCache.push(fuzzysort.prepare(guild.tag!));
+			}),
+		);
+	},
 	data: new SlashCommandBuilder()
 		.setName('dpm')
 		.setDescription('Commands related to diplomacy')
@@ -194,7 +215,8 @@ export default createCommand<{}, 'dpm'>({
 						.setDescription('Tag of the target guild')
 						.setRequired(true)
 						.setMaxLength(8)
-						.setMinLength(2),
+						.setMinLength(2)
+						.setAutocomplete(true),
 				)
 				.addStringOption((option) =>
 					option.setName('message').setDescription('Message to send').setRequired(true).setMaxLength(1024),
@@ -282,5 +304,16 @@ export default createCommand<{}, 'dpm'>({
 	},
 	description: {
 		setup: 'Tags must not contain spaces or exclamation marks (!). Converted to lowercase internally, so capitalisation of letters does not matter.',
+	},
+	autocomplete: {
+		send: async (interaction: AutocompleteInteraction) => {
+			const input = interaction.options.getFocused().trim().toLowerCase();
+			if (input === '') {
+				await interaction.respond([]);
+				return;
+			}
+			const matched = fuzzysort.go(input, tagCache, { all: false, limit: 25, threshold: 0.5 });
+			await interaction.respond(matched.map((x) => ({ name: x.target, value: x.target })));
+		},
 	},
 });

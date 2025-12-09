@@ -73,6 +73,10 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				},
 				{ transaction },
 			);
+			const role = guild.roles.cache.get(rank.roleId) ?? (await guild.roles.fetch(rank.roleId));
+			if (role && newName) {
+				await role.setName(newName, `Renamed by /ranking ranks edit, by: ${interaction.user.id}`);
+			}
 			const toPromote = usersInRank;
 			if (stackable === true) {
 				const usersWithPoints = await Data.models.User.findAll({

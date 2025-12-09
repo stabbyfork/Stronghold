@@ -10,6 +10,9 @@ const tagCache = [] as Fuzzysort.Prepared[];
 
 export default createCommand<{}, 'dpm'>({
 	once: async () => {
+		Data.models.Guild.hooks.addListener('beforeUpdate', async (instance: Guild) => {
+			if (instance.tag) tagCache.splice(tagCache.indexOf(fuzzysort.prepare(instance.tag)), 1);
+		});
 		Data.models.Guild.hooks.addListener('afterUpdate', async (instance: Guild) => {
 			if (instance.tag) tagCache.push(fuzzysort.prepare(instance.tag));
 		});

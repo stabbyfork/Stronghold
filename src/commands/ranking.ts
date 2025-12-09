@@ -1,6 +1,9 @@
-import { SlashCommandBuilder } from 'discord.js';
+import { AutocompleteInteraction, SlashCommandBuilder } from 'discord.js';
 import { createCommand } from '../types/commandTypes.js';
 import { UsageScope } from '../utils/usageLimitsUtils.js';
+import { Data } from '../data.js';
+import fuzzysort from 'fuzzysort';
+import { Rank } from '../models/rank.js';
 
 const exampleRankObjs = [
 	{
@@ -22,7 +25,67 @@ const exampleRankObjs = [
 	},
 ] as const;
 
+/** Guild ID to prepared rank cache */
+const rankCaches = new Map<string, Fuzzysort.Prepared[]>();
+
+async function autocompRankName(interaction: AutocompleteInteraction) {
+	const guild = interaction.guild;
+	if (!guild) {
+		await interaction.respond([]);
+		return;
+	}
+	const arr = rankCaches.get(guild.id);
+	if (!arr) {
+		await interaction.respond([]);
+		return;
+	}
+	const input = interaction.options.getFocused().trim();
+	const matched = fuzzysort.go(input, arr, { all: true, limit: 25, threshold: 0.3 });
+	await interaction.respond(matched.map((x) => ({ name: x.target, value: x.target })));
+}
+
 export default createCommand<{}, 'ranking'>({
+	once: async () => {
+		const ranks = await Data.models.Rank.findAll();
+		for (const rank of ranks) {
+			let arr = rankCaches.get(rank.guildId);
+			if (!arr) {
+				arr = [];
+				rankCaches.set(rank.guildId, arr);
+			}
+			arr.push(fuzzysort.prepare(rank.name));
+		}
+		Data.models.Rank.hooks.addListener('afterCreate', async (instance: Rank) => {
+			let arr = rankCaches.get(instance.guildId);
+			if (!arr) {
+				arr = [];
+				rankCaches.set(instance.guildId, arr);
+			}
+			arr.push(fuzzysort.prepare(instance.name));
+		});
+		Data.models.Rank.hooks.addListener('beforeUpdate', async (instance: Rank) => {
+			let arr = rankCaches.get(instance.guildId);
+			if (!arr) {
+				return;
+			}
+			arr.splice(arr.indexOf(fuzzysort.prepare(instance.name)), 1);
+		});
+		Data.models.Rank.hooks.addListener('afterUpdate', async (instance: Rank) => {
+			let arr = rankCaches.get(instance.guildId);
+			if (!arr) {
+				arr = [];
+				rankCaches.set(instance.guildId, arr);
+			}
+			arr.push(fuzzysort.prepare(instance.name));
+		});
+		Data.models.Rank.hooks.addListener('afterDestroy', async (instance: Rank) => {
+			let arr = rankCaches.get(instance.guildId);
+			if (!arr) {
+				return;
+			}
+			arr.splice(arr.indexOf(fuzzysort.prepare(instance.name)), 1);
+		});
+	},
 	data: new SlashCommandBuilder()
 		.setName('ranking')
 		.setDescription('Commands related to ranks and points')
@@ -159,7 +222,8 @@ export default createCommand<{}, 'ranking'>({
 								.setName('name')
 								.setDescription('Current name of the rank')
 								.setRequired(true)
-								.setMaxLength(100),
+								.setMaxLength(100)
+								.setAutocomplete(true),
 						)
 						.addStringOption((option) =>
 							option.setName('new_name').setDescription('New name of the rank').setMaxLength(100),
@@ -191,7 +255,8 @@ export default createCommand<{}, 'ranking'>({
 								.setName('rank')
 								.setDescription('Name of the rank to remove')
 								.setRequired(true)
-								.setMaxLength(100),
+								.setMaxLength(100)
+								.setAutocomplete(true),
 						),
 				)
 				.addSubcommand((cmd) =>
@@ -199,7 +264,12 @@ export default createCommand<{}, 'ranking'>({
 						.setName('in')
 						.setDescription('Get a list of users in a rank')
 						.addStringOption((option) =>
-							option.setName('rank').setDescription('Name of the rank').setRequired(true),
+							option
+								.setName('rank')
+								.setDescription('Name of the rank')
+								.setRequired(true)
+								.setAutocomplete(true)
+								.setMaxLength(100),
 						),
 				),
 		),
@@ -224,5 +294,12 @@ export default createCommand<{}, 'ranking'>({
 			in: { usesPerInterval: 4, useCooldown: 5 * 1000, intervalMs: 40 * 1000 },
 		},
 		promote: { usesPerInterval: 1, useCooldown: 240 * 1000, intervalMs: 0, scope: UsageScope.GuildAll },
+	},
+	autocomplete: {
+		ranks: {
+			edit: autocompRankName,
+			in: autocompRankName,
+			remove: autocompRankName,
+		},
 	},
 });

@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON MON, 08 DEC 2025 15:59:27 GMT WITH 10 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON TUE, 09 DEC 2025 18:14:41 GMT WITH 11 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct } from "./types/commandTypes.js";
 
@@ -28,6 +28,26 @@ activity: {
         "type": "string",
         "required": false
       }
+    }
+  }
+},
+blacklist: {
+  "add": {
+    "name": {
+      "type": "string",
+      "required": true
+    }
+  },
+  "remove": {
+    "name": {
+      "type": "string",
+      "required": true
+    }
+  },
+  "find": {
+    "name": {
+      "type": "string",
+      "required": true
     }
   }
 },
@@ -487,6 +507,13 @@ activity: {
     resume: T,
     info: T
   }
+},
+blacklist: {
+  add: T,
+  remove: T,
+  list: T,
+  clear: T,
+  find: T
 },
 dpm: {
   setup: T,

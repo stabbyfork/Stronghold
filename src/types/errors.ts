@@ -81,6 +81,8 @@ export const ErrorReplies = {
 	RelationChangeInProgress: 'A relation change is already in progress. Cancel that one before starting another.',
 	MessageTooShort: 'Message is too short.',
 	MessageTooLong: 'Message is too long. It may be a maximum of 2000 characters.',
+	UserAlreadyBlacklisted: 'User is already blacklisted.',
+	UserNotBlacklisted: 'User is not blacklisted.',
 } as const;
 
 export namespace Errors {

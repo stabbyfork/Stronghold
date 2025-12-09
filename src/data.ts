@@ -20,6 +20,7 @@ import { RelatedGuild } from './models/relatedGuild.js';
 import { SessionParticipant } from './models/sessionParticipant.js';
 import { Logger } from 'sequelize/types/utils/logger.js';
 import { Logging } from './utils/loggingUtils.js';
+import { BlacklistedUser } from './models/blacklistedUser.js';
 
 const dbConfg = Config.get('database');
 
@@ -39,6 +40,7 @@ export namespace Data {
 		SessionOptions,
 		RelatedGuild,
 		SessionParticipant,
+		BlacklistedUser,
 	};
 	export const mainDb =
 		process.env.NODE_ENV === 'prod'

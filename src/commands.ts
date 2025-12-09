@@ -1,8 +1,9 @@
-// AUTO-GENERATED ON MON, 08 DEC 2025 15:59:27 GMT WITH 10 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON TUE, 09 DEC 2025 18:14:41 GMT WITH 11 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct, CommandExecute } from './types/commandTypes.js';
 
 import activity from './commands/activity.js';
+import blacklist from './commands/blacklist.js';
 import dpm from './commands/dpm.js';
 import permissions from './commands/permissions.js';
 import ranking from './commands/ranking.js';
@@ -19,6 +20,11 @@ import activity_checks_cancel from './commands/activity/checks/cancel.js';
 import activity_checks_pause from './commands/activity/checks/pause.js';
 import activity_checks_resume from './commands/activity/checks/resume.js';
 import activity_checks_info from './commands/activity/checks/info.js';
+import blacklist_add from './commands/blacklist/add.js';
+import blacklist_remove from './commands/blacklist/remove.js';
+import blacklist_list from './commands/blacklist/list.js';
+import blacklist_clear from './commands/blacklist/clear.js';
+import blacklist_find from './commands/blacklist/find.js';
 import dpm_setup from './commands/dpm/setup.js';
 import dpm_info from './commands/dpm/info.js';
 import dpm_allies_add from './commands/dpm/allies/add.js';
@@ -70,6 +76,7 @@ import session_time from './commands/session/time.js';
 
 export const commands = {
   'activity': activity,
+  'blacklist': blacklist,
   'dpm': dpm,
   'permissions': permissions,
   'ranking': ranking,
@@ -91,6 +98,13 @@ activity: {
     resume: activity_checks_resume,
     info: activity_checks_info
   }
+},
+blacklist: {
+  add: blacklist_add,
+  remove: blacklist_remove,
+  list: blacklist_list,
+  clear: blacklist_clear,
+  find: blacklist_find
 },
 dpm: {
   setup: dpm_setup,

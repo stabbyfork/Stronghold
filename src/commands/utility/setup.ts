@@ -1,4 +1,5 @@
 import { Transaction } from '@sequelize/core';
+import urlBuilder from 'build-url-ts';
 import {
 	ButtonBuilder,
 	ButtonStyle,
@@ -25,6 +26,7 @@ import {
 import _ from 'lodash';
 import { client } from '../../client.js';
 import { commandOptions } from '../../cmdOptions.js';
+import { Config } from '../../config.js';
 import { Data } from '../../data.js';
 import { UserAssociations } from '../../models/user.js';
 import { createCommand } from '../../types/commandTypes.js';
@@ -36,8 +38,6 @@ import { Logging } from '../../utils/loggingUtils.js';
 import { Permission, PermissionBits } from '../../utils/permissionsUtils.js';
 import { getOption } from '../../utils/subcommandsUtils.js';
 import { Usages, UsageScope } from '../../utils/usageLimitsUtils.js';
-import { Config } from '../../config.js';
-import urlBuilder from 'build-url-ts';
 const { buildUrl } = urlBuilder;
 
 const enum RoleNames {

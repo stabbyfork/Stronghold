@@ -22,7 +22,6 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 					.setDescription(`\`${username}\` is blacklisted.`)
 					.setColor('Red'),
 			],
-			flags: MessageFlags.Ephemeral,
 		});
 	} else {
 		await interaction.reply({
@@ -32,7 +31,6 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 					.setDescription(`\`${username}\` is not blacklisted.`)
 					.setColor('Green'),
 			],
-			flags: MessageFlags.Ephemeral,
 		});
 	}
 };

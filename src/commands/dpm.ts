@@ -8,6 +8,12 @@ import { Op } from '@sequelize/core';
 
 const tagCache = [] as Fuzzysort.Prepared[];
 
+async function autocompTag(interaction: AutocompleteInteraction) {
+	const input = interaction.options.getFocused().trim().toLowerCase();
+	const matched = fuzzysort.go(input, tagCache, { all: true, limit: 25, threshold: 0.5 });
+	await interaction.respond(matched.map((x) => ({ name: x.target, value: x.target })));
+}
+
 export default createCommand<{}, 'dpm'>({
 	once: async () => {
 		Data.models.Guild.hooks.addListener('beforeUpdate', async (instance: Guild) => {
@@ -73,7 +79,8 @@ export default createCommand<{}, 'dpm'>({
 						.setDescription('Tag of the guild. Omit for own info')
 						.setRequired(false)
 						.setMaxLength(8)
-						.setMinLength(2),
+						.setMinLength(2)
+						.setAutocomplete(true),
 				),
 		)
 		.addSubcommandGroup((group) =>
@@ -90,7 +97,8 @@ export default createCommand<{}, 'dpm'>({
 								.setDescription('Tag of the target guild')
 								.setRequired(true)
 								.setMaxLength(8)
-								.setMinLength(2),
+								.setMinLength(2)
+								.setAutocomplete(true),
 						)
 						.addStringOption((option) =>
 							option
@@ -110,7 +118,8 @@ export default createCommand<{}, 'dpm'>({
 								.setDescription('Tag of the target guild')
 								.setRequired(true)
 								.setMaxLength(8)
-								.setMinLength(2),
+								.setMinLength(2)
+								.setAutocomplete(true),
 						)
 						.addStringOption((option) =>
 							option
@@ -136,7 +145,8 @@ export default createCommand<{}, 'dpm'>({
 								.setDescription('Tag of the target guild')
 								.setRequired(true)
 								.setMaxLength(8)
-								.setMinLength(2),
+								.setMinLength(2)
+								.setAutocomplete(true),
 						)
 						.addStringOption((option) =>
 							option
@@ -156,7 +166,8 @@ export default createCommand<{}, 'dpm'>({
 								.setDescription('Tag of the target guild')
 								.setRequired(true)
 								.setMaxLength(8)
-								.setMinLength(2),
+								.setMinLength(2)
+								.setAutocomplete(true),
 						)
 						.addStringOption((option) =>
 							option
@@ -182,7 +193,8 @@ export default createCommand<{}, 'dpm'>({
 								.setDescription('Tag of the target guild')
 								.setRequired(true)
 								.setMaxLength(8)
-								.setMinLength(2),
+								.setMinLength(2)
+								.setAutocomplete(true),
 						)
 						.addStringOption((option) =>
 							option
@@ -202,7 +214,8 @@ export default createCommand<{}, 'dpm'>({
 								.setDescription('Tag of the target guild')
 								.setRequired(true)
 								.setMaxLength(8)
-								.setMinLength(2),
+								.setMinLength(2)
+								.setAutocomplete(true),
 						),
 				)
 				.addSubcommand((cmd) => cmd.setName('list').setDescription('List all neutral guilds')),
@@ -309,10 +322,19 @@ export default createCommand<{}, 'dpm'>({
 		setup: 'Tags must not contain spaces or exclamation marks (!). Converted to lowercase internally, so capitalisation of letters does not matter.',
 	},
 	autocomplete: {
-		send: async (interaction: AutocompleteInteraction) => {
-			const input = interaction.options.getFocused().trim().toLowerCase();
-			const matched = fuzzysort.go(input, tagCache, { all: true, limit: 25, threshold: 0.5 });
-			await interaction.respond(matched.map((x) => ({ name: x.target, value: x.target })));
+		send: autocompTag,
+		info: autocompTag,
+		allies: {
+			add: autocompTag,
+			remove: autocompTag,
+		},
+		enemies: {
+			add: autocompTag,
+			remove: autocompTag,
+		},
+		neutrals: {
+			add: autocompTag,
+			remove: autocompTag,
 		},
 	},
 });

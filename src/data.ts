@@ -1,26 +1,24 @@
 import { Lock, Op, Sequelize, Transaction } from '@sequelize/core';
 import { MySqlDialect } from '@sequelize/mysql';
 import { SqliteDialect } from '@sequelize/sqlite3';
-import { PermissionsBitField, roleMention, userMention } from 'discord.js';
+import { roleMention, userMention } from 'discord.js';
 import { client } from './client.js';
 import { Config } from './config.js';
 import { ActivityCheck } from './models/activityCheck.js';
+import { RobloxUser } from './models/robloxUser.js';
 import { Guild } from './models/guild.js';
 import { MessageLink } from './models/messageLink.js';
 import { Rank, RankAssociations } from './models/rank.js';
 import { RankUsage } from './models/rankUsage.js';
+import { RelatedGuild } from './models/relatedGuild.js';
 import { RolePermission } from './models/rolePermission.js';
 import { GuildSession } from './models/session.js';
 import { SessionOptions } from './models/sessionOptions.js';
+import { SessionParticipant } from './models/sessionParticipant.js';
 import { User } from './models/user.js';
 import { UserPermission } from './models/userPermission.js';
 import { Errors } from './types/errors.js';
 import { Debug } from './utils/errorsUtils.js';
-import { RelatedGuild } from './models/relatedGuild.js';
-import { SessionParticipant } from './models/sessionParticipant.js';
-import { Logger } from 'sequelize/types/utils/logger.js';
-import { Logging } from './utils/loggingUtils.js';
-import { BlacklistedUser } from './models/blacklistedUser.js';
 
 const dbConfg = Config.get('database');
 
@@ -40,7 +38,7 @@ export namespace Data {
 		SessionOptions,
 		RelatedGuild,
 		SessionParticipant,
-		BlacklistedUser,
+		RobloxUser,
 	};
 	export const mainDb =
 		process.env.NODE_ENV === 'prod'

@@ -20,7 +20,7 @@ import { UserPermission } from './userPermission.js';
 import { RolePermission } from './rolePermission.js';
 import { GuildSession } from './session.js';
 import { RelatedGuild } from './relatedGuild.js';
-import { BlacklistedUser } from './blacklistedUser.js';
+import { RobloxUser } from './robloxUser.js';
 
 export enum GuildAssociations {
 	Users = 'users',
@@ -30,7 +30,7 @@ export enum GuildAssociations {
 	RolePermissions = 'rolePermissions',
 	Session = 'session',
 	RelatedGuilds = 'relatedGuilds',
-	BlacklistedUsers = 'blacklistedUsers',
+	RobloxUsers = 'robloxUsers',
 }
 
 @Table({ tableName: 'Guilds' })
@@ -117,10 +117,10 @@ export class Guild extends Model<InferAttributes<Guild>, InferCreationAttributes
 	declare addRelatedGuild: HasManyAddAssociationMixin<RelatedGuild, RelatedGuild['id']>;
 	declare createRelatedGuild: HasManyCreateAssociationMixin<RelatedGuild, 'guildId'>;
 
-	@HasMany(() => BlacklistedUser, {
+	@HasMany(() => RobloxUser, {
 		foreignKey: { name: 'guildId', onUpdate: 'RESTRICT', onDelete: 'CASCADE' },
 	})
-	declare blacklistedUsers?: NonAttribute<BlacklistedUser[]>;
+	declare robloxUsers?: NonAttribute<RobloxUser[]>;
 
 	@Attribute({ type: DataTypes.DATE })
 	declare createdAt: CreationOptional<Date>;

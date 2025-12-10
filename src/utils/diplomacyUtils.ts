@@ -340,7 +340,7 @@ export namespace DPM {
 				footer: `From: ${id.sourceTag}`,
 			});
 			await setRelation(GuildRelation.Ally, id);
-			await reportRelationChange(id, currentRelation, GuildRelation.Neutral);
+			await reportRelationChange(id, currentRelation, GuildRelation.Ally);
 			await setActiveChange(null, id);
 		},
 		[TransactionType.NeutralAccept]: async ({ id, params, threads, currentRelation }) => {
@@ -571,7 +571,7 @@ export namespace DPM {
 						endpoint,
 						{
 							prev: existingRelation ?? null,
-							type: newRelation ?? null,
+							type: newRelation,
 							source: cleanId.sourceTag,
 							target: cleanId.targetTag,
 						},

@@ -1,12 +1,12 @@
-// AUTO-GENERATED ON TUE, 09 DEC 2025 18:14:41 GMT WITH 11 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON WED, 10 DEC 2025 19:28:46 GMT WITH 11 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct, CommandExecute } from './types/commandTypes.js';
 
 import activity from './commands/activity.js';
-import blacklist from './commands/blacklist.js';
 import dpm from './commands/dpm.js';
 import permissions from './commands/permissions.js';
 import ranking from './commands/ranking.js';
+import rbx from './commands/rbx.js';
 import session from './commands/session.js';
 import feedback from './commands/utility/feedback.js';
 import help from './commands/utility/help.js';
@@ -20,11 +20,6 @@ import activity_checks_cancel from './commands/activity/checks/cancel.js';
 import activity_checks_pause from './commands/activity/checks/pause.js';
 import activity_checks_resume from './commands/activity/checks/resume.js';
 import activity_checks_info from './commands/activity/checks/info.js';
-import blacklist_add from './commands/blacklist/add.js';
-import blacklist_remove from './commands/blacklist/remove.js';
-import blacklist_list from './commands/blacklist/list.js';
-import blacklist_clear from './commands/blacklist/clear.js';
-import blacklist_find from './commands/blacklist/find.js';
 import dpm_setup from './commands/dpm/setup.js';
 import dpm_info from './commands/dpm/info.js';
 import dpm_allies_add from './commands/dpm/allies/add.js';
@@ -62,6 +57,11 @@ import ranking_ranks_add_bulk from './commands/ranking/ranks/add_bulk.js';
 import ranking_ranks_edit from './commands/ranking/ranks/edit.js';
 import ranking_ranks_remove from './commands/ranking/ranks/remove.js';
 import ranking_ranks_in from './commands/ranking/ranks/in.js';
+import rbx_blacklist_add from './commands/rbx/blacklist/add.js';
+import rbx_blacklist_remove from './commands/rbx/blacklist/remove.js';
+import rbx_blacklist_list from './commands/rbx/blacklist/list.js';
+import rbx_blacklist_clear from './commands/rbx/blacklist/clear.js';
+import rbx_blacklist_check from './commands/rbx/blacklist/check.js';
 import session_status from './commands/session/status.js';
 import session_start from './commands/session/start.js';
 import session_quickstart from './commands/session/quickstart.js';
@@ -76,10 +76,10 @@ import session_time from './commands/session/time.js';
 
 export const commands = {
   'activity': activity,
-  'blacklist': blacklist,
   'dpm': dpm,
   'permissions': permissions,
   'ranking': ranking,
+  'rbx': rbx,
   'session': session,
   'feedback': feedback,
   'help': help,
@@ -98,13 +98,6 @@ activity: {
     resume: activity_checks_resume,
     info: activity_checks_info
   }
-},
-blacklist: {
-  add: blacklist_add,
-  remove: blacklist_remove,
-  list: blacklist_list,
-  clear: blacklist_clear,
-  find: blacklist_find
 },
 dpm: {
   setup: dpm_setup,
@@ -161,6 +154,15 @@ ranking: {
     edit: ranking_ranks_edit,
     remove: ranking_ranks_remove,
     in: ranking_ranks_in
+  }
+},
+rbx: {
+  blacklist: {
+    add: rbx_blacklist_add,
+    remove: rbx_blacklist_remove,
+    list: rbx_blacklist_list,
+    clear: rbx_blacklist_clear,
+    check: rbx_blacklist_check
   }
 },
 session: {

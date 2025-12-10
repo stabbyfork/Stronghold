@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON TUE, 09 DEC 2025 18:14:41 GMT WITH 11 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON WED, 10 DEC 2025 19:28:46 GMT WITH 11 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct } from "./types/commandTypes.js";
 
@@ -28,26 +28,6 @@ activity: {
         "type": "string",
         "required": false
       }
-    }
-  }
-},
-blacklist: {
-  "add": {
-    "name": {
-      "type": "string",
-      "required": true
-    }
-  },
-  "remove": {
-    "name": {
-      "type": "string",
-      "required": true
-    }
-  },
-  "find": {
-    "name": {
-      "type": "string",
-      "required": true
     }
   }
 },
@@ -367,6 +347,32 @@ ranking: {
     }
   }
 },
+rbx: {
+  "blacklist": {
+    "add": {
+      "name": {
+        "type": "string",
+        "required": true
+      },
+      "reason": {
+        "type": "string",
+        "required": false
+      }
+    },
+    "remove": {
+      "name": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "check": {
+      "names": {
+        "type": "string",
+        "required": true
+      }
+    }
+  }
+},
 session: {
   "start": {
     "channel": {
@@ -508,13 +514,6 @@ activity: {
     info: T
   }
 },
-blacklist: {
-  add: T,
-  remove: T,
-  list: T,
-  clear: T,
-  find: T
-},
 dpm: {
   setup: T,
   info: T,
@@ -570,6 +569,15 @@ ranking: {
     edit: T,
     remove: T,
     in: T
+  }
+},
+rbx: {
+  blacklist: {
+    add: T,
+    remove: T,
+    list: T,
+    clear: T,
+    check: T
   }
 },
 session: {

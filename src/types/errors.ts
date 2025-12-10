@@ -83,6 +83,9 @@ export const ErrorReplies = {
 	MessageTooLong: 'Message is too long. It may be a maximum of 2000 characters.',
 	UserAlreadyBlacklisted: 'User is already blacklisted.',
 	UserNotBlacklisted: 'User is not blacklisted.',
+	RobloxUserNotFound: 'Roblox user with the username \`!{ERROR}\` could not be found.',
+	NoUsernamesProvided: 'No usernames provided. Separate usernames with spaces.',
+	TooManyUsernamesProvided: 'Too many usernames provided. Maximum of 50 usernames allowed.',
 } as const;
 
 export namespace Errors {

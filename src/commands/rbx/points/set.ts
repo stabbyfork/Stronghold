@@ -1,5 +1,5 @@
 import { Transaction, TransactionNestMode } from '@sequelize/core';
-import { ChatInputCommandInteraction, EmbedBuilder, GuildMember, userMention } from 'discord.js';
+import { ChatInputCommandInteraction, EmbedBuilder, GuildMember, MessageFlags, userMention } from 'discord.js';
 import { Data } from '../../../data.js';
 import { ErrorReplies, Errors } from '../../../types/errors.js';
 import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js';
@@ -81,6 +81,26 @@ export async function setRbxPoints(
 	try {
 		await Data.mainDb.transaction(async (transaction) => {
 			for (const usr of rbxUsers) {
+				const dbRbxUsr = await Data.models.RobloxUser.findOne({
+					where: { guildId: guild.id, userId: usr.id },
+					transaction,
+				});
+				if (dbRbxUsr?.blacklisted) {
+					const avtr = await Roblox.idToAvatarBust(usr.id);
+					await interaction.reply({
+						embeds: [
+							defaultEmbed()
+								.setColor('Red')
+								.setTitle('User is blacklisted')
+								.setDescription(
+									`${usr.displayName} (${usr.name}/${usr.id}) is blacklisted. Reason: ${dbRbxUsr.blacklistReason ?? 'none.'}`,
+								)
+								.setThumbnail(avtr.imageUrl),
+						],
+						flags: MessageFlags.Ephemeral,
+					});
+					throw new Errors.HandledError('User is blacklisted.');
+				}
 				const prevData = await Data.models.RobloxUser.findOne({
 					where: { guildId: guild.id, userId: usr.id },
 				});

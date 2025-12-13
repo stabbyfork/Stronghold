@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON WED, 10 DEC 2025 19:28:46 GMT WITH 11 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON SAT, 13 DEC 2025 08:17:12 GMT WITH 12 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct } from "./types/commandTypes.js";
 
@@ -28,6 +28,18 @@ activity: {
         "type": "string",
         "required": false
       }
+    }
+  }
+},
+c: {
+  "bp": {
+    "rbx_name": {
+      "type": "string",
+      "required": true
+    },
+    "points": {
+      "type": "integer",
+      "required": false
     }
   }
 },
@@ -371,6 +383,44 @@ rbx: {
         "required": true
       }
     }
+  },
+  "points": {
+    "set": {
+      "names": {
+        "type": "string",
+        "required": true
+      },
+      "points": {
+        "type": "integer",
+        "required": true
+      }
+    },
+    "add": {
+      "names": {
+        "type": "string",
+        "required": true
+      },
+      "points": {
+        "type": "integer",
+        "required": true
+      }
+    },
+    "remove": {
+      "names": {
+        "type": "string",
+        "required": true
+      },
+      "points": {
+        "type": "integer",
+        "required": true
+      }
+    },
+    "get": {
+      "name": {
+        "type": "string",
+        "required": true
+      }
+    }
   }
 },
 session: {
@@ -514,6 +564,9 @@ activity: {
     info: T
   }
 },
+c: {
+  bp: T
+},
 dpm: {
   setup: T,
   info: T,
@@ -578,6 +631,13 @@ rbx: {
     list: T,
     clear: T,
     check: T
+  },
+  points: {
+    set: T,
+    add: T,
+    list: T,
+    remove: T,
+    get: T
   }
 },
 session: {

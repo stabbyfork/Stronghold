@@ -1,48 +1,23 @@
-import { ChatInputCommandInteraction, GuildMember, MessageFlags } from 'discord.js';
+import { ChatInputCommandInteraction } from 'discord.js';
 import { commandOptions } from '../../../cmdOptions.js';
-import { getOption, isSetup, reportErrorIfNotSetup } from '../../../utils/subcommandsUtils.js';
-import { constructError, reportErrorToUser } from '../../../utils/errorsUtils.js';
-import { ErrorReplies } from '../../../types/errors.js';
-import { Data } from '../../../data.js';
+import { setRbxPoints } from './set.js';
+import { getOption } from '../../../utils/subcommandsUtils.js';
 import { defaultEmbed } from '../../../utils/discordUtils.js';
-import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
-import { Roblox } from '../../../utils/robloxUtils.js';
 
-export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.rbx.blacklist.add) => {
-	const guild = interaction.guild;
-	if (!guild) {
-		await reportErrorToUser(interaction, constructError([ErrorReplies.InteractionHasNoGuild]), true);
-		return;
-	}
-	if (!(await reportErrorIfNotSetup(interaction))) return;
-	if (!(await hasPermissions(interaction.member as GuildMember, guild, true, Permission.ManageBlacklist))) {
-		await reportErrorToUser(
-			interaction,
-			constructError([ErrorReplies.PermissionsNeededSubstitute], Permission.ManageBlacklist),
-			true,
-		);
-		return;
-	}
-	const username = getOption(interaction, args, 'name');
-	const userData = await Roblox.usernameToData(username);
-	if (!userData) {
-		await reportErrorToUser(interaction, constructError([ErrorReplies.RobloxUserNotFound], username), true);
-		return;
-	}
-	const userId = userData.id;
-	if (await Data.models.RobloxUser.findOne({ where: { guildId: guild.id, userId, blacklisted: true } })) {
-		await reportErrorToUser(interaction, constructError([ErrorReplies.UserAlreadyBlacklisted]), true);
-		return;
-	}
-	const reason = getOption(interaction, args, 'reason');
-	await Data.models.RobloxUser.create({ guildId: guild.id, userId, blacklisted: true, blacklistReason: reason });
-	await interaction.reply({
-		embeds: [
+export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.rbx.points.add) => {
+	setRbxPoints(
+		interaction,
+		getOption(interaction, args, 'names'),
+		getOption(interaction, args, 'points'),
+		(prevPoints, givenPoints) => prevPoints + givenPoints,
+		(users, points) =>
 			defaultEmbed()
-				.setTitle('User blacklisted')
-				.setDescription(`\`${userData.name}\` (\`${userId}\`) has been blacklisted.`)
-				.setColor('Green'),
-		],
-		flags: MessageFlags.Ephemeral,
-	});
+				.setColor('Green')
+				.setTitle('Success')
+				.setDescription(
+					`Added \`${points}\` point${points === 1 ? '' : 's'} to ${users.map((u) => `\`${u.name}\``).join(', ')}.`,
+				),
+		(users, points) =>
+			`Added ${points} point${points === 1 ? '' : 's'} to ${users.map((u) => `\`${u.displayName}\` (\`${u.name}\`/\`${u.id}\`)`).join(', ')}`,
+	);
 };

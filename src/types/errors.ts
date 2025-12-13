@@ -85,7 +85,7 @@ export const ErrorReplies = {
 	UserNotBlacklisted: 'User is not blacklisted.',
 	RobloxUserNotFound: 'Roblox user with the username \`!{ERROR}\` could not be found.',
 	NoUsernamesProvided: 'No usernames provided. Separate usernames with spaces.',
-	TooManyUsernamesProvided: 'Too many usernames provided. Maximum of 50 usernames allowed.',
+	TooManyUsernamesProvided: 'Too many usernames provided. Maximum of 10 usernames are allowed to be checked at once.',
 } as const;
 
 export namespace Errors {

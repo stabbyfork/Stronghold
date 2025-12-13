@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, ContainerBuilder, MessageFlags } from 'discord.js';
+import { ChatInputCommandInteraction, ContainerBuilder, MessageFlags, SectionBuilder } from 'discord.js';
 import { ErrorReplies } from '../../../types/errors.js';
 import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js';
 import { defaultEmbed, Pages } from '../../../utils/discordUtils.js';
@@ -19,7 +19,7 @@ export default async (interaction: ChatInputCommandInteraction) => {
 			embeds: [
 				defaultEmbed()
 					.setTitle('Blacklist is empty')
-					.setDescription('There are no blacklisted users.')
+					.setDescription('There are no blacklisted users. Use `/rbx blacklist add` to add one.')
 					.setColor('Red'),
 			],
 			flags: MessageFlags.Ephemeral,
@@ -27,7 +27,7 @@ export default async (interaction: ChatInputCommandInteraction) => {
 		return;
 	}
 	const pages = new Pages({
-		itemsPerPage: 15,
+		itemsPerPage: 10,
 		totalItems: nBlacklisted,
 		createPage: async (index, perPage) => {
 			const users = await Data.models.RobloxUser.findAll({
@@ -40,18 +40,22 @@ export default async (interaction: ChatInputCommandInteraction) => {
 				...u,
 				blacklistReason: users.find((b) => b.userId === u.id)!.blacklistReason,
 			}));
-			return new ContainerBuilder().addTextDisplayComponents(
-				(text) => text.setContent('## List of blacklisted users'),
-				(text) =>
-					text.setContent(
-						processedUsers
-							.map(
-								(u) =>
-									`\`${u.displayName}\` (\`@${u.name}\`/\`${u.id}\`)${u.blacklistReason ? `:\n${u.blacklistReason}\n` : ''}`,
-							)
-							.join('\n'),
-					),
-			);
+			const avatarBusts = await Roblox.idsToAvatarBusts(...users.map((u) => u.userId));
+			return new ContainerBuilder()
+				.addTextDisplayComponents((text) => text.setContent('## List of blacklisted users'))
+				.addSectionComponents(
+					...processedUsers.map((u) => {
+						const avtr = avatarBusts.find((b) => b.targetId === u.id);
+						const section = new SectionBuilder().addTextDisplayComponents((text) =>
+							text.setContent(
+								`\`${u.displayName}\` (@\`${u.name}\`/\`${u.id}\`)${u.blacklistReason ? `:\n${u.blacklistReason}` : ''}`,
+							),
+						);
+						if (avtr?.state === 'Completed')
+							section.setThumbnailAccessory((thumb) => thumb.setURL(avtr.imageUrl));
+						return section;
+					}),
+				);
 		},
 	});
 	await pages.replyTo(interaction, false);

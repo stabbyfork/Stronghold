@@ -52,6 +52,53 @@ export default createCommand<{}, 'rbx'>({
 							option.setName('names').setDescription('Usernames to find').setRequired(true),
 						),
 				),
+		)
+		.addSubcommandGroup((group) =>
+			group
+				.setName('points')
+				.setDescription('Manage points for Roblox users')
+				.addSubcommand((cmd) =>
+					cmd
+						.setName('set')
+						.setDescription('Set the points of one or more Roblox users')
+						.addStringOption((option) =>
+							option.setName('names').setDescription('Usernames to set points for').setRequired(true),
+						)
+						.addIntegerOption((option) =>
+							option.setName('points').setDescription('Number of points to set to').setRequired(true),
+						),
+				)
+				.addSubcommand((cmd) =>
+					cmd
+						.setName('add')
+						.setDescription('Add points to one or more Roblox users')
+						.addStringOption((option) =>
+							option.setName('names').setDescription('Usernames to add to').setRequired(true),
+						)
+						.addIntegerOption((option) =>
+							option.setName('points').setDescription('Number of points to add').setRequired(true),
+						),
+				)
+				.addSubcommand((cmd) => cmd.setName('list').setDescription('List the points of Roblox users'))
+				.addSubcommand((cmd) =>
+					cmd
+						.setName('remove')
+						.setDescription('Remove points from one or more Roblox users')
+						.addStringOption((option) =>
+							option.setName('names').setDescription('Usernames to remove from').setRequired(true),
+						)
+						.addIntegerOption((option) =>
+							option.setName('points').setDescription('Number of points to remove').setRequired(true),
+						),
+				)
+				.addSubcommand((cmd) =>
+					cmd
+						.setName('get')
+						.setDescription('Get the points of a Roblox user')
+						.addStringOption((option) =>
+							option.setName('name').setDescription('Username to get points of').setRequired(true),
+						),
+				),
 		),
 	limits: {
 		blacklist: {

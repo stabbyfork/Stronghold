@@ -21,6 +21,9 @@ export class RobloxUser extends Model<InferAttributes<RobloxUser>, InferCreation
 	declare points: CreationOptional<number>;
 
 	@Attribute({ type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false })
+	declare inSession: CreationOptional<boolean>;
+
+	@Attribute({ type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false })
 	declare blacklisted: CreationOptional<boolean>;
 	@Attribute({ type: DataTypes.STRING(128), allowNull: true })
 	declare blacklistReason: string | null;

@@ -36,19 +36,20 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		return;
 	}
 	const reason = getOption(interaction, args, 'reason');
-	await Data.models.RobloxUser.create({ guildId: guild.id, userId, blacklisted: true, blacklistReason: reason });
+	await Data.models.RobloxUser.upsert({ guildId: guild.id, userId, blacklisted: true, blacklistReason: reason });
 	Logging.quickInfo(
 		interaction,
 		`\`${userData.name}\` (\`${userId}\`) has been blacklisted for the reason: ${reason}.`,
 	);
+	const avatarBust = await Roblox.idToAvatarBust(userData.id);
+	const toReply = defaultEmbed()
+		.setTitle('User blacklisted')
+		.setDescription(
+			`\`${userData.name}\` (\`${userId}\`) has been blacklisted for ${reason ? `the following reason: ${reason}` : 'no reason.'}`,
+		)
+		.setColor('Green');
+	if (avatarBust.state === 'Completed') toReply.setThumbnail(avatarBust.imageUrl);
 	await interaction.reply({
-		embeds: [
-			defaultEmbed()
-				.setTitle('User blacklisted')
-				.setDescription(
-					`\`${userData.name}\` (\`${userId}\`) has been blacklisted for the following reason: ${reason}.`,
-				)
-				.setColor('Green'),
-		],
+		embeds: [toReply],
 	});
 };

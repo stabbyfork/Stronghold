@@ -6,7 +6,7 @@ import { User, UserAssociations } from '../../../models/user.js';
 import { Pages } from '../../../utils/discordUtils.js';
 import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js';
 import { commandOptions } from '../../../cmdOptions.js';
-import { getOption } from '../../../utils/subcommandsUtils.js';
+import { getOption, reportErrorIfNotSetup } from '../../../utils/subcommandsUtils.js';
 import { Rank } from '../../../models/rank.js';
 
 function getHighestStackingRanks(user: User) {
@@ -33,6 +33,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		await reportErrorToUser(interaction, constructError([ErrorReplies.InteractionHasNoGuild]), true);
 		return;
 	}
+	if (!(await reportErrorIfNotSetup(interaction))) return;
 	const showStacking = getOption(interaction, args, 'show_stackable') ?? false;
 	const data = showStacking
 		? await Data.models.User.findAndCountAll({

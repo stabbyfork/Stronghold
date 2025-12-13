@@ -1,5 +1,7 @@
 import axios from 'axios';
 import { Debug } from './errorsUtils.js';
+import urlBuilder from 'build-url-ts';
+const { buildUrl } = urlBuilder;
 
 export interface UsernameToUserData {
 	requestedUsername: string;
@@ -29,6 +31,7 @@ type RobloxUsername = string;
 type RobloxUserId = number;
 
 namespace Caches {
+	/** Uses requested usernames as keys */
 	export const usernamesToData: Map<RobloxUsername, UsernameToUserData> = new Map<
 		RobloxUsername,
 		UsernameToUserData
@@ -60,6 +63,7 @@ export namespace Roblox {
 			.then((res) => {
 				if (!res) return existing;
 				existing.push(...(res.data.data as UsernameToUserData[]));
+				existing.map((user) => Caches.usernamesToData.set(user.requestedUsername, user));
 				return existing;
 			});
 	}
@@ -95,6 +99,7 @@ export namespace Roblox {
 			.then((res) => {
 				if (!res) return existing;
 				existing.push(...(res.data.data as IdToUserData[]));
+				existing.map((user) => Caches.idsToData.set(user.id, user));
 				return existing;
 			});
 	}
@@ -139,13 +144,21 @@ export namespace Roblox {
 		});
 		if (existing.length === ids.length) return existing;
 		return axios
-			.post('https://thumbnails.roblox.com/v1/thumbnails', {
-				targetIds: ids.filter((id) => !Caches.idsToAvatarBusts.has(id)),
-			})
+			.get(
+				buildUrl('https://thumbnails.roblox.com/v1/users/avatar-bust', {
+					queryParams: {
+						userIds: ids.filter((id) => !Caches.idsToAvatarBusts.has(id)),
+						size: '150x150',
+						format: 'Png',
+						isCircular: false,
+					},
+				}),
+			)
 			.catch((err) => Debug.error(`Failed to convert ids to avatar busts: ${err}`))
 			.then((res) => {
 				if (!res) return existing;
 				existing.push(...(res.data.data as IdToAvatarBust[]));
+				existing.map((avtr) => Caches.idsToAvatarBusts.set(avtr.targetId, avtr));
 				return existing;
 			});
 	}

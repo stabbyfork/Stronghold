@@ -10,7 +10,7 @@ const proxyCache = new Map<string, RESTPostAPIChatInputApplicationCommandsJSONBo
 export namespace ProxyUtils {
 	const rest = new REST();
 	let clientId: string;
-	if (process.env.NODE_ENV === 'production') {
+	if (process.env.NODE_ENV === 'prod') {
 		rest.setToken(Config.get('token'));
 		clientId = Config.get('clientId');
 	} else {

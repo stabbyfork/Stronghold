@@ -20,6 +20,7 @@ import { UserPermission } from './models/userPermission.js';
 import { Errors } from './types/errors.js';
 import { Debug } from './utils/errorsUtils.js';
 import { ProxyCommand } from './models/proxyCommand.js';
+import { Environment } from './types/envTypes.js';
 
 const dbConfg = Config.get('database');
 
@@ -43,7 +44,7 @@ export namespace Data {
 		ProxyCommand,
 	};
 	export const mainDb =
-		process.env.NODE_ENV === 'prod'
+		process.env.NODE_ENV === Environment.Production
 			? new Sequelize({
 					password: dbConfg.password,
 					user: dbConfg.username,

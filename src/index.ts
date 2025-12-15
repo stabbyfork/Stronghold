@@ -16,6 +16,7 @@ import { ForumChannel, Guild, ThreadAutoArchiveDuration, userMention } from 'dis
 import { Logging } from './utils/loggingUtils.js';
 import { GuildFlag } from './utils/guildFlagsUtils.js';
 import { ProxyUtils } from './utils/proxyUtils.js';
+import { Environment } from './types/envTypes.js';
 
 let activityChecksId: NodeJS.Timeout;
 
@@ -88,7 +89,7 @@ subcommands.activity.checks.create = activity_check_create;
 
 console.log('Logging in');
 console.log('Running in', process.env.NODE_ENV);
-if (process.env.NODE_ENV !== 'prod') {
+if (process.env.NODE_ENV !== Environment.Production) {
 	const dev = Config.get('dev');
 	if (!dev) throw new Error('No dev config found');
 	await client.login(dev.token);

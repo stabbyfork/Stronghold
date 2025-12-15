@@ -62,5 +62,5 @@ export default async (interaction: ChatInputCommandInteraction) => {
 				);
 		},
 	});
-	await pages.replyTo(interaction, false);
+	await pages.replyTo(interaction, false, [0]);
 };

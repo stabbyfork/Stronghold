@@ -1,10 +1,11 @@
 import { ChatInputCommandInteraction, ContainerBuilder, MessageFlags, SectionBuilder, userMention } from 'discord.js';
 import { ErrorReplies } from '../../../types/errors.js';
 import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js';
-import { defaultEmbed, Pages } from '../../../utils/discordUtils.js';
+import { defaultEmbed, getAttachment, Pages } from '../../../utils/discordUtils.js';
 import { Data } from '../../../data.js';
 import { reportErrorIfNotSetup } from '../../../utils/subcommandsUtils.js';
 import { Roblox } from '../../../utils/robloxUtils.js';
+import { AssetId, Assets } from '../../../utils/assets.js';
 
 export default async (interaction: ChatInputCommandInteraction) => {
 	const guild = interaction.guild;
@@ -29,7 +30,8 @@ export default async (interaction: ChatInputCommandInteraction) => {
 	const pages = new Pages({
 		itemsPerPage: 10,
 		totalItems: nBlacklisted,
-		createPage: async (index, perPage) => {
+		files: [Assets.getAsFile(AssetId.DefaultGuildIcon)],
+		createPage: async (index, perPage, files) => {
 			const users = await Data.models.RobloxUser.findAll({
 				where: { guildId: guild.id, blacklisted: true },
 				limit: perPage,
@@ -47,14 +49,15 @@ export default async (interaction: ChatInputCommandInteraction) => {
 				.addSectionComponents(
 					...processedUsers.map((u) => {
 						const avtr = avatarBusts.find((b) => b.targetId === u.id);
-						const section = new SectionBuilder().addTextDisplayComponents((text) =>
-							text.setContent(
-								`\`${u.displayName}\` (@\`${u.name}\`/\`${u.id}\`)\nBy: ${userMention(u.blacklister!)}${u.blacklistReason ? `\nReason: ${u.blacklistReason}` : ''}`,
-							),
-						);
-						if (avtr?.state === 'Completed')
-							section.setThumbnailAccessory((thumb) => thumb.setURL(avtr.imageUrl));
-						return section;
+						return new SectionBuilder()
+							.addTextDisplayComponents((text) =>
+								text.setContent(
+									`\`${u.displayName}\` (@\`${u.name}\`/\`${u.id}\`)\nBy: ${userMention(u.blacklister!)}${u.blacklistReason ? `\nReason: ${u.blacklistReason}` : ''}`,
+								),
+							)
+							.setThumbnailAccessory((thumb) =>
+								thumb.setURL(avtr?.state === 'Completed' ? avtr.imageUrl : getAttachment(files, 0)),
+							);
 					}),
 				);
 		},

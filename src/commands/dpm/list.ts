@@ -6,12 +6,22 @@ import { listGuilds, Pages } from '../../utils/discordUtils.js';
 import { reportErrorToUser } from '../../utils/errorsUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction) => {
+	const nGuilds = await Data.models.Guild.count({
+		where: {
+			tag: { [Op.ne]: null },
+		},
+	});
+	if (nGuilds === 0) {
+		await reportErrorToUser(interaction, 'No guilds found', true);
+		return;
+	}
 	const pages = new Pages({
 		itemsPerPage: 5,
+		totalItems: nGuilds,
 		files: [new AttachmentBuilder(Assets.getById(AssetId.DefaultGuildIcon), { name: AssetId.DefaultGuildIcon })],
 		createPage: async (index, perPage, files) => {
 			const start = index * perPage;
-			const targets = await Data.models.Guild.findAll({
+			const targets = await Data.models.Guild.findAndCountAll({
 				offset: start,
 				limit: perPage,
 				order: [['createdAt', 'DESC']],
@@ -20,7 +30,8 @@ export default async (interaction: ChatInputCommandInteraction) => {
 				},
 				attributes: ['guildId', 'tag', 'serverInvite', 'dpmGame'],
 			});
-			return listGuilds(targets, files[0]);
+			pages.setTotalItems(targets.count);
+			return listGuilds(targets.rows, files[0]);
 		},
 	});
 	if (!(await Data.models.Guild.findOne())) {

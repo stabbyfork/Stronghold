@@ -63,7 +63,7 @@ export namespace Roblox {
 			.then((res) => {
 				if (!res) return existing;
 				existing.push(...(res.data.data as UsernameToUserData[]));
-				existing.map((user) => Caches.usernamesToData.set(user.requestedUsername, user));
+				existing.forEach((user) => Caches.usernamesToData.set(user.requestedUsername, user));
 				return existing;
 			});
 	}
@@ -99,7 +99,7 @@ export namespace Roblox {
 			.then((res) => {
 				if (!res) return existing;
 				existing.push(...(res.data.data as IdToUserData[]));
-				existing.map((user) => Caches.idsToData.set(user.id, user));
+				existing.forEach((user) => Caches.idsToData.set(user.id, user));
 				return existing;
 			});
 	}
@@ -158,7 +158,7 @@ export namespace Roblox {
 			.then((res) => {
 				if (!res) return existing;
 				existing.push(...(res.data.data as IdToAvatarBust[]));
-				existing.map((avtr) => Caches.idsToAvatarBusts.set(avtr.targetId, avtr));
+				existing.forEach((avtr) => Caches.idsToAvatarBusts.set(avtr.targetId, avtr));
 				return existing;
 			});
 	}

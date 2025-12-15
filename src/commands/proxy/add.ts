@@ -1,5 +1,7 @@
 import {
 	APIApplicationCommandOption,
+	ApplicationCommandOption,
+	ApplicationCommandOptionType,
 	ChatInputCommandInteraction,
 	GuildMember,
 	MessageFlags,
@@ -50,6 +52,7 @@ export function resolveCommandOptionsFromTarget(
 
 		return undefined;
 	}
+
 	return options;
 }
 
@@ -89,6 +92,13 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	const opts = resolveCommandOptionsFromTarget(commands, target);
 	if (!opts) {
 		await reportErrorToUser(interaction, constructError([ErrorReplies.InvalidProxyTarget], target), true);
+		return;
+	}
+	// DO NOT return non-subcommands
+	if (
+		opts.some((o) => o instanceof SlashCommandSubcommandBuilder || o instanceof SlashCommandSubcommandGroupBuilder)
+	) {
+		await reportErrorToUser(interaction, constructError([ErrorReplies.ProxyTargetNotSubcommand]), true);
 		return;
 	}
 	// Assume single-word proxy

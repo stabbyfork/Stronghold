@@ -93,6 +93,7 @@ export const ErrorReplies = {
 	NoProxies: 'No custom names for commands found. Use \`/proxy add\` to add one.',
 	InvalidProxy: 'Invalid command proxy: \`!{ERROR}\` is not a valid command. Please redo the proxy setup.',
 	ProxyNameExists: 'A command with the name \`!{ERROR}\` already exists.',
+	ProxyTargetNotSubcommand: 'Target command is not a subcommand. Please only target commands or subcommands.',
 } as const;
 
 export namespace Errors {

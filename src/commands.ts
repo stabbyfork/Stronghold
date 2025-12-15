@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON SAT, 13 DEC 2025 13:32:24 GMT WITH 12 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON MON, 15 DEC 2025 15:26:24 GMT WITH 13 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct, CommandExecute } from './types/commandTypes.js';
 
@@ -6,6 +6,7 @@ import activity from './commands/activity.js';
 import c from './commands/c.js';
 import dpm from './commands/dpm.js';
 import permissions from './commands/permissions.js';
+import proxy from './commands/proxy.js';
 import ranking from './commands/ranking.js';
 import rbx from './commands/rbx.js';
 import session from './commands/session.js';
@@ -47,6 +48,10 @@ import permissions_users_clear from './commands/permissions/users/clear.js';
 import permissions_users_set from './commands/permissions/users/set.js';
 import permissions_list from './commands/permissions/list.js';
 import permissions_get from './commands/permissions/get.js';
+import proxy_add from './commands/proxy/add.js';
+import proxy_remove from './commands/proxy/remove.js';
+import proxy_list from './commands/proxy/list.js';
+import proxy_clear from './commands/proxy/clear.js';
 import ranking_view from './commands/ranking/view.js';
 import ranking_points_lb from './commands/ranking/points/lb.js';
 import ranking_points_add from './commands/ranking/points/add.js';
@@ -86,6 +91,7 @@ export const commands = {
   'c': c,
   'dpm': dpm,
   'permissions': permissions,
+  'proxy': proxy,
   'ranking': ranking,
   'rbx': rbx,
   'session': session,
@@ -148,6 +154,12 @@ permissions: {
   },
   list: permissions_list,
   get: permissions_get
+},
+proxy: {
+  add: proxy_add,
+  remove: proxy_remove,
+  list: proxy_list,
+  clear: proxy_clear
 },
 ranking: {
   view: ranking_view,

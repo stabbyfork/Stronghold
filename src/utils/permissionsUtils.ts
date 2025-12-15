@@ -18,6 +18,7 @@ export enum Permission {
 	ManageRelations = 'manageRelations',
 	DiplomacyMessages = 'diplomacyMessages',
 	ManageBlacklist = 'manageBlacklist',
+	ManageProxies = 'manageProxies',
 }
 /**
  * Index using {@link Permission}
@@ -33,6 +34,7 @@ export const PermissionBits = {
 	[Permission.ManageRelations]: 0b100000000,
 	[Permission.DiplomacyMessages]: 0b1000000000,
 	[Permission.ManageBlacklist]: 0b10000000000,
+	[Permission.ManageProxies]: 0b100000000000,
 } as const satisfies { [K in Permission]: number };
 checkBits(PermissionBits);
 

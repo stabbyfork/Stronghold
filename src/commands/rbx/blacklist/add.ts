@@ -31,12 +31,22 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		return;
 	}
 	const userId = userData.id;
-	if (await Data.models.RobloxUser.findOne({ where: { guildId: guild.id, userId, blacklisted: true } })) {
+	if (
+		await Data.models.RobloxUser.findOne({
+			where: { guildId: guild.id, userId: userId.toString(), blacklisted: true },
+		})
+	) {
 		await reportErrorToUser(interaction, constructError([ErrorReplies.UserAlreadyBlacklisted]), true);
 		return;
 	}
 	const reason = getOption(interaction, args, 'reason');
-	await Data.models.RobloxUser.upsert({ guildId: guild.id, userId, blacklisted: true, blacklistReason: reason });
+	await Data.models.RobloxUser.upsert({
+		guildId: guild.id,
+		userId: userId.toString(),
+		blacklisted: true,
+		blacklistReason: reason,
+		blacklister: interaction.user.id,
+	});
 	Logging.quickInfo(
 		interaction,
 		`\`${userData.name}\` (\`${userId}\`) has been blacklisted. Reason: ${reason ?? 'none.'}.`,

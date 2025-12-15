@@ -18,7 +18,10 @@ export default async (interaction: ChatInputCommandInteraction) => {
 		await reportErrorToUser(interaction, constructError([ErrorReplies.MustBeServerOwner]), true);
 		return;
 	}
-	await Data.models.RobloxUser.destroy({ where: { guildId: guild.id } });
+	await Data.models.RobloxUser.update(
+		{ blacklisted: false, blacklistReason: null, blacklister: null },
+		{ where: { guildId: guild.id } },
+	);
 	Logging.quickInfo(interaction, 'Cleared the Roblox user blacklist.');
 	await interaction.reply({
 		embeds: [

@@ -86,6 +86,13 @@ export const ErrorReplies = {
 	RobloxUserNotFound: 'Roblox user with the username \`!{ERROR}\` could not be found.',
 	NoUsernamesProvided: 'No usernames provided. Separate usernames with spaces.',
 	TooManyUsernamesProvided: 'Too many usernames provided. Maximum of 10 usernames are allowed to be checked at once.',
+	ProxyNameTooLong: 'Proxy name is too long. It may be a maximum of 32 characters.',
+	ProxyTargetTooLong: 'Proxy target is too long. It may be a maximum of 32 characters.',
+	InvalidProxyTarget: 'Invalid proxy target. \`!{ERROR}\` is not a valid command.',
+	ProxyLimit: 'You cannot add more than 50 command proxies to one server.',
+	NoProxies: 'No custom names for commands found. Use \`/proxy add\` to add one.',
+	InvalidProxy: 'Invalid command proxy: \`!{ERROR}\` is not a valid command. Please redo the proxy setup.',
+	ProxyNameExists: 'A command with the name \`!{ERROR}\` already exists.',
 } as const;
 
 export namespace Errors {

@@ -36,9 +36,9 @@ export default async (interaction: ChatInputCommandInteraction) => {
 				attributes: ['userId', 'points'],
 				order: [['points', 'DESC']],
 			});
-			const processedUsers = (await Roblox.idsToData(...users.map((u) => u.userId))).map((u) => ({
+			const processedUsers = (await Roblox.idsToData(...users.map((u) => Number(u.userId)))).map((u) => ({
 				...u,
-				points: users.find((b) => b.userId === u.id)!.points,
+				points: users.find((b) => b.userId === u.id.toString())!.points,
 			}));
 			let i = start;
 			return new ContainerBuilder().addTextDisplayComponents(

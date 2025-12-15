@@ -22,9 +22,9 @@ import { Config } from '../../config.js';
 import urlBuilder from 'build-url-ts';
 import fuzzysort from 'fuzzysort';
 const { buildUrl } = urlBuilder;
-const commandArray: string[] = [];
+export const commandArray: string[] = [];
 let splitHelpText: string[] = [];
-let preparedCmdsArray: Fuzzysort.Prepared[] = [];
+export const preparedCmdsArray: Fuzzysort.Prepared[] = [];
 
 const { url: websiteUrl } = Config.get('website');
 

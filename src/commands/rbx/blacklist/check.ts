@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, ContainerBuilder, MessageFlags, SectionBuilder } from 'discord.js';
+import { ChatInputCommandInteraction, ContainerBuilder, MessageFlags, SectionBuilder, userMention } from 'discord.js';
 import { commandOptions } from '../../../cmdOptions.js';
 import { Data } from '../../../data.js';
 import { ErrorReplies } from '../../../types/errors.js';
@@ -38,16 +38,17 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		const toReply = defaultEmbed();
 		if (avtr.state === 'Completed') toReply.setThumbnail(avtr.imageUrl);
 		const foundUsr = await Data.models.RobloxUser.findOne({
-			where: { guildId: guild.id, userId: userData.id, blacklisted: true },
-			attributes: ['blacklistReason', 'blacklisted'],
+			where: { guildId: guild.id, userId: userData.id.toString(), blacklisted: true },
+			attributes: ['blacklistReason', 'blacklister'],
 		});
-		if (foundUsr?.blacklisted) {
+		// Implied to be blacklisted
+		if (foundUsr) {
 			await interaction.reply({
 				embeds: [
 					toReply
 						.setTitle('User is blacklisted')
 						.setDescription(
-							`\`${userData.displayName}\` (\`${userData.name}\`/\`${userData.id}\`) is blacklisted. Reason: ${foundUsr.blacklistReason ?? 'none.'}`,
+							`\`${userData.displayName}\` (\`${userData.name}\`/\`${userData.id}\`) is blacklisted by ${userMention(foundUsr.blacklister!)}. Reason: ${foundUsr.blacklistReason ?? 'none.'}`,
 						)
 						.setColor('Red'),
 				],
@@ -75,14 +76,15 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			return;
 		}
 		const inBlacklist = await Data.models.RobloxUser.findAll({
-			where: { guildId: guild.id, userId: userDatas.map((d) => d.id), blacklisted: true },
+			where: { guildId: guild.id, userId: userDatas.map((d) => d.id.toString()), blacklisted: true },
 		});
 		const avatarBusts = await Roblox.idsToAvatarBusts(...userDatas.map((d) => d.id));
 		const toReply = new ContainerBuilder()
 			.addTextDisplayComponents((text) => text.setContent('## Checked users'))
 			.addSectionComponents(
 				...userDatas.map((d) => {
-					const isBlacklisted = inBlacklist.find((b) => b.userId === d.id);
+					const usrId = d.id.toString();
+					const isBlacklisted = inBlacklist.find((b) => b.userId === usrId);
 					const avtr = avatarBusts.find((b) => b.targetId === d.id);
 					const section = new SectionBuilder().addTextDisplayComponents((text) =>
 						text.setContent(

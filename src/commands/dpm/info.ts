@@ -15,6 +15,7 @@ import { reportErrorToUser } from '../../utils/errorsUtils.js';
 import { client } from '../../client.js';
 import { GuildRelation, RelatedGuildAssociations } from '../../models/relatedGuild.js';
 import { Guild } from '../../models/guild.js';
+import { isDiploReady } from '../../utils/diplomacyUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.dpm.info) => {
 	const tag = getOption(interaction, args, 'tag')?.toLowerCase();
@@ -56,7 +57,8 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			new ContainerBuilder().addTextDisplayComponents(
 				(text) => text.setContent('## Guild information'),
 				(text) => text.setContent(`Name: ${guild.name}`),
-				(text) => text.setContent(`Tag: \`${dbGuild.tag}\``),
+				(text) =>
+					text.setContent(`Tag: \`${dbGuild.tag}\`${dbGuild.tag ? '' : ' (use \`/dpm setup\` to set)'}`),
 				(text) => text.setContent(`ID: \`${guild.id}\``),
 				(text) => text.setContent(`Members: ${guild.memberCount}`),
 				(text) => text.setContent(`Owner: ${userMention(guild.ownerId)}`),

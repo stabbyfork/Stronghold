@@ -14,8 +14,8 @@ export class RobloxUser extends Model<InferAttributes<RobloxUser>, InferCreation
 	declare guildId: string;
 
 	/** Roblox user ID */
-	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, allowNull: false })
-	declare userId: number;
+	@Attribute({ type: DataTypes.STRING(20), allowNull: false })
+	declare userId: string;
 
 	@Attribute({ type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 })
 	declare points: CreationOptional<number>;
@@ -27,6 +27,9 @@ export class RobloxUser extends Model<InferAttributes<RobloxUser>, InferCreation
 	declare blacklisted: CreationOptional<boolean>;
 	@Attribute({ type: DataTypes.STRING(128), allowNull: true })
 	declare blacklistReason: string | null;
+	/** Discord user ID of who blacklisted them */
+	@Attribute({ type: DataTypes.STRING(20), allowNull: true })
+	declare blacklister: string | null;
 
 	@Attribute({ type: DataTypes.DATE })
 	declare createdAt: CreationOptional<Date>;

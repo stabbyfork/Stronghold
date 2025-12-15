@@ -24,7 +24,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	}
 	const userId = userData.id;
 	const dbRbxUser = await Data.models.RobloxUser.findOne({
-		where: { guildId: guild.id, userId },
+		where: { guildId: guild.id, userId: userId.toString() },
 		attributes: ['points'],
 	});
 	if (!dbRbxUser) {

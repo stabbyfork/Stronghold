@@ -19,6 +19,7 @@ import { User } from './models/user.js';
 import { UserPermission } from './models/userPermission.js';
 import { Errors } from './types/errors.js';
 import { Debug } from './utils/errorsUtils.js';
+import { ProxyCommand } from './models/proxyCommand.js';
 
 const dbConfg = Config.get('database');
 
@@ -39,6 +40,7 @@ export namespace Data {
 		RelatedGuild,
 		SessionParticipant,
 		RobloxUser,
+		ProxyCommand,
 	};
 	export const mainDb =
 		process.env.NODE_ENV === 'prod'

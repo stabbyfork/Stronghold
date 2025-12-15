@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, ContainerBuilder, MessageFlags, SectionBuilder } from 'discord.js';
+import { ChatInputCommandInteraction, ContainerBuilder, MessageFlags, SectionBuilder, userMention } from 'discord.js';
 import { ErrorReplies } from '../../../types/errors.js';
 import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js';
 import { defaultEmbed, Pages } from '../../../utils/discordUtils.js';
@@ -34,13 +34,14 @@ export default async (interaction: ChatInputCommandInteraction) => {
 				where: { guildId: guild.id, blacklisted: true },
 				limit: perPage,
 				offset: index * perPage,
-				attributes: ['userId', 'blacklistReason'],
+				attributes: ['userId', 'blacklistReason', 'blacklister'],
 			});
-			const processedUsers = (await Roblox.idsToData(...users.map((u) => u.userId))).map((u) => ({
+			const processedUsers = (await Roblox.idsToData(...users.map((u) => Number(u.userId)))).map((u) => ({
 				...u,
-				blacklistReason: users.find((b) => b.userId === u.id)!.blacklistReason,
+				blacklistReason: users.find((b) => b.userId === u.id.toString())!.blacklistReason,
+				blacklister: users.find((b) => b.userId === u.id.toString())!.blacklister,
 			}));
-			const avatarBusts = await Roblox.idsToAvatarBusts(...users.map((u) => u.userId));
+			const avatarBusts = await Roblox.idsToAvatarBusts(...users.map((u) => Number(u.userId)));
 			return new ContainerBuilder()
 				.addTextDisplayComponents((text) => text.setContent('## List of blacklisted users'))
 				.addSectionComponents(
@@ -48,7 +49,7 @@ export default async (interaction: ChatInputCommandInteraction) => {
 						const avtr = avatarBusts.find((b) => b.targetId === u.id);
 						const section = new SectionBuilder().addTextDisplayComponents((text) =>
 							text.setContent(
-								`\`${u.displayName}\` (@\`${u.name}\`/\`${u.id}\`)${u.blacklistReason ? `:\n${u.blacklistReason}` : ''}`,
+								`\`${u.displayName}\` (@\`${u.name}\`/\`${u.id}\`)\nBy: ${userMention(u.blacklister!)}${u.blacklistReason ? `\nReason: ${u.blacklistReason}` : ''}`,
 							),
 						);
 						if (avtr?.state === 'Completed')

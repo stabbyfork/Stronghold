@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON SAT, 13 DEC 2025 13:32:24 GMT WITH 12 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON MON, 15 DEC 2025 15:26:24 GMT WITH 13 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct } from "./types/commandTypes.js";
 
@@ -234,6 +234,24 @@ permissions: {
     "user": {
       "type": "user",
       "required": false
+    }
+  }
+},
+proxy: {
+  "add": {
+    "target": {
+      "type": "string",
+      "required": true
+    },
+    "proxy": {
+      "type": "string",
+      "required": true
+    }
+  },
+  "remove": {
+    "proxy": {
+      "type": "string",
+      "required": true
     }
   }
 },
@@ -605,6 +623,12 @@ permissions: {
   },
   list: T,
   get: T
+},
+proxy: {
+  add: T,
+  remove: T,
+  list: T,
+  clear: T
 },
 ranking: {
   view: T,

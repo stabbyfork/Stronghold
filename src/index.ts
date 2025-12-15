@@ -15,6 +15,7 @@ import * as Events from './events/*';
 import { ForumChannel, Guild, ThreadAutoArchiveDuration, userMention } from 'discord.js';
 import { Logging } from './utils/loggingUtils.js';
 import { GuildFlag } from './utils/guildFlagsUtils.js';
+import { ProxyUtils } from './utils/proxyUtils.js';
 
 let activityChecksId: NodeJS.Timeout;
 

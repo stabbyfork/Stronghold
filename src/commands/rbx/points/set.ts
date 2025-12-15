@@ -81,38 +81,37 @@ export async function setRbxPoints(
 	try {
 		await Data.mainDb.transaction(async (transaction) => {
 			for (const usr of rbxUsers) {
+				const userId = usr.id.toString();
 				const dbRbxUsr = await Data.models.RobloxUser.findOne({
-					where: { guildId: guild.id, userId: usr.id },
+					where: { guildId: guild.id, userId },
 					transaction,
 				});
 				if (dbRbxUsr?.blacklisted) {
 					const avtr = await Roblox.idToAvatarBust(usr.id);
+					const toReply = defaultEmbed()
+						.setColor('Red')
+						.setTitle('User is blacklisted')
+						.setDescription(
+							`${usr.displayName} (${usr.name}/${usr.id}) is blacklisted by ${userMention(dbRbxUsr.blacklister!)}. Reason: ${dbRbxUsr.blacklistReason ?? 'none.'}`,
+						);
+					if (avtr.state === 'Completed') {
+						toReply.setThumbnail(avtr.imageUrl);
+					}
 					await interaction.reply({
-						embeds: [
-							defaultEmbed()
-								.setColor('Red')
-								.setTitle('User is blacklisted')
-								.setDescription(
-									`${usr.displayName} (${usr.name}/${usr.id}) is blacklisted. Reason: ${dbRbxUsr.blacklistReason ?? 'none.'}`,
-								)
-								.setThumbnail(avtr.imageUrl),
-						],
+						embeds: [toReply],
 						flags: MessageFlags.Ephemeral,
 					});
 					throw new Errors.HandledError('User is blacklisted.');
 				}
-				const prevData = await Data.models.RobloxUser.findOne({
-					where: { guildId: guild.id, userId: usr.id },
-				});
 				const newPoints = Math.min(
-					Math.max(SafeInt32.Min, setPointsFunc(prevData?.points ?? 0, points)),
+					Math.max(SafeInt32.Min, setPointsFunc(dbRbxUsr?.points ?? 0, points)),
 					SafeInt32.Max,
 				);
-				if (prevData) {
-					await prevData.update({ points: newPoints }, { transaction });
+				if (dbRbxUsr) {
+					await dbRbxUsr.update({ points: newPoints }, { transaction });
 				} else {
 					await Data.models.RobloxUser.create(
-						{ guildId: guild.id, userId: usr.id, points: newPoints },
+						{ guildId: guild.id, userId, points: newPoints },
 						{ transaction },
 					);
 				}

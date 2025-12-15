@@ -169,7 +169,7 @@ export function createCommand<
 		return { data, execute, autocomplete, options, description, once, limits: constructedLims };
 	}
 }
-type CommandData = SlashCommandBuilder | SlashCommandOptionsOnlyBuilder | SlashCommandSubcommandsOnlyBuilder;
+export type CommandData = SlashCommandBuilder | SlashCommandOptionsOnlyBuilder | SlashCommandSubcommandsOnlyBuilder;
 export type CommandExecute<Args extends CommandOptionDictDeclare | void = void> = (
 	interaction: ChatInputCommandInteraction,
 	args: Args,

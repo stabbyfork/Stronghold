@@ -43,10 +43,10 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		return;
 	}
 	const [rbxUser] = await Data.models.RobloxUser.findCreateFind({
-		where: { guildId: guild.id, userId: userData.id },
+		where: { guildId: guild.id, userId: userData.id.toString() },
 		defaults: {
 			guildId: guild.id,
-			userId: userData.id,
+			userId: userData.id.toString(),
 		},
 		attributes: ['blacklisted', 'blacklistReason', 'inSession', 'id', 'points'],
 	});

@@ -40,10 +40,10 @@ export function getCommandFullName(interaction: ChatInputCommandInteraction | Au
 	return name;
 }
 
-export function getAllOptionsOfCommand(interaction: ChatInputCommandInteraction) {
+export function getAllOptionsOfCommand(fullName: string[]) {
 	let options: CommandOptionDictDeclare = {};
 	let current: {} = commandOptions;
-	for (const splitted of getCommandFullName(interaction)) {
+	for (const splitted of fullName) {
 		current = current[splitted as keyof typeof current];
 		if (!current) continue;
 		const firstVal = Object.values(current)[0];
@@ -151,10 +151,8 @@ export function getSubcommands(command: SlashCommandBuilder, split: string = ' '
 /**
  * @ignore @internal @hidden
  */
-function _notFoundFunc(input?: ChatInputCommandInteraction) {
-	Debug.error(
-		`Command /${[input?.commandName, input?.options.getSubcommandGroup(), input?.options.getSubcommand()].join(' ')} not found during subcommand search`,
-	);
+function _notFoundFunc(input?: ChatInputCommandInteraction, fullName: string[] = []) {
+	Debug.error(`Command /${fullName.join(' ')} not found during subcommand search`);
 	return async (replyInteraction: ChatInputCommandInteraction) => {
 		await reportErrorToUser(
 			replyInteraction,
@@ -179,31 +177,33 @@ function _notFoundFunc(input?: ChatInputCommandInteraction) {
  */
 export function getSubcommandExec(
 	interaction: ChatInputCommandInteraction,
+	fullName: string[],
 ): [CommandExecute<CommandOptionDictDeclare>, found: boolean, hasSubcommands: boolean] {
-	if (!(interaction.commandName in subcommands)) {
-		const exec = commands?.[interaction.commandName as keyof typeof commands]?.execute;
+	const topCmd = fullName[0];
+	if (!(topCmd in subcommands)) {
+		const exec = commands?.[topCmd as keyof typeof commands]?.execute;
 		if (exec) {
 			return [exec as CommandExecute<CommandOptionDictDeclare>, true, false];
 		} else {
-			return [_notFoundFunc(interaction), false, false];
+			return [_notFoundFunc(interaction, fullName), false, false];
 		}
 	}
-	const command = interaction.options.getSubcommand();
-	const group = interaction.options.getSubcommandGroup();
+	const command = fullName.length === 3 ? fullName[2] : fullName[1];
+	const group = fullName.length === 3 ? fullName[1] : undefined;
 	if (group) {
-		const cmds = subcommands[interaction.commandName as keyof SubcommandStructure];
+		const cmds = subcommands[topCmd as keyof SubcommandStructure];
 		const groupSubcmds = cmds[group as keyof typeof cmds];
 		if (typeof groupSubcmds !== 'object' || groupSubcmds === null)
-			return [_notFoundFunc(interaction), false, false];
+			return [_notFoundFunc(interaction, fullName), false, false];
 		const subcmd = groupSubcmds[command as keyof typeof groupSubcmds] as
 			| CommandExecute<CommandOptionDictDeclare>
 			| undefined;
-		if (typeof subcmd !== 'function') return [_notFoundFunc(interaction), false, false];
+		if (typeof subcmd !== 'function') return [_notFoundFunc(interaction, fullName), false, false];
 		return [subcmd, true, true];
 	} else {
-		const cmds = subcommands[interaction.commandName as keyof SubcommandStructure];
+		const cmds = subcommands[topCmd as keyof SubcommandStructure];
 		const subcmd = cmds[command as keyof typeof cmds] as CommandExecute<CommandOptionDictDeclare> | undefined;
-		if (typeof subcmd !== 'function') return [_notFoundFunc(interaction), false, false];
+		if (typeof subcmd !== 'function') return [_notFoundFunc(interaction, fullName), false, false];
 		return [subcmd, true, true];
 	}
 }

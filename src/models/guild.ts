@@ -21,6 +21,7 @@ import { RolePermission } from './rolePermission.js';
 import { GuildSession } from './session.js';
 import { RelatedGuild } from './relatedGuild.js';
 import { RobloxUser } from './robloxUser.js';
+import { ProxyCommand } from './proxyCommand.js';
 
 export enum GuildAssociations {
 	Users = 'users',
@@ -31,6 +32,7 @@ export enum GuildAssociations {
 	Session = 'session',
 	RelatedGuilds = 'relatedGuilds',
 	RobloxUsers = 'robloxUsers',
+	ProxyCommands = 'proxyCommands',
 }
 
 @Table({ tableName: 'Guilds' })
@@ -121,6 +123,11 @@ export class Guild extends Model<InferAttributes<Guild>, InferCreationAttributes
 		foreignKey: { name: 'guildId', onUpdate: 'RESTRICT', onDelete: 'CASCADE' },
 	})
 	declare robloxUsers?: NonAttribute<RobloxUser[]>;
+
+	@HasMany(() => ProxyCommand, {
+		foreignKey: { name: 'guildId', onUpdate: 'RESTRICT', onDelete: 'CASCADE' },
+	})
+	declare proxyCommands?: NonAttribute<ProxyCommand[]>;
 
 	@Attribute({ type: DataTypes.DATE })
 	declare createdAt: CreationOptional<Date>;

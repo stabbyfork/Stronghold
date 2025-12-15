@@ -31,7 +31,9 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		return;
 	}
 	const userId = userData.id;
-	const dbRbxUser = await Data.models.RobloxUser.findOne({ where: { guildId: guild.id, userId, blacklisted: true } });
+	const dbRbxUser = await Data.models.RobloxUser.findOne({
+		where: { guildId: guild.id, userId: userId.toString(), blacklisted: true },
+	});
 	if (!dbRbxUser) {
 		await reportErrorToUser(interaction, constructError([ErrorReplies.UserNotBlacklisted]), true);
 		return;

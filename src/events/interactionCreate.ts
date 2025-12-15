@@ -2,16 +2,21 @@ import {
 	AutocompleteInteraction,
 	Events,
 	GuildMember,
-	Interaction,
 	InteractionReplyOptions,
 	MessageFlags,
 	userMention,
 } from 'discord.js';
+import ms from 'ms';
+import { client } from '../client.js';
 import { commands } from '../commands.js';
 import { Data } from '../data.js';
+import { GuildAssociations } from '../models/guild.js';
+import { GuildRelation } from '../models/relatedGuild.js';
+import { SessionParticipantAssociations } from '../models/sessionParticipant.js';
 import { CommandConstruct, CommandExecute, CommandOptionDictDeclare } from '../types/commandTypes.js';
 import { ErrorReplies, Errors } from '../types/errors.js';
 import { createEvent, GlobalCustomIds, InformedCustomId } from '../types/eventTypes.js';
+import { DPM } from '../utils/diplomacyUtils.js';
 import { constructError, Debug, reportErrorToUser } from '../utils/errorsUtils.js';
 import { getValue } from '../utils/genericsUtils.js';
 import { GuildFlag } from '../utils/guildFlagsUtils.js';
@@ -25,45 +30,82 @@ import {
 	Usages,
 	UsageScope,
 } from '../utils/usageLimitsUtils.js';
-import { GuildAssociations } from '../models/guild.js';
-import { DPM } from '../utils/diplomacyUtils.js';
-import { GuildRelation } from '../models/relatedGuild.js';
-import { Op } from '@sequelize/core';
-import { client } from '../client.js';
-import { SessionParticipantAssociations } from '../models/sessionParticipant.js';
-import ms from 'ms';
-import { messageCompCollector } from '../utils/discordUtils.js';
 
 export default createEvent({
 	name: Events.InteractionCreate,
 	once: false,
 	async execute(interaction) {
 		if (interaction.isChatInputCommand() || interaction.isAutocomplete()) {
-			const cmd = commands?.[interaction.commandName as keyof typeof commands] as
-				| CommandConstruct<boolean, CommandOptionDictDeclare>
-				| undefined;
+			// Might be undefined
+			let cmd = commands?.[interaction.commandName as keyof typeof commands] as CommandConstruct<
+				boolean,
+				CommandOptionDictDeclare
+			>;
+			let name = [interaction.commandName];
+			if (interaction.options.getSubcommandGroup(false)) name.push(interaction.options.getSubcommandGroup(true));
+			if (interaction.options.getSubcommand(false)) name.push(interaction.options.getSubcommand(true));
 			if (!cmd) {
-				console.error(`Command \`${interaction.commandName}\` not found`);
-				if (interaction.isChatInputCommand()) {
-					reportErrorToUser(
-						interaction,
-						constructError([ErrorReplies.CommandNotFound, ErrorReplies.OutdatedCommand]),
-					);
+				let handledProxy = false;
+				if (interaction.guildId) {
+					const proxy = await Data.models.ProxyCommand.findOne({
+						where: {
+							guildId: interaction.guildId,
+							// Assume single-word proxy
+							proxyCommand: interaction.commandName,
+						},
+					});
+					if (proxy) {
+						const splitTarget = proxy.targetCommand.split(' ');
+						const proxyTargetTop = splitTarget[0];
+						// Might be undefined, if proxyTarget doesn't exist (outdated)
+						cmd = commands?.[proxyTargetTop as keyof typeof commands] as CommandConstruct<
+							boolean,
+							CommandOptionDictDeclare
+						>;
+						handledProxy = true;
+						if (cmd) {
+							// Assume proxy can only be one word, but target can be multiple
+							name = [proxyTargetTop];
+							if (splitTarget.length >= 2) {
+								name.push(splitTarget[1]);
+							}
+							if (splitTarget.length === 3) {
+								name.push(splitTarget[2]);
+							}
+						} else {
+							if (interaction.isChatInputCommand()) {
+								await reportErrorToUser(
+									interaction,
+									constructError(
+										[ErrorReplies.InvalidProxy, ErrorReplies.OutdatedCommand],
+										proxy.targetCommand,
+									),
+									true,
+								);
+							}
+							return;
+						}
+					}
 				}
-				return;
+				if (!handledProxy) {
+					console.error(`Command \`${name[0]}\` not found`);
+					if (interaction.isChatInputCommand()) {
+						reportErrorToUser(
+							interaction,
+							constructError([ErrorReplies.CommandNotFound, ErrorReplies.OutdatedCommand]),
+							true,
+						);
+					}
+					return;
+				}
 			}
 			let cmdLim: UsageLimit | undefined;
-			const name = getCommandFullName(interaction);
 			try {
 				if (interaction.isAutocomplete()) {
 					// Should exist, autocompletion
 					const autoCmd = cmd as CommandConstruct<true>;
 					if (typeof autoCmd.autocomplete === 'function') {
-						if (autoCmd.autocomplete) {
-							await autoCmd.autocomplete(interaction).catch(Debug.error);
-						} else {
-							Debug.error(`Autocomplete function not found for command: ${name.join(' ')}`);
-						}
+						await autoCmd.autocomplete(interaction).catch(Debug.error);
 					} else {
 						const autoComp = name
 							.slice(1)
@@ -130,8 +172,8 @@ export default createEvent({
 						}
 					}
 
-					const [cmdExec, _, hasSubcommands] = getSubcommandExec(interaction);
-					const opts = getAllOptionsOfCommand(interaction) ?? {};
+					const [cmdExec, _, hasSubcommands] = getSubcommandExec(interaction, name);
+					const opts = getAllOptionsOfCommand(name) ?? {};
 					if (hasSubcommands) {
 						// Also run the main command function, even if there are subcommands
 						await (cmd.execute as CommandExecute<CommandOptionDictDeclare> | undefined)?.(

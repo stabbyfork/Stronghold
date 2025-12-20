@@ -13,6 +13,7 @@ import {
 	Interaction,
 	InteractionCallbackResponse,
 	InteractionReplyOptions,
+	Message,
 	MessageActionRowComponentBuilder,
 	MessageComponentType,
 	MessageFlags,
@@ -265,7 +266,7 @@ export class Pages {
 		return buttons;
 	}
 
-	private readonly onExpire?: () => Promise<void>;
+	private readonly onExpire?: (response: Message<boolean>) => Promise<void>;
 
 	/**
 	 * Creates a new pagination instance.
@@ -289,7 +290,7 @@ export class Pages {
 		createPage: CreatePageFunction;
 		startingPage?: number;
 		cachePages?: boolean;
-		onExpire?: () => Promise<void>;
+		onExpire?: (response: Message<boolean>) => Promise<void>;
 		files?: AttachmentBuilder[];
 	}) {
 		this.itemsPerPage = itemsPerPage;
@@ -411,7 +412,7 @@ export class Pages {
 		collector.once('end', async () => {
 			collector.removeAllListeners();
 			this.pages.clear();
-			await this.onExpire?.();
+			await this.onExpire?.(resp);
 			try {
 				await resp.edit({
 					components: [await this.getFormattedPage(false)],

@@ -502,7 +502,7 @@ export namespace DPM {
 							(await targetChannel.threads.fetch(relation2.sourceThreadId)) ??
 							undefined;
 					} catch (e) {
-						Debug.error(`Error while fetching target thread: ${e}`);
+						Debug.error(`Error while fetching target thread: ${e}. Creating a new one`);
 						targetThread = await targetChannel.threads.create({
 							name: `${sourceGuild.name}`,
 							autoArchiveDuration: ThreadAutoArchiveDuration.OneDay,

@@ -1,7 +1,19 @@
 //#region Errors
 
-import { EmbedBuilder, InteractionReplyOptions, MessageFlags, MessagePayload, RepliableInteraction } from 'discord.js';
+import {
+	EmbedBuilder,
+	InteractionReplyOptions,
+	MessageFlags,
+	MessagePayload,
+	RepliableInteraction,
+	User,
+} from 'discord.js';
 import { ErrorReplies } from '../types/errors.js';
+import { Config } from '../config.js';
+import { client } from '../client.js';
+
+let botOwnerId: User | undefined;
+client.on('ready', () => (botOwnerId = client.users.cache.get(Config.get('appOwnerId'))));
 
 /**
  * Constructs an error message string by replacing placeholders with the provided error details.
@@ -76,6 +88,7 @@ export namespace Debug {
 	 */
 	export function error(...args: any[]) {
 		console.error(new Error(args.join(' ')));
+		if (botOwnerId) botOwnerId.send(args.join(' '));
 	}
 }
 

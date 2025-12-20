@@ -447,10 +447,22 @@ export namespace DPM {
 			});
 			if (!sourceThread) {
 				if (relation1.sourceThreadId) {
-					sourceThread =
-						sourceChannel.threads.cache.get(relation1.sourceThreadId) ??
-						(await sourceChannel.threads.fetch(relation1.sourceThreadId)) ??
-						undefined;
+					try {
+						sourceThread =
+							sourceChannel.threads.cache.get(relation1.sourceThreadId) ??
+							(await sourceChannel.threads.fetch(relation1.sourceThreadId)) ??
+							undefined;
+					} catch (e) {
+						Debug.error(`Error while fetching source thread: ${e}. Creating a new one`);
+						sourceThread = await sourceChannel.threads.create({
+							name: `${targetGuild.name}`,
+							autoArchiveDuration: ThreadAutoArchiveDuration.OneDay,
+							message: {
+								content: `Diplomacy between \`${sourceGuild.name}\` and \`${targetGuild.name}\``,
+							},
+						});
+						await relation1.update({ sourceThreadId: sourceThread.id });
+					}
 					if (!sourceThread) {
 						Logging.log({
 							logType: Logging.Type.Warning,
@@ -484,10 +496,21 @@ export namespace DPM {
 			});
 			if (!targetThread) {
 				if (relation2.sourceThreadId) {
-					targetThread = targetChannel.threads.cache.get(relation2.sourceThreadId);
-					console.log(relation2.sourceThreadId, targetThread, targetChannel, targetChannel.threads.cache);
-					if (!targetThread && relation2.sourceThreadId) {
-						targetThread = (await targetChannel.threads.fetch(relation2.sourceThreadId)) ?? undefined;
+					try {
+						targetThread =
+							targetChannel.threads.cache.get(relation2.sourceThreadId) ??
+							(await targetChannel.threads.fetch(relation2.sourceThreadId)) ??
+							undefined;
+					} catch (e) {
+						Debug.error(`Error while fetching target thread: ${e}. Creating a new one`);
+						targetThread = await targetChannel.threads.create({
+							name: `${sourceGuild.name}`,
+							autoArchiveDuration: ThreadAutoArchiveDuration.OneDay,
+							message: {
+								content: `Diplomacy between \`${targetGuild.name}\` and \`${sourceGuild.name}\``,
+							},
+						});
+						await relation2.update({ sourceThreadId: targetThread.id });
 					}
 					if (!targetThread) {
 						Logging.log({
@@ -497,7 +520,7 @@ export namespace DPM {
 							},
 							extents: [GuildFlag.LogWarnings],
 							formatData: {
-								msg: `Could not find target thread (in this server). It may have been deleted. Creating a new one.`,
+								msg: `Could not find target thread (in this server). It may have been deleted.`,
 								cause: `Target thread with ID ${relation2.sourceThreadId} not found`,
 								action: `Diplomacy between ${sourceGuild.name} and ${targetGuild.name}`,
 							},

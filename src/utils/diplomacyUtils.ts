@@ -485,7 +485,7 @@ export namespace DPM {
 			if (!targetThread) {
 				if (relation2.sourceThreadId) {
 					targetThread = targetChannel.threads.cache.get(relation2.sourceThreadId);
-					console.log(relation2.sourceThreadId, targetThread);
+					console.log(relation2.sourceThreadId, targetThread, targetChannel, targetChannel.threads.cache);
 					if (!targetThread && relation2.sourceThreadId) {
 						targetThread = (await targetChannel.threads.fetch(relation2.sourceThreadId)) ?? undefined;
 					}
@@ -497,7 +497,7 @@ export namespace DPM {
 							},
 							extents: [GuildFlag.LogWarnings],
 							formatData: {
-								msg: `Could not find target thread (in this server). It may have been deleted`,
+								msg: `Could not find target thread (in this server). It may have been deleted. Creating a new one.`,
 								cause: `Target thread with ID ${relation2.sourceThreadId} not found`,
 								action: `Diplomacy between ${sourceGuild.name} and ${targetGuild.name}`,
 							},

@@ -484,10 +484,10 @@ export namespace DPM {
 			});
 			if (!targetThread) {
 				if (relation2.sourceThreadId) {
-					targetThread = sourceChannel.threads.cache.get(relation2.sourceThreadId);
+					targetThread = targetChannel.threads.cache.get(relation2.sourceThreadId);
 					console.log(relation2.sourceThreadId, targetThread);
 					if (!targetThread && relation2.sourceThreadId) {
-						targetThread = (await sourceChannel.threads.fetch(relation2.sourceThreadId)) ?? undefined;
+						targetThread = (await targetChannel.threads.fetch(relation2.sourceThreadId)) ?? undefined;
 					}
 					if (!targetThread) {
 						Logging.log({

@@ -408,7 +408,7 @@ export class Pages {
 			time: 3 * 60 * 1000,
 			idle: 60 * 1000,
 		});
-		collector.on('end', async () => {
+		collector.once('end', async () => {
 			collector.removeAllListeners();
 			this.pages.clear();
 			await this.onExpire?.();

@@ -29,16 +29,17 @@ export default async (interaction: ChatInputCommandInteraction) => {
 		totalItems: nPoints,
 		createPage: async (index, perPage) => {
 			const start = index * perPage;
-			const users = await Data.models.RobloxUser.findAll({
+			const users = await Data.models.RobloxUser.findAndCountAll({
 				where: { guildId: guild.id, points: { [Op.ne]: 0 } },
 				limit: perPage,
 				offset: start,
 				attributes: ['userId', 'points'],
 				order: [['points', 'DESC']],
 			});
-			const processedUsers = (await Roblox.idsToData(...users.map((u) => Number(u.userId)))).map((u) => ({
+			pages.setTotalItems(users.count);
+			const processedUsers = (await Roblox.idsToData(...users.rows.map((u) => Number(u.userId)))).map((u) => ({
 				...u,
-				points: users.find((b) => b.userId === u.id.toString())!.points,
+				points: users.rows.find((b) => b.userId === u.id.toString())!.points,
 			}));
 			let i = start;
 			return new ContainerBuilder().addTextDisplayComponents(

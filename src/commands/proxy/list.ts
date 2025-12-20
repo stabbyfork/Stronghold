@@ -22,16 +22,17 @@ export default async (interaction: ChatInputCommandInteraction) => {
 		totalItems: nProxies,
 		createPage: async (index, perPage) => {
 			const start = index * perPage;
-			const commands = await Data.models.ProxyCommand.findAll({
+			const commands = await Data.models.ProxyCommand.findAndCountAll({
 				where: { guildId: guild.id },
 				limit: perPage,
 				offset: start,
 			});
+			pages.setTotalItems(commands.count);
 			return new ContainerBuilder().addTextDisplayComponents(
 				(text) => text.setContent('## List of proxy commands'),
 				(text) =>
 					text.setContent(
-						commands.map((c) => `\`/${c.proxyCommand}\` -> \`/${c.targetCommand}\``).join('\n'),
+						commands.rows.map((c) => `\`/${c.proxyCommand}\` -> \`/${c.targetCommand}\``).join('\n'),
 					),
 			);
 		},

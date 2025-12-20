@@ -412,10 +412,14 @@ export class Pages {
 			collector.removeAllListeners();
 			this.pages.clear();
 			await this.onExpire?.();
-			await resp.edit({
-				components: [await this.getFormattedPage(false)],
-				allowedMentions: { roles: [], users: [] },
-			});
+			try {
+				await resp.edit({
+					components: [await this.getFormattedPage(false)],
+					allowedMentions: { roles: [], users: [] },
+				});
+			} catch (e) {
+				Debug.error(`Failed to edit page message on expire: ${e}`);
+			}
 		});
 		collector.on('collect', async (i) => {
 			if (i.user.id !== interaction.user.id) {

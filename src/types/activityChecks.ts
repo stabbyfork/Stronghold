@@ -94,28 +94,32 @@ export class ActivityCheckSequence {
 					const user = guild.members.cache.get(u);
 					if (!user) return;
 					if (await hasPermissions(user, guild, true, Permission.NoInactivityKick)) return;
-					await user.send({
-						embeds: [
-							defaultEmbed()
-								.setTitle('Kicked for inactivity')
-								.setDescription(
-									`You have been marked as inactive in \`${guild.name}\` (\`${guild.id}\`) and exceeded the server's limit of \`${maxStrikes}\` strikes, and thus kicked. To be marked as active, react to the server's activity checks. You may join the server again at any time by using an invite link or asking ${userMention(guild.ownerId)} (by DM) for an invite.`,
-								)
-								.setColor('Red')
-								.setImage(guild.iconURL()),
-						],
-					});
-					await user.kick('Inactivity strike maximum exceeded');
-					const inst = await Data.models.User.findOne({
-						where: {
-							guildId: guild.id,
-							userId: u,
-						},
-						transaction,
-					});
-					if (inst) {
-						inst.inactivityStrikes = 0;
-						await inst.save();
+					try {
+						await user.kick('Inactivity strike maximum exceeded');
+						await user.send({
+							embeds: [
+								defaultEmbed()
+									.setTitle('Kicked for inactivity')
+									.setDescription(
+										`You have been marked as inactive in \`${guild.name}\` (\`${guild.id}\`) and exceeded the server's limit of \`${maxStrikes}\` strikes, and thus kicked. To be marked as active, react to the server's activity checks. You may join the server again at any time by using an invite link or asking ${userMention(guild.ownerId)} (by DM) for an invite.`,
+									)
+									.setColor('Red')
+									.setImage(guild.iconURL()),
+							],
+						});
+						const inst = await Data.models.User.findOne({
+							where: {
+								guildId: guild.id,
+								userId: u,
+							},
+							transaction,
+						});
+						if (inst) {
+							inst.inactivityStrikes = 0;
+							await inst.save();
+						}
+					} catch (err) {
+						Debug.error(`Failed to kick user ${user.id} for inactivity: ${err}`);
 					}
 				}
 			});

@@ -115,6 +115,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			);
 		}
 
+		await session.setDefaultOptions(null, { transaction, destroyPrevious: true });
 		const sessionOpts = await session.createDefaultOptions(
 			{ title, message },
 			{ transaction, destroyPrevious: true },

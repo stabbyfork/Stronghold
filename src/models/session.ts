@@ -9,6 +9,7 @@ import {
 	HasManySetAssociationsMixin,
 	HasOneCreateAssociationMixin,
 	HasOneGetAssociationMixin,
+	HasOneSetAssociationMixin,
 	InferAttributes,
 	InferCreationAttributes,
 	Model,
@@ -49,6 +50,7 @@ export class GuildSession extends Model<InferAttributes<GuildSession>, InferCrea
 	@HasOne(() => SessionOptions, { foreignKey: { name: 'sessionId', onUpdate: 'RESTRICT', onDelete: 'CASCADE' } })
 	declare defaultOptions?: NonAttribute<SessionOptions>;
 	declare createDefaultOptions: HasOneCreateAssociationMixin<SessionOptions, 'sessionId'>;
+	declare setDefaultOptions: HasOneSetAssociationMixin<SessionOptions, SessionOptions['sessionId']>;
 	declare getDefaultOptions: HasOneGetAssociationMixin<SessionOptions>;
 
 	/** Users that have ever joined (even if currently not in) this session */

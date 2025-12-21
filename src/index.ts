@@ -31,6 +31,7 @@ async function registerEvents() {
 }
 
 async function safeShutdown(signal: NodeJS.Signals) {
+	console.log('-----------------SHUTDOWN INITIATED-----------------');
 	console.log('Shutting down with signal', signal);
 	await Promise.all([client.destroy(), Data.closeDb(), clearInterval(activityChecksId)])
 		.then(() => {

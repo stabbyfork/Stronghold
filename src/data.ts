@@ -89,8 +89,6 @@ export namespace Data {
 		await mainDb.sync().catch((err) => {
 			throw new Error(`Error while syncing database: ${err}`);
 		});
-		process.on('SIGTERM', handleShutdown);
-		process.on('SIGINT', handleShutdown);
 		ready = true;
 	}
 
@@ -100,10 +98,6 @@ export namespace Data {
 
 	export function closeDb() {
 		return mainDb.close();
-	}
-
-	async function handleShutdown() {
-		console.log('Shutting down database');
 	}
 
 	export async function reconcileRanks(user: User, transaction: Transaction) {

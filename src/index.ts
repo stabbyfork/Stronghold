@@ -1,5 +1,6 @@
 import { Op, sql } from '@sequelize/core';
 import { exec } from 'child_process';
+import { ForumChannel, Guild, ThreadAutoArchiveDuration, userMention } from 'discord.js';
 import { setInterval as yieldInterval } from 'timers/promises';
 import tx2 from 'tx2';
 import { client } from './client.js';
@@ -12,11 +13,9 @@ import { Debug } from './utils/errorsUtils.js';
 import { intDiv } from './utils/genericsUtils.js';
 //@ts-ignore
 import * as Events from './events/*';
-import { ForumChannel, Guild, ThreadAutoArchiveDuration, userMention } from 'discord.js';
-import { Logging } from './utils/loggingUtils.js';
-import { GuildFlag } from './utils/guildFlagsUtils.js';
-import { ProxyUtils } from './utils/proxyUtils.js';
 import { Environment } from './types/envTypes.js';
+import { GuildFlag } from './utils/guildFlagsUtils.js';
+import { Logging } from './utils/loggingUtils.js';
 
 let activityChecksId: NodeJS.Timeout;
 

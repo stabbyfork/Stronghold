@@ -16,7 +16,6 @@ import {
 } from '@sequelize/core';
 import { Attribute, HasMany, HasOne } from '@sequelize/core/decorators-legacy';
 import { SessionOptions } from './sessionOptions.js';
-import { User } from './user.js';
 import { SessionParticipant } from './sessionParticipant.js';
 
 export enum GuildSessionAssociations {
@@ -53,7 +52,7 @@ export class GuildSession extends Model<InferAttributes<GuildSession>, InferCrea
 	declare getOptions: HasOneGetAssociationMixin<SessionOptions>;
 	declare createOptions: HasOneCreateAssociationMixin<SessionOptions, 'sessionId'>;*/
 
-	@HasOne(() => SessionOptions, { foreignKey: { name: 'id', onUpdate: 'RESTRICT', onDelete: 'CASCADE' } })
+	@HasOne(() => SessionOptions, { foreignKey: { name: 'sessionId', onUpdate: 'RESTRICT', onDelete: 'CASCADE' } })
 	declare defaultOptions?: NonAttribute<SessionOptions>;
 	declare createDefaultOptions: HasOneCreateAssociationMixin<SessionOptions, 'sessionId'>;
 	declare getDefaultOptions: HasOneGetAssociationMixin<SessionOptions>;

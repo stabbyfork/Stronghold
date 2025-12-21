@@ -202,7 +202,7 @@ export default createEvent({
 				if (interaction.isChatInputCommand() && (typeof err === 'string' || err instanceof Error)) {
 					if (err instanceof Error) {
 						Debug.error(
-							`Error while executing command \`${name}\` in guild \`${interaction.guildId}\`: ${err.stack}`,
+							`Error while executing command \`${name.join(' ')}\` in guild \`${interaction.guildId}\`: ${err.stack}`,
 						);
 					}
 					const toReply: InteractionReplyOptions = {
@@ -228,7 +228,7 @@ export default createEvent({
 					});
 				} else {
 					Debug.error(
-						`Error while executing command \`${name}\` in guild \`${interaction.guildId}\`: ${err}`,
+						`Error while executing command \`${name.join(' ')}\` in guild \`${interaction.guildId}\`: ${err}`,
 					);
 				}
 			}

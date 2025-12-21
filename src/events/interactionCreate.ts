@@ -201,7 +201,9 @@ export default createEvent({
 				}
 				if (interaction.isChatInputCommand() && (typeof err === 'string' || err instanceof Error)) {
 					if (err instanceof Error) {
-						Debug.error(`Error while executing command \`${name}\`: ${err.stack}`);
+						Debug.error(
+							`Error while executing command \`${name}\` in guild \`${interaction.guildId}\`: ${err.stack}`,
+						);
 					}
 					const toReply: InteractionReplyOptions = {
 						content: constructError(
@@ -225,7 +227,9 @@ export default createEvent({
 						logType: Logging.Type.Error,
 					});
 				} else {
-					Debug.error(`Error while executing command \`${name}\`: ${err}`);
+					Debug.error(
+						`Error while executing command \`${name}\` in guild \`${interaction.guildId}\`: ${err}`,
+					);
 				}
 			}
 		} else if (interaction.isMessageComponent()) {

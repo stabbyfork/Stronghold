@@ -17,7 +17,7 @@ export class SessionOptions extends Model<InferAttributes<SessionOptions>, Infer
 	declare id: CreationOptional<number>;
 
 	/** Associated in {@link GuildSession} */
-	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, allowNull: false })
+	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, allowNull: false, unique: true })
 	declare sessionId: string;
 
 	@Attribute({ type: DataTypes.STRING(64), allowNull: false })

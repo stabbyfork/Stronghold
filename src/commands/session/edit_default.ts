@@ -97,7 +97,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		return;
 	}
 	await Data.mainDb.transaction(async (transaction) => {
-		const [session, built] = await Data.models.GuildSession.findOrCreate({
+		const [session, built] = await Data.models.GuildSession.findCreateFind({
 			where: { guildId: guild.id },
 			defaults: {
 				guildId: guild.id,
@@ -114,22 +114,12 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				{ transaction },
 			);
 		}
-		const sessionOpts = Data.models.SessionOptions.build({
-			sessionId: session.id,
-			title,
-			message,
-		});
-		await sessionOpts.save();
+
+		const sessionOpts = await session.createDefaultOptions(
+			{ title, message },
+			{ transaction, destroyPrevious: true },
+		);
 		if (messageData) {
-			/*const existingModel = await Data.models.MessageLink.findOne({
-				where: {
-					messageId: messageData[2],
-				},
-				transaction,
-			});
-			if (existingModel) {
-				sessionOpts.setImagesLink(existingModel);
-			}*/
 			await sessionOpts.createImagesLink(
 				{
 					guildId: messageData[0],

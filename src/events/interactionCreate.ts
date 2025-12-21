@@ -199,10 +199,9 @@ export default createEvent({
 				if (err instanceof Errors.TransactionError) {
 					await err.data.rollback();
 				}
-				const fullName = getCommandFullName(interaction).join(' ');
 				if (interaction.isChatInputCommand() && (typeof err === 'string' || err instanceof Error)) {
 					if (err instanceof Error) {
-						Debug.error(`Error while executing command \`${fullName}\`: ${err.stack}`);
+						Debug.error(`Error while executing command \`${name}\`: ${err.stack}`);
 					}
 					const toReply: InteractionReplyOptions = {
 						content: constructError(
@@ -211,14 +210,14 @@ export default createEvent({
 						),
 						flags: MessageFlags.Ephemeral,
 					};
-					reportErrorToUser(interaction, toReply);
+					await reportErrorToUser(interaction, toReply);
 					// Allow retries
 					cmdLim?.addUse(true);
 					Logging.log({
 						data: interaction,
 						formatData: {
 							msg: `Unexpected non-fatal error encountered`,
-							action: `Execution of command \`${fullName}\``,
+							action: `Execution of command \`${name}\``,
 							userId: interaction.user.id,
 							cause: `\`${err.toString()}\``,
 						},
@@ -226,7 +225,7 @@ export default createEvent({
 						logType: Logging.Type.Error,
 					});
 				} else {
-					console.error(`Error while executing command \`${fullName}\`: ${err}`);
+					Debug.error(`Error while executing command \`${name}\`: ${err}`);
 				}
 			}
 		} else if (interaction.isMessageComponent()) {

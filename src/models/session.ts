@@ -28,10 +28,10 @@ export class GuildSession extends Model<InferAttributes<GuildSession>, InferCrea
 	declare id: CreationOptional<string>;
 
 	/** Associated in {@link Guild} */
-	@Attribute({ type: DataTypes.STRING(20), allowNull: false })
+	@Attribute({ type: DataTypes.STRING(20), allowNull: false, unique: true })
 	declare guildId: string;
 
-	@Attribute({ type: DataTypes.STRING(20), allowNull: false })
+	@Attribute({ type: DataTypes.STRING(20), allowNull: false, unique: true })
 	declare channelId: string;
 
 	@Attribute({ type: DataTypes.DATE, allowNull: true })
@@ -45,12 +45,6 @@ export class GuildSession extends Model<InferAttributes<GuildSession>, InferCrea
 
 	@Attribute({ type: DataTypes.STRING(20), allowNull: true })
 	declare sessionMessageId: string | null;
-
-	/*@HasOne(() => SessionOptions, { foreignKey: { name: 'id', onUpdate: 'RESTRICT', onDelete: 'CASCADE' } })
-	declare options?: NonAttribute<SessionOptions>;
-
-	declare getOptions: HasOneGetAssociationMixin<SessionOptions>;
-	declare createOptions: HasOneCreateAssociationMixin<SessionOptions, 'sessionId'>;*/
 
 	@HasOne(() => SessionOptions, { foreignKey: { name: 'sessionId', onUpdate: 'RESTRICT', onDelete: 'CASCADE' } })
 	declare defaultOptions?: NonAttribute<SessionOptions>;

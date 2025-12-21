@@ -13,7 +13,7 @@ import { Config } from '../config.js';
 import { client } from '../client.js';
 
 let botOwnerId: User | undefined;
-client.on('ready', () => (botOwnerId = client.users.cache.get(Config.get('appOwnerId'))));
+client.on('ready', async () => (botOwnerId = await client.users.fetch(Config.get('appOwnerId'))));
 
 /**
  * Constructs an error message string by replacing placeholders with the provided error details.

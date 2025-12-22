@@ -151,9 +151,18 @@ export default async (interaction: ChatInputCommandInteraction) => {
 									(await guild.members.fetch(m.user!.userId)),
 							),
 					);
-					await Promise.all(
-						currentlyInSession.map(async (m) => await m.roles.remove(joinedSession, 'Session ended')),
-					);
+					try {
+						await Promise.all(
+							currentlyInSession.map(async (m) => await m.roles.remove(joinedSession, 'Session ended')),
+						);
+					} catch (e) {
+						await reportErrorToUser(
+							interaction,
+							`Cannot remove In Session role from participants: \`${e}\`. Is the role below the bot's highest role?`,
+							true,
+						);
+						return;
+					}
 				}
 			} else {
 				await Logging.log({

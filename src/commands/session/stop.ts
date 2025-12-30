@@ -158,7 +158,7 @@ export default async (interaction: ChatInputCommandInteraction) => {
 					} catch (e) {
 						await reportErrorToUser(
 							interaction,
-							`Cannot remove In Session role from participants: \`${e}\`. Is the role below the bot's highest role?`,
+							`Cannot remove In Session role from participants: \`${e}\`. Is the role below the bot's highest role, or do some participants have a role higher than the bot?`,
 							true,
 						);
 						return;

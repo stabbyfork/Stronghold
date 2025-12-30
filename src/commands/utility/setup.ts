@@ -663,25 +663,35 @@ export default createCommand<typeof commandOptions.setup>({
 		);
 
 		if (setupConfig.createLogChannel) {
-			setupConfig.logChannel = (
-				await guild.channels.create({
-					name: 'logs',
-					type: ChannelType.GuildForum,
-					reason: 'Automatically created by the /setup command on request by server owner.',
-					parent: guild.systemChannel ? guild.systemChannel.parent : (channel as TextChannel).parent,
-					topic: 'Logs for this server.',
-					permissionOverwrites: [
-						{
-							id: guild.roles.everyone,
-							deny: [PermissionFlagsBits.ViewChannel],
-						},
-						{
-							id: client.user!.id,
-							allow: [PermissionFlagsBits.ViewChannel],
-						},
-					],
-				})
-			).id;
+			try {
+				setupConfig.logChannel = (
+					await guild.channels.create({
+						name: 'logs',
+						type: ChannelType.GuildForum,
+						reason: 'Automatically created by the /setup command on request by server owner.',
+						parent: guild.systemChannel ? guild.systemChannel.parent : (channel as TextChannel).parent,
+						topic: 'Logs for this server.',
+						permissionOverwrites: [
+							{
+								id: guild.roles.everyone,
+								deny: [PermissionFlagsBits.ViewChannel],
+							},
+							{
+								id: client.user!.id,
+								allow: [PermissionFlagsBits.ViewChannel],
+							},
+						],
+					})
+				).id;
+			} catch (e) {
+				await reportErrorToUser(
+					interaction,
+					'Failed to create log channel. Perhaps the bot does not have the permission to create channels?',
+					true,
+				);
+				return;
+			}
+
 			endReplyMsg.addTextDisplayComponents((text) =>
 				text.setContent(`Channel created: ${channelMention(setupConfig.logChannel!)}`),
 			);

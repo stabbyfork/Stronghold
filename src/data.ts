@@ -1,7 +1,7 @@
 import { Lock, Op, Sequelize, Transaction } from '@sequelize/core';
 import { MySqlDialect } from '@sequelize/mysql';
 import { SqliteDialect } from '@sequelize/sqlite3';
-import { roleMention, userMention } from 'discord.js';
+import { GuildMember, roleMention, userMention } from 'discord.js';
 import { client } from './client.js';
 import { Config } from './config.js';
 import { ActivityCheck } from './models/activityCheck.js';
@@ -135,7 +135,13 @@ export namespace Data {
 		const guildId = user.guildId;
 		const userPoints = user.points ?? 0;
 		const guild = client.guilds.cache.get(guildId) ?? (await client.guilds.fetch(guildId));
-		const member = guild.members.cache.get(user.userId) ?? (await guild.members.fetch(user.userId));
+		let member: GuildMember;
+		try {
+			member = guild.members.cache.get(user.userId) ?? (await guild.members.fetch(user.userId));
+		} catch (e) {
+			Debug.error(`Failed to fetch member ${user.userId} from guild ${guildId}: ${e}`);
+			return;
+		}
 
 		// No include usage because stackables can't have limits
 		const currentRanks = await user.getRanks({ transaction });

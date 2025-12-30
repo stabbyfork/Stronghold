@@ -220,16 +220,22 @@ export default async (interaction: ChatInputCommandInteraction) => {
 			},
 		);
 	});
-	await interaction.reply({
-		embeds: [
-			defaultEmbed()
-				.setTitle('Session stopped')
-				.setColor('Green')
-				.setDescription(
-					`Stopped session and replied to message in ${channelMention(session.channelId)} successfully.`,
-				),
-		],
-		flags: MessageFlags.Ephemeral,
-	});
-	Logging.quickInfo(interaction, `Stopped session in ${channelMention(session.channelId)}`);
+	try {
+		await interaction.reply({
+			embeds: [
+				defaultEmbed()
+					.setTitle('Session stopped')
+					.setColor('Green')
+					.setDescription(
+						`Stopped session and replied to message in ${channelMention(session.channelId)} successfully.`,
+					),
+			],
+			flags: MessageFlags.Ephemeral,
+		});
+	} catch (e) {
+		await reportErrorToUser(interaction, constructError([ErrorReplies.InteractionTimedOut]), true);
+		return;
+	} finally {
+		Logging.quickInfo(interaction, `Stopped session in ${channelMention(session.channelId)}`);
+	}
 };

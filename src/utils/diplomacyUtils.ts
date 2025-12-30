@@ -1,3 +1,4 @@
+import axios from 'axios';
 import {
 	ActionRowBuilder,
 	ButtonBuilder,
@@ -14,16 +15,15 @@ import {
 	User,
 } from 'discord.js';
 import { client } from '../client.js';
+import { Config } from '../config.js';
 import { Data } from '../data.js';
-import { GuildRelation, RelatedGuild } from '../models/relatedGuild.js';
+import { GuildRelation } from '../models/relatedGuild.js';
 import { ErrorReplies, Errors } from '../types/errors.js';
 import { InformedCustomId } from '../types/eventTypes.js';
 import { defaultEmbed, getOrFetchGuild } from './discordUtils.js';
 import { Debug } from './errorsUtils.js';
 import { GuildFlag } from './guildFlagsUtils.js';
 import { Logging } from './loggingUtils.js';
-import { Config } from '../config.js';
-import axios from 'axios';
 
 const endpoints = Config.get('news')?.endpoints;
 
@@ -419,14 +419,20 @@ export namespace DPM {
 		if (!(await isDiploReady(guild)))
 			throw new Error(`Guild with tag \`${dbGuild.tag}\` is not set up for diplomacy.`);
 
-		const channel =
-			(guild.channels.cache.get(dbGuild.dpmChannelId!) as ForumChannel | null) ??
-			((await guild.channels.fetch(dbGuild.dpmChannelId!)) as ForumChannel | null);
-		if (!channel)
-			throw new Errors.NotFoundError(`Diplomacy channel for guild with tag \`${dbGuild.tag}\` not found.`);
-		const toSet: DPMChannel = [channel, new Collection()];
-		channelCache.set(guild.id, toSet);
-		return toSet;
+		try {
+			const channel =
+				(guild.channels.cache.get(dbGuild.dpmChannelId!) as ForumChannel | null) ??
+				((await guild.channels.fetch(dbGuild.dpmChannelId!)) as ForumChannel | null);
+			if (!channel)
+				throw new Errors.NotFoundError(`Diplomacy channel for guild with tag \`${dbGuild.tag}\` not found.`);
+			const toSet: DPMChannel = [channel, new Collection()];
+			channelCache.set(guild.id, toSet);
+			return toSet;
+		} catch (err) {
+			throw new Errors.NotFoundError(
+				`Diplomacy channel for guild with tag \`${dbGuild.tag}\` not found. It may have been deleted.`,
+			);
+		}
 	}
 
 	export async function getThreads(data: CleanIdentifier): Promise<Threads> {

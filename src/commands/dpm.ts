@@ -270,6 +270,9 @@ export default createCommand<{}, 'dpm'>({
 				.addStringOption((option) =>
 					option.setName('message').setDescription('Message to send').setRequired(true).setMaxLength(1024),
 				),
+		)
+		.addSubcommand((cmd) =>
+			cmd.setName('unsetup').setDescription('Remove diplomacy features and unlist this guild'),
 		),
 	limits: {
 		setup: {

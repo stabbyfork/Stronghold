@@ -41,7 +41,10 @@ export default createCommand<{}, 'dpm'>({
 		}).then((guilds) =>
 			guilds.forEach((guild) => {
 				preparedTagCache.push(fuzzysort.prepare(guild.tag!));
-				if (guild.dpmGame) preparedGameCache.push(fuzzysort.prepare(guild.dpmGame));
+				if (guild.dpmGame) {
+					const prepared = fuzzysort.prepare(guild.dpmGame);
+					if (preparedGameCache.indexOf(prepared) === -1) preparedGameCache.push(prepared);
+				}
 			}),
 		);
 	},

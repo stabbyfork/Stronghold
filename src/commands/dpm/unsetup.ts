@@ -4,6 +4,7 @@ import { isDiploReady } from '../../utils/diplomacyUtils.js';
 import { constructError, reportErrorToUser } from '../../utils/errorsUtils.js';
 import { Data } from '../../data.js';
 import { defaultEmbed } from '../../utils/discordUtils.js';
+import { Logging } from '../../utils/loggingUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction) => {
 	const guild = interaction.guild;
@@ -55,4 +56,5 @@ export default async (interaction: ChatInputCommandInteraction) => {
 				.setColor('Green'),
 		],
 	});
+	Logging.quickInfo(interaction, 'Diplomacy removed');
 };

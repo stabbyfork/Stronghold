@@ -17,18 +17,28 @@ export default createEvent({
 		const joinedGuilds = client.guilds.cache;
 		console.log('Started with', dbGuilds.count, 'set-up guilds and', joinedGuilds.size, 'total guilds');
 		let totalMembers = 0;
-		const games = new Set<string>();
+		// Name - frequency
+		const games = new Map<string, number>();
 		for (const guild of joinedGuilds.values()) {
 			const members = guild.memberCount;
 			totalMembers += members;
 		}
 		for (const dbGuild of dbGuilds.rows) {
-			if (dbGuild.dpmGame) games.add(dbGuild.dpmGame);
+			if (dbGuild.dpmGame) games.set(dbGuild.dpmGame, (games.get(dbGuild.dpmGame) ?? 0) + 1);
 		}
-		client.user.setActivity(games.size > 0 ? Array.from(games.values()).join(', ') : 'something', {
-			type: ActivityType.Playing,
-			url: Config.get('website').url,
-		});
+		const gamesArr = Array.from(games.entries()).sort((a, b) => b[1] - a[1]);
+		if (gamesArr.length > 0) {
+			client.user.setActivity(
+				gamesArr.length > 3
+					? `${gamesArr.slice(0, 3).join(', ')} and ${gamesArr.length - 3} others`
+					: gamesArr.join(', '),
+				{
+					type: ActivityType.Playing,
+					url: Config.get('website').url,
+				},
+			);
+		}
+
 		console.log(`Total members: ${totalMembers}`);
 		fs.writeFileSync(
 			'guild-data.json',

@@ -8,6 +8,7 @@ import { Op } from '@sequelize/core';
 
 const preparedTagCache = [] as Fuzzysort.Prepared[];
 const preparedGameCache = [] as Fuzzysort.Prepared[];
+const gameCache = new Set<string>();
 
 async function autocompTag(interaction: AutocompleteInteraction) {
 	const input = interaction.options.getFocused().trim().toLowerCase();
@@ -29,8 +30,10 @@ export default createCommand<{}, 'dpm'>({
 		Data.models.Guild.hooks.addListener('afterUpdate', async (instance: Guild) => {
 			if (instance.tag) preparedTagCache.push(fuzzysort.prepare(instance.tag));
 			if (instance.dpmGame) {
-				const prepared = fuzzysort.prepare(instance.dpmGame);
-				if (preparedGameCache.indexOf(prepared) === -1) preparedGameCache.push(prepared);
+				if (!gameCache.has(instance.dpmGame)) {
+					preparedGameCache.push(fuzzysort.prepare(instance.dpmGame));
+					gameCache.add(instance.dpmGame);
+				}
 			}
 		});
 		Data.models.Guild.hooks.addListener('afterDestroy', async (instance: Guild) => {
@@ -42,8 +45,10 @@ export default createCommand<{}, 'dpm'>({
 			guilds.forEach((guild) => {
 				preparedTagCache.push(fuzzysort.prepare(guild.tag!));
 				if (guild.dpmGame) {
-					const prepared = fuzzysort.prepare(guild.dpmGame);
-					if (preparedGameCache.indexOf(prepared) === -1) preparedGameCache.push(prepared);
+					if (!gameCache.has(guild.dpmGame)) {
+						preparedGameCache.push(fuzzysort.prepare(guild.dpmGame));
+						gameCache.add(guild.dpmGame);
+					}
 				}
 			}),
 		);

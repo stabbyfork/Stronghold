@@ -30,8 +30,11 @@ export default createEvent({
 		if (gamesArr.length > 0) {
 			client.user.setActivity(
 				gamesArr.length > 3
-					? `${gamesArr.slice(0, 3).join(', ')} and ${gamesArr.length - 3} others`
-					: gamesArr.join(', '),
+					? `${gamesArr
+							.slice(0, 3)
+							.map((a) => a[0])
+							.join(', ')} and ${gamesArr.length - 3} others`
+					: gamesArr.map((a) => a[0]).join(', '),
 				{
 					type: ActivityType.Playing,
 					url: Config.get('website').url,

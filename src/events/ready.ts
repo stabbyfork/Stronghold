@@ -37,8 +37,9 @@ export default createEvent({
 					url: Config.get('website').url,
 				},
 			);
+		} else {
+			client.user.setActivity();
 		}
-
 		console.log(`Total members: ${totalMembers}`);
 		fs.writeFileSync(
 			'guild-data.json',

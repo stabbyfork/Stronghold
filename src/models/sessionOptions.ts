@@ -23,7 +23,7 @@ export class SessionOptions extends Model<InferAttributes<SessionOptions>, Infer
 	@Attribute({ type: DataTypes.STRING(64), allowNull: false })
 	declare title: string;
 
-	@Attribute({ type: DataTypes.STRING(256), allowNull: false })
+	@Attribute({ type: DataTypes.STRING(512), allowNull: false })
 	declare message: string;
 
 	/** A link to the message containing the images for this session */

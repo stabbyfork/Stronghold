@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON WED, 31 DEC 2025 08:50:25 GMT WITH 13 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON WED, 31 DEC 2025 10:34:45 GMT WITH 13 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct } from "./types/commandTypes.js";
 
@@ -610,7 +610,8 @@ dpm: {
     list: T
   },
   list: T,
-  send: T
+  send: T,
+  unsetup: T
 },
 permissions: {
   roles: {

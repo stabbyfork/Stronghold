@@ -56,5 +56,5 @@ export default async (interaction: ChatInputCommandInteraction) => {
 				.setColor('Green'),
 		],
 	});
-	Logging.quickInfo(interaction, 'Diplomacy removed');
+	Logging.quickInfo(interaction, 'Diplomacy removed.');
 };

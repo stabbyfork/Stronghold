@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON MON, 15 DEC 2025 18:08:39 GMT WITH 13 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON WED, 31 DEC 2025 08:50:25 GMT WITH 13 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct } from "./types/commandTypes.js";
 
@@ -128,6 +128,12 @@ dpm: {
         "type": "string",
         "required": true
       }
+    }
+  },
+  "list": {
+    "game": {
+      "type": "string",
+      "required": false
     }
   },
   "send": {

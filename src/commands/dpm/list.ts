@@ -4,8 +4,11 @@ import { Data } from '../../data.js';
 import { AssetId, Assets } from '../../utils/assets.js';
 import { listGuilds, Pages } from '../../utils/discordUtils.js';
 import { reportErrorToUser } from '../../utils/errorsUtils.js';
+import { commandOptions } from '../../cmdOptions.js';
+import { getOption } from '../../utils/subcommandsUtils.js';
 
-export default async (interaction: ChatInputCommandInteraction) => {
+export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.dpm.list) => {
+	const selectedGame = getOption(interaction, args, 'game');
 	const nGuilds = await Data.models.Guild.count({
 		where: {
 			tag: { [Op.ne]: null },
@@ -27,6 +30,7 @@ export default async (interaction: ChatInputCommandInteraction) => {
 				order: [['createdAt', 'DESC']],
 				where: {
 					tag: { [Op.ne]: null },
+					...(selectedGame ? { dpmGame: selectedGame } : {}),
 				},
 				attributes: ['guildId', 'tag', 'serverInvite', 'dpmGame'],
 			});

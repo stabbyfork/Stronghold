@@ -6,30 +6,42 @@ import fuzzysort from 'fuzzysort';
 import { Guild } from '../models/guild.js';
 import { Op } from '@sequelize/core';
 
-const tagCache = [] as Fuzzysort.Prepared[];
+const preparedTagCache = [] as Fuzzysort.Prepared[];
+const preparedGameCache = [] as Fuzzysort.Prepared[];
 
 async function autocompTag(interaction: AutocompleteInteraction) {
 	const input = interaction.options.getFocused().trim().toLowerCase();
-	const matched = fuzzysort.go(input, tagCache, { all: true, limit: 25, threshold: 0.5 });
+	const matched = fuzzysort.go(input, preparedTagCache, { all: true, limit: 25, threshold: 0.5 });
+	await interaction.respond(matched.map((x) => ({ name: x.target, value: x.target })));
+}
+
+async function autocompGame(interaction: AutocompleteInteraction) {
+	const input = interaction.options.getFocused().trim().toLowerCase();
+	const matched = fuzzysort.go(input, preparedGameCache, { all: true, limit: 25, threshold: 0.3 });
 	await interaction.respond(matched.map((x) => ({ name: x.target, value: x.target })));
 }
 
 export default createCommand<{}, 'dpm'>({
 	once: async () => {
 		Data.models.Guild.hooks.addListener('beforeUpdate', async (instance: Guild) => {
-			if (instance.tag) tagCache.splice(tagCache.indexOf(fuzzysort.prepare(instance.tag)), 1);
+			if (instance.tag) preparedTagCache.splice(preparedTagCache.indexOf(fuzzysort.prepare(instance.tag)), 1);
 		});
 		Data.models.Guild.hooks.addListener('afterUpdate', async (instance: Guild) => {
-			if (instance.tag) tagCache.push(fuzzysort.prepare(instance.tag));
+			if (instance.tag) preparedTagCache.push(fuzzysort.prepare(instance.tag));
+			if (instance.dpmGame) {
+				const prepared = fuzzysort.prepare(instance.dpmGame);
+				if (preparedGameCache.indexOf(prepared) === -1) preparedGameCache.push(prepared);
+			}
 		});
 		Data.models.Guild.hooks.addListener('afterDestroy', async (instance: Guild) => {
-			if (instance.tag) tagCache.splice(tagCache.indexOf(fuzzysort.prepare(instance.tag)), 1);
+			if (instance.tag) preparedTagCache.splice(preparedTagCache.indexOf(fuzzysort.prepare(instance.tag)), 1);
 		});
 		Data.models.Guild.findAll({
 			where: { tag: { [Op.ne]: null } },
 		}).then((guilds) =>
 			guilds.forEach((guild) => {
-				tagCache.push(fuzzysort.prepare(guild.tag!));
+				preparedTagCache.push(fuzzysort.prepare(guild.tag!));
+				if (guild.dpmGame) preparedGameCache.push(fuzzysort.prepare(guild.dpmGame));
 			}),
 		);
 	},
@@ -60,7 +72,8 @@ export default createCommand<{}, 'dpm'>({
 						.setName('game')
 						.setDescription('Enter the name of the game the server is based on')
 						.setRequired(false)
-						.setMaxLength(100),
+						.setMaxLength(100)
+						.setAutocomplete(true),
 				)
 				.addBooleanOption((option) =>
 					option
@@ -220,7 +233,19 @@ export default createCommand<{}, 'dpm'>({
 				)
 				.addSubcommand((cmd) => cmd.setName('list').setDescription('List all neutral guilds')),
 		)
-		.addSubcommand((cmd) => cmd.setName('list').setDescription('List all existing guilds'))
+		.addSubcommand((cmd) =>
+			cmd
+				.setName('list')
+				.setDescription('List all existing guilds')
+				.addStringOption((option) =>
+					option
+						.setName('game')
+						.setDescription('Game to show guilds for')
+						.setRequired(false)
+						.setMaxLength(100)
+						.setAutocomplete(true),
+				),
+		)
 		.addSubcommand((cmd) =>
 			cmd
 				.setName('send')
@@ -241,7 +266,7 @@ export default createCommand<{}, 'dpm'>({
 	limits: {
 		setup: {
 			usesPerInterval: 3,
-			intervalMs: 60 * 1000,
+			intervalMs: 3 * 60 * 1000,
 			useCooldown: 0,
 			scope: UsageScope.GuildMember,
 		},
@@ -336,5 +361,7 @@ export default createCommand<{}, 'dpm'>({
 			add: autocompTag,
 			remove: autocompTag,
 		},
+		setup: autocompGame,
+		list: autocompGame,
 	},
 });

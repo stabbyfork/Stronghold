@@ -142,15 +142,32 @@ export default async (interaction: ChatInputCommandInteraction) => {
 			const joinedSession = guild.roles.cache.get(roleId) ?? (await guild.roles.fetch(roleId));
 			if (joinedSession) {
 				if (participants) {
-					const currentlyInSession = await Promise.all(
-						participants
-							.filter((m) => m.inSession)
-							.map(
-								async (m) =>
-									guild.members.cache.get(m.user!.userId) ??
-									(await guild.members.fetch(m.user!.userId)),
-							),
-					);
+					const currentlyInSession = (
+						await Promise.all(
+							participants
+								.filter((m) => m.inSession)
+								.map(async (m) => {
+									try {
+										return (
+											guild.members.cache.get(m.user!.userId) ??
+											(await guild.members.fetch(m.user!.userId))
+										);
+									} catch (e) {
+										await Logging.log({
+											data: interaction,
+											extents: [GuildFlag.LogWarnings],
+											formatData: {
+												userId: interaction.user.id,
+												action: `Fetching participant of a session`,
+												cause: 'Attempt to fetch participant failed',
+												msg: `Could not fetch participant ${m.user!.userId}: ${e}`,
+											},
+											logType: Logging.Type.Warning,
+										});
+									}
+								}),
+						)
+					).filter((m) => m !== undefined);
 					try {
 						await Promise.all(
 							currentlyInSession.map(async (m) => await m.roles.remove(joinedSession, 'Session ended')),

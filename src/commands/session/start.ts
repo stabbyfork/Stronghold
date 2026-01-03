@@ -87,7 +87,7 @@ export function createSessionModal(
 					.setCustomId(messageId)
 					.setLabel('Message')
 					.setStyle(TextInputStyle.Paragraph)
-					.setMaxLength(256)
+					.setMaxLength(512)
 					.setPlaceholder('Host: John Discord\nGame: ...')
 					.setRequired(true)
 					.setValue(defaults?.message ?? ''),

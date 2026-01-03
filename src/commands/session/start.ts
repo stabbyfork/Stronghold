@@ -29,6 +29,7 @@ import { constructError, reportErrorToUser } from '../../utils/errorsUtils.js';
 import { Logging } from '../../utils/loggingUtils.js';
 import { hasPermissions, Permission } from '../../utils/permissionsUtils.js';
 import { getOption, reportErrorIfNotSetup } from '../../utils/subcommandsUtils.js';
+import { SessionOptions } from '../../models/sessionOptions.js';
 
 export function createSessionMessage(
 	title: string,
@@ -168,8 +169,19 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		message.attachments.map((a) => imageUrls.push(a.url));
 	}
 
+	let defaultOptions: SessionOptions | null = null;
+	if (session) {
+		defaultOptions = await Data.models.SessionOptions.findOne({
+			where: { sessionId: session.id },
+		});
+	}
 	await interaction.showModal(
-		createSessionModal(CustomIds.DetailsModal, CustomIds.SessionTitle, CustomIds.SessionMessage),
+		createSessionModal(
+			CustomIds.DetailsModal,
+			CustomIds.SessionTitle,
+			CustomIds.SessionMessage,
+			defaultOptions ?? undefined,
+		),
 	);
 	let submitted: ModalSubmitInteraction | undefined;
 	try {

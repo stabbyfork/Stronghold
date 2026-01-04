@@ -20,6 +20,7 @@ import { Logging } from '../../utils/loggingUtils.js';
 import { hasPermissions, Permission } from '../../utils/permissionsUtils.js';
 import { ProxyUtils } from '../../utils/proxyUtils.js';
 import { getOption, reportErrorIfNotSetup } from '../../utils/subcommandsUtils.js';
+import validator from 'validator';
 
 function getOptions(data: CommandData): readonly APIApplicationCommandOption[] {
 	// All SlashCommand* builders store options internally the same way
@@ -85,6 +86,14 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	}
 	if (target.length > 32) {
 		await reportErrorToUser(interaction, constructError([ErrorReplies.ProxyTargetTooLong]), true);
+		return;
+	}
+	if (validator.contains(proxy, '')) {
+		await reportErrorToUser(interaction, `The proxy cannot contain spaces.`, true);
+		return;
+	}
+	if (proxy.match(/[A-Z]+/)) {
+		await reportErrorToUser(interaction, `The proxy cannot contain uppercase letters.`, true);
 		return;
 	}
 

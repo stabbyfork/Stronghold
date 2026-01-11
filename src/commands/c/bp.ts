@@ -80,16 +80,17 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	}
 
 	await rbxUser.update({ inSession: true, points: rbxUser.points + points });
+	const toReply = defaultEmbed()
+		.setColor('Green')
+		.setTitle('Success')
+		.setDescription(
+			`Added \`${points}\` point${points === 1 ? '' : 's'} to \`${userData.name}\` (\`${userData.id}\`).\nThey now have \`${rbxUser.points}\` point${rbxUser.points === 1 ? '' : 's'}.`,
+		);
+	if (avatar.state === 'Completed') {
+		toReply.setThumbnail(avatar.imageUrl);
+	}
 	await interaction.reply({
-		embeds: [
-			defaultEmbed()
-				.setColor('Green')
-				.setTitle('Success')
-				.setDescription(
-					`Added \`${points}\` point${points === 1 ? '' : 's'} to \`${userData.name}\` (\`${userData.id}\`).\nThey now have \`${rbxUser.points}\` point${rbxUser.points === 1 ? '' : 's'}.`,
-				)
-				.setThumbnail(avatar.imageUrl),
-		],
+		embeds: [toReply],
 	});
 	Logging.quickInfo(
 		interaction,

@@ -64,9 +64,27 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		message.attachments.map((a) => imageUrls.push(a.url));
 		messageData = [guildId, channelId, messageId];
 	}
+	let existingDefaults:
+		| {
+				title: string;
+				message: string;
+		  }
+		| undefined;
+	const dbSession = await Data.models.GuildSession.findOne({
+		where: { guildId: guild.id },
+	});
+	if (dbSession) {
+		const defaults = await dbSession.getDefaultOptions();
+		if (defaults) {
+			existingDefaults = {
+				title: defaults.title,
+				message: defaults.message,
+			};
+		}
+	}
 
 	await interaction.showModal(
-		createSessionModal(CustomIds.DetailsModal, CustomIds.SessionTitle, CustomIds.SessionMessage),
+		createSessionModal(CustomIds.DetailsModal, CustomIds.SessionTitle, CustomIds.SessionMessage, existingDefaults),
 	);
 	let submitted: ModalSubmitInteraction | undefined;
 	try {

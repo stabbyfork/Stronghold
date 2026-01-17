@@ -114,9 +114,10 @@ export default async (interaction: ChatInputCommandInteraction) => {
 						? participants
 								.map((m) => `${userMention(m.user!.userId)} (${ms(m.totalTimeSpent)})`)
 								.join(',\n')
-						: 'None') + session.pointsToAdd
+						: 'None') +
+					(session.pointsToAdd
 						? `\n\n*Each person${session.mustMeetQuota ? ' who met the time quota' : ''} has been given **${session.pointsToAdd}** points.*`
-						: '',
+						: ''),
 				inline: true,
 			});
 		} else {

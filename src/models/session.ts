@@ -74,7 +74,7 @@ export class GuildSession extends Model<InferAttributes<GuildSession>, InferCrea
 
 	/** Whether participants must meet the time quota to receive points */
 	@Attribute({ type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false })
-	declare mustMeetQuota: boolean;
+	declare mustMeetQuota: CreationOptional<boolean>;
 
 	@Attribute({ type: DataTypes.DATE, allowNull: false })
 	declare createdAt: CreationOptional<Date>;

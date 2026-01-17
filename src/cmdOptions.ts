@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON WED, 31 DEC 2025 10:34:45 GMT WITH 13 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON SAT, 17 JAN 2026 09:39:07 GMT WITH 13 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct } from "./types/commandTypes.js";
 
@@ -533,6 +533,16 @@ session: {
       "type": "user",
       "required": true
     }
+  },
+  "auto_points": {
+    "points": {
+      "type": "integer",
+      "required": false
+    },
+    "must_meet_quota": {
+      "type": "boolean",
+      "required": false
+    }
   }
 },
 feedback: {
@@ -682,6 +692,7 @@ session: {
   kick: T,
   quota: T,
   remove: T,
-  time: T
+  time: T,
+  auto_points: T
 },	
 };

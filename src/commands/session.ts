@@ -130,6 +130,23 @@ export default createCommand<{}, 'session'>({
 				.setName('time')
 				.setDescription('Get the amount of time a user has spent in this session')
 				.addUserOption((option) => option.setName('user').setDescription('User to check').setRequired(true)),
+		)
+		.addSubcommand((cmd) =>
+			cmd
+				.setName('auto_points')
+				.setDescription('Set or get the amount of points given to all participants when stopped')
+				.addIntegerOption((option) =>
+					option
+						.setName('points')
+						.setDescription('Number of points to give. Omit to get, enter 0 to remove')
+						.setRequired(false),
+				)
+				.addBooleanOption((option) =>
+					option
+						.setName('must_meet_quota')
+						.setDescription('Whether users must meet the time quota to get points. Defaults to false')
+						.setRequired(false),
+				),
 		),
 	description: {
 		edit_default:

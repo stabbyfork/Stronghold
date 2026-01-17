@@ -50,8 +50,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		await reportErrorToUser(interaction, constructError([ErrorReplies.UserHasNotJoinedSession]), true);
 		return;
 	}
-	const timeSpent =
-		dbParticipant.timeSpent + (dbParticipant.inSession ? Date.now() - dbParticipant.joinedAt!.getTime() : 0);
+	const timeSpent = dbParticipant.totalTimeSpent;
 	const passesQuota = timeSpent >= session.timeQuota;
 	await interaction.reply({
 		embeds: [

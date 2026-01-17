@@ -48,6 +48,10 @@ export class SessionParticipant extends Model<
 	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, allowNull: false, defaultValue: 0 })
 	declare timeSpent: CreationOptional<number>;
 
+	get totalTimeSpent(): NonAttribute<number> {
+		return this.timeSpent + (this.inSession ? Date.now() - this.joinedAt!.getTime() : 0);
+	}
+
 	@Attribute({ type: DataTypes.DATE, allowNull: true })
 	declare joinedAt: Date | null;
 

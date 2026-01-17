@@ -68,6 +68,14 @@ export class GuildSession extends Model<InferAttributes<GuildSession>, InferCrea
 	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, allowNull: false, defaultValue: 0 })
 	declare timeQuota: CreationOptional<number>;
 
+	/** Points to add to participants when the session ends */
+	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, allowNull: true })
+	declare pointsToAdd: number | null;
+
+	/** Whether participants must meet the time quota to receive points */
+	@Attribute({ type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false })
+	declare mustMeetQuota: boolean;
+
 	@Attribute({ type: DataTypes.DATE, allowNull: false })
 	declare createdAt: CreationOptional<Date>;
 	@Attribute({ type: DataTypes.DATE, allowNull: false })

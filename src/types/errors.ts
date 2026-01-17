@@ -94,6 +94,7 @@ export const ErrorReplies = {
 	InvalidProxy: 'Invalid command proxy: \`!{ERROR}\` is not a valid command. Please redo the proxy setup.',
 	ProxyNameExists: 'A command with the name \`!{ERROR}\` already exists.',
 	ProxyTargetNotSubcommand: 'Target command is not a subcommand. Please only target commands or subcommands.',
+	SessionNotCreated: 'A session has not been created yet. Please run `/session start` first.',
 } as const;
 
 export namespace Errors {

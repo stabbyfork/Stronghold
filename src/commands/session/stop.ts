@@ -1,12 +1,9 @@
 import {
-	ActionRow,
 	channelMention,
 	ChatInputCommandInteraction,
-	ComponentType,
 	ContainerComponent,
 	GuildMember,
 	Message,
-	MessageActionRowComponent,
 	MessageFlags,
 	time,
 	TimestampStyles,
@@ -15,6 +12,7 @@ import {
 import ms from 'ms';
 import { Data } from '../../data.js';
 import { GuildSessionAssociations } from '../../models/session.js';
+import { SessionParticipantAssociations } from '../../models/sessionParticipant.js';
 import { ErrorReplies } from '../../types/errors.js';
 import { defaultEmbed } from '../../utils/discordUtils.js';
 import { constructError, reportErrorToUser } from '../../utils/errorsUtils.js';
@@ -22,9 +20,6 @@ import { GuildFlag } from '../../utils/guildFlagsUtils.js';
 import { Logging } from '../../utils/loggingUtils.js';
 import { hasPermissions, Permission } from '../../utils/permissionsUtils.js';
 import { reportErrorIfNotSetup } from '../../utils/subcommandsUtils.js';
-import { client } from '../../client.js';
-import { memoize } from 'lodash';
-import { SessionParticipantAssociations } from '../../models/sessionParticipant.js';
 
 export default async (interaction: ChatInputCommandInteraction) => {
 	if (!(await reportErrorIfNotSetup(interaction))) return;
@@ -72,6 +67,7 @@ export default async (interaction: ChatInputCommandInteraction) => {
 		return;
 	}
 	let endTime: Date | null = null;
+	const participants = session.participants;
 	if (session.sessionMessageId) {
 		let message: Message | undefined = undefined;
 		try {
@@ -110,19 +106,17 @@ export default async (interaction: ChatInputCommandInteraction) => {
 			where: { guildId: guild.id },
 		});
 		const roleId = dbGuild?.inSessionRoleId;
-		const participants = session.participants;
 		if (participants) {
 			embed.addFields({
-				name: 'Participants',
+				name: `Participants (${participants.length}${session.timeQuota ? `, quota: ${ms(session.timeQuota)}` : ''})`,
 				value:
-					participants.length > 0
+					(participants.length > 0
 						? participants
-								.map(
-									(m) =>
-										`${userMention(m.user!.userId)} (${ms(m.timeSpent + (m.inSession ? Date.now() - m.joinedAt!.getTime() : 0))})`,
-								)
-								.join(', ')
-						: 'None',
+								.map((m) => `${userMention(m.user!.userId)} (${ms(m.totalTimeSpent)})`)
+								.join(',\n')
+						: 'None') + session.pointsToAdd
+						? `\n\n*Each person${session.mustMeetQuota ? ' who met the time quota' : ''} has been given **${session.pointsToAdd}** points.*`
+						: '',
 				inline: true,
 			});
 		} else {
@@ -236,6 +230,17 @@ export default async (interaction: ChatInputCommandInteraction) => {
 				transaction,
 			},
 		);
+		if (session.pointsToAdd && session.pointsToAdd > 0 && participants) {
+			const mustMeetQuota = session.mustMeetQuota;
+			for (const participant of participants) {
+				if (!mustMeetQuota || participant.totalTimeSpent >= session.timeQuota) {
+					participant.user!.increment('points', {
+						by: session.pointsToAdd,
+						transaction,
+					});
+				}
+			}
+		}
 	});
 	try {
 		await interaction.reply({

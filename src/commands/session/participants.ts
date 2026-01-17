@@ -41,9 +41,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			participants = await session.getParticipants({ include: [SessionParticipantAssociations.User] });
 			// Don't do unnecessary checks
 			if (session.timeQuota !== 0) {
-				participants = participants.filter(
-					(p) => p.timeSpent + (p.inSession ? Date.now() - p.joinedAt!.getTime() : 0) >= session.timeQuota,
-				);
+				participants = participants.filter((p) => p.totalTimeSpent >= session.timeQuota);
 			}
 			break;
 		default:

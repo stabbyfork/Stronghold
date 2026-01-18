@@ -13,6 +13,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		await reportErrorToUser(interaction, constructError([ErrorReplies.InteractionHasNoGuild]), true);
 		return;
 	}
+	if (!(await reportErrorIfNotSetup(interaction))) return;
 
 	if (
 		!(await hasPermissions(
@@ -34,7 +35,6 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		return;
 	}
 
-	if (!(await reportErrorIfNotSetup(interaction))) return;
 	const points = getOption(interaction, args, 'points');
 	const mustMeetQuota = getOption(interaction, args, 'must_meet_quota') ?? false;
 

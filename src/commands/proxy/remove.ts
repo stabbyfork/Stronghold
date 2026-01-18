@@ -26,6 +26,10 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	}
 	await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 	const proxy = getOption(interaction, args, 'proxy');
+	if (!(await Data.models.ProxyCommand.findOne({ where: { guildId: guild.id, proxyCommand: proxy } }))) {
+		await reportErrorToUser(interaction, constructError([ErrorReplies.ProxyNotFoundSubstitute], proxy), true);
+		return;
+	}
 	const existing = await ProxyUtils.get(guild.id);
 	await Data.mainDb.transaction(async (transaction) => {
 		await Data.models.ProxyCommand.destroy({ where: { guildId: guild.id, proxyCommand: proxy }, transaction });
@@ -41,5 +45,5 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				.setColor('Green'),
 		],
 	});
-	Logging.quickInfo(interaction, `Removed proxy ${proxy}.`);
+	Logging.quickInfo(interaction, `Removed proxy \`${proxy}\`.`);
 };

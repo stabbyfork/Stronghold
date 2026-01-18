@@ -95,6 +95,7 @@ export const ErrorReplies = {
 	ProxyNameExists: 'A command with the name \`!{ERROR}\` already exists.',
 	ProxyTargetNotSubcommand: 'Target command is not a subcommand. Please only target commands or subcommands.',
 	SessionNotCreated: 'A session has not been created yet. Please run `/session start` first.',
+	ProxyNotFoundSubstitute: 'Proxy command not found: `!{ERROR}`.',
 } as const;
 
 export namespace Errors {

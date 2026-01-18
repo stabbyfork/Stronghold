@@ -88,7 +88,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		await reportErrorToUser(interaction, constructError([ErrorReplies.ProxyTargetTooLong]), true);
 		return;
 	}
-	if (validator.contains(proxy, '')) {
+	if (proxy.includes(' ')) {
 		await reportErrorToUser(interaction, `The proxy cannot contain spaces.`, true);
 		return;
 	}

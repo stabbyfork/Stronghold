@@ -22,9 +22,6 @@ export namespace ProxyUtils {
 		rest.setToken(dev.token);
 		clientId = dev.clientId;
 	}
-	export async function getInCache(guildId: string) {
-		return proxyCache.get(guildId);
-	}
 	export async function set(guildId: string, ...commands: RESTPostAPIChatInputApplicationCommandsJSONBody[]) {
 		await rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands });
 		proxyCache.set(guildId, commands);

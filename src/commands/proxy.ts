@@ -79,14 +79,14 @@ export default createCommand<{}, 'proxy'>({
 			const guild = interaction.guild;
 			if (!guild) return;
 			const input = interaction.options.getFocused().trim().toLowerCase();
-			const cached = await ProxyUtils.getInCache(guild.id);
-			if (!cached) {
+			const proxies = await ProxyUtils.get(guild.id);
+			if (!proxies) {
 				await interaction.respond([]);
 				return;
 			}
 			const matched = fuzzysort.go(
 				input,
-				cached.map((x) => x.name),
+				proxies.map((x) => x.name),
 				{ all: true, limit: 25, threshold: 0.5 },
 			);
 			await interaction.respond(matched.map((x) => ({ name: x.target, value: x.target })));

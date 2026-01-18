@@ -6,6 +6,7 @@ import {
 	GuildMember,
 	MessageFlags,
 	SlashCommandBuilder,
+	SlashCommandOptionsOnlyBuilder,
 	SlashCommandSubcommandBuilder,
 	SlashCommandSubcommandGroupBuilder,
 } from 'discord.js';
@@ -34,27 +35,29 @@ function getOptions(data: CommandData): readonly APIApplicationCommandOption[] {
 export function resolveCommandOptionsFromTarget(
 	commands: Record<string, CommandConstruct<boolean, any>>,
 	target: string,
-): readonly APIApplicationCommandOption[] | undefined {
+): [(readonly APIApplicationCommandOption[])?, string?] {
 	const parts = target.split(' ');
 	const root = commands[parts[0]];
-	if (!root) return undefined;
+	if (!root) return [];
 
 	let options = getOptions(root.data);
+	let currentCommandDesc: string | undefined;
 
 	for (let i = 1; i < parts.length; i++) {
 		const name = parts[i];
 		const next = options.find((o) => o.name === name);
-		if (!next) return undefined;
+		if (!next) return [];
 
 		if (next instanceof SlashCommandSubcommandGroupBuilder || next instanceof SlashCommandSubcommandBuilder) {
 			options = (next.options as APIApplicationCommandOption[]) ?? [];
+			currentCommandDesc = next.description;
 			continue;
 		}
 
-		return undefined;
+		return [];
 	}
 
-	return options;
+	return [options, currentCommandDesc];
 }
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.proxy.add) => {
@@ -98,12 +101,12 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	}
 
 	await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-	const opts = resolveCommandOptionsFromTarget(commands, target);
+	const [opts, currentCommandDesc] = resolveCommandOptionsFromTarget(commands, target);
 	if (!opts) {
 		await reportErrorToUser(interaction, constructError([ErrorReplies.InvalidProxyTarget], target), true);
 		return;
 	}
-	// DO NOT return non-subcommands
+	// DO NOT return non-subcommands (still allows top-level commands)
 	if (
 		opts.some((o) => o instanceof SlashCommandSubcommandBuilder || o instanceof SlashCommandSubcommandGroupBuilder)
 	) {
@@ -116,7 +119,10 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		return;
 	}
 
-	const cmd = new SlashCommandBuilder().setName(proxy).setDescription(`Runs /${target}`).toJSON();
+	const cmd = new SlashCommandBuilder()
+		.setName(proxy)
+		.setDescription(currentCommandDesc ?? `Runs /${target}`)
+		.toJSON();
 	// @ts-expect-error They are compatible
 	cmd.options = opts;
 	const existing = await ProxyUtils.get(guild.id);

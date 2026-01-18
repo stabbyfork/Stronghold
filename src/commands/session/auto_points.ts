@@ -1,10 +1,11 @@
-import { ChatInputCommandInteraction } from 'discord.js';
+import { ChatInputCommandInteraction, GuildMember } from 'discord.js';
 import { getOption, reportErrorIfNotSetup } from '../../utils/subcommandsUtils.js';
 import { ErrorReplies } from '../../types/errors.js';
 import { reportErrorToUser, constructError } from '../../utils/errorsUtils.js';
 import { commandOptions } from '../../cmdOptions.js';
 import { Data } from '../../data.js';
 import { defaultEmbed } from '../../utils/discordUtils.js';
+import { hasPermissions, Permission } from '../../utils/permissionsUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.session.auto_points) => {
 	const guild = interaction.guild;
@@ -12,6 +13,27 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		await reportErrorToUser(interaction, constructError([ErrorReplies.InteractionHasNoGuild]), true);
 		return;
 	}
+
+	if (
+		!(await hasPermissions(
+			interaction.member as GuildMember,
+			guild,
+			true,
+			Permission.ManageSessions,
+			Permission.ManagePoints,
+		))
+	) {
+		await reportErrorToUser(
+			interaction,
+			constructError(
+				[ErrorReplies.PermissionsNeededSubstitute],
+				[Permission.ManageSessions, Permission.ManagePoints].join(', '),
+			),
+			true,
+		);
+		return;
+	}
+
 	if (!(await reportErrorIfNotSetup(interaction))) return;
 	const points = getOption(interaction, args, 'points');
 	const mustMeetQuota = getOption(interaction, args, 'must_meet_quota') ?? false;

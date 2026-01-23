@@ -3,6 +3,7 @@ import {
 	BelongsToManyAddAssociationMixin,
 	BelongsToManyAddAssociationsMixin,
 	BelongsToManyGetAssociationsMixin,
+	BelongsToManyRemoveAssociationMixin,
 	BelongsToManyRemoveAssociationsMixin,
 	BelongsToManySetAssociationsMixin,
 	BelongsToSetAssociationMixin,
@@ -93,6 +94,7 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
 	declare roleGroups: NonAttribute<RoleGroup[]>;
 
 	declare addRoleGroup: BelongsToManyAddAssociationMixin<RoleGroup, RoleGroup['id']>;
+	declare removeRoleGroup: BelongsToManyRemoveAssociationMixin<RoleGroup, RoleGroup['id']>;
 
 	@Attribute({ type: DataTypes.DATE })
 	declare createdAt: CreationOptional<Date>;

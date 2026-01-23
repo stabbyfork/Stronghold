@@ -57,6 +57,18 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		return;
 	}
 
+	await Data.mainDb.transaction(async (transaction) => {
+		const [dbUser] = await Data.models.User.findCreateFind({
+			where: {
+				guildId: guild.id,
+				userId: user.id,
+			},
+			defaults: { guildId: guild.id, userId: user.id },
+			transaction,
+		});
+		await dbUser.removeRoleGroup(group, { transaction });
+	});
+
 	await interaction.reply({
 		embeds: [
 			defaultEmbed()

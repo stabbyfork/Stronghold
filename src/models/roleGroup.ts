@@ -7,7 +7,7 @@ import {
 	Model,
 	NonAttribute,
 } from '@sequelize/core';
-import { Attribute, HasMany, Table } from '@sequelize/core/decorators-legacy';
+import { Attribute, BelongsTo, BelongsToMany, HasMany, Table } from '@sequelize/core/decorators-legacy';
 import { RoleData } from './roleData.js';
 
 export enum RoleGroupAssociations {
@@ -26,7 +26,7 @@ export class RoleGroup extends Model<InferAttributes<RoleGroup>, InferCreationAt
 	@Attribute({ type: DataTypes.STRING(32), allowNull: false })
 	declare name: string;
 
-	@HasMany(() => RoleData, { foreignKey: { name: 'groupId', onUpdate: 'RESTRICT', onDelete: 'SET NULL' } })
+	/** Associated in {@link RoleData} */
 	declare roles?: NonAttribute<RoleData[]>;
 
 	declare setRoles: HasManySetAssociationsMixin<RoleData, RoleData['id']>;

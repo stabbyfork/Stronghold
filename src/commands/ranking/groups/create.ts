@@ -133,11 +133,18 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		await Data.models.RoleData.bulkCreate(
 			roleIds.map((roleId) => ({
 				guildId: guild.id,
-				groupId: roleGroup.id,
 				roleId,
 			})),
-			{ transaction, updateOnDuplicate: ['groupId'] },
+			{ transaction, ignoreDuplicates: true },
 		);
+		const roleDatas = await Data.models.RoleData.findAll({
+			where: {
+				guildId: guild.id,
+				roleId: roleIds,
+			},
+			transaction,
+		});
+		await roleGroup.setRoles(roleDatas, { transaction });
 	});
 	await interaction.reply({
 		embeds: [
@@ -151,6 +158,6 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	});
 	Logging.quickInfo(
 		interaction,
-		`Created role group \`${groupName}\` with ${roleIds.length} role${roleIds.length !== 1 ? 's' : ''}.`,
+		`Created role group \`${groupName}\` with ${roleIds.length} role${roleIds.length !== 1 ? 's' : ''}: ${roleIds.map(roleMention).join(', ')}.`,
 	);
 };

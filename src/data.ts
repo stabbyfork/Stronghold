@@ -21,6 +21,8 @@ import { Errors } from './types/errors.js';
 import { Debug } from './utils/errorsUtils.js';
 import { ProxyCommand } from './models/proxyCommand.js';
 import { Environment } from './types/envTypes.js';
+import { RoleData } from './models/roleData.js';
+import { RoleGroup } from './models/roleGroup.js';
 
 const dbConfg = Config.get('database');
 
@@ -42,6 +44,8 @@ export namespace Data {
 		SessionParticipant,
 		RobloxUser,
 		ProxyCommand,
+		RoleData,
+		RoleGroup,
 	};
 	export const mainDb =
 		process.env.NODE_ENV === Environment.Production

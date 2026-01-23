@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON SAT, 17 JAN 2026 09:39:07 GMT WITH 13 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON FRI, 23 JAN 2026 16:35:36 GMT WITH 13 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct } from "./types/commandTypes.js";
 
@@ -381,6 +381,50 @@ ranking: {
         "required": true
       }
     }
+  },
+  "groups": {
+    "create": {
+      "group_name": {
+        "type": "string",
+        "required": true
+      },
+      "role_ids": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "delete": {
+      "group_name": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "add": {
+      "group_name": {
+        "type": "string",
+        "required": true
+      },
+      "user": {
+        "type": "user",
+        "required": true
+      }
+    },
+    "remove": {
+      "group_name": {
+        "type": "string",
+        "required": true
+      },
+      "user": {
+        "type": "user",
+        "required": true
+      }
+    },
+    "view": {
+      "group_name": {
+        "type": "string",
+        "required": true
+      }
+    }
   }
 },
 rbx: {
@@ -663,6 +707,14 @@ ranking: {
     edit: T,
     remove: T,
     in: T
+  },
+  groups: {
+    list: T,
+    create: T,
+    delete: T,
+    add: T,
+    remove: T,
+    view: T
   }
 },
 rbx: {

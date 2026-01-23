@@ -96,6 +96,7 @@ export const ErrorReplies = {
 	ProxyTargetNotSubcommand: 'Target command is not a subcommand. Please only target commands or subcommands.',
 	SessionNotCreated: 'A session has not been created yet. Please run `/session start` first.',
 	ProxyNotFoundSubstitute: 'Proxy command not found: `!{ERROR}`',
+	GroupNameEmpty: 'Group name cannot be empty.',
 } as const;
 
 export namespace Errors {

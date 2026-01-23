@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON SAT, 17 JAN 2026 09:39:07 GMT WITH 13 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON FRI, 23 JAN 2026 16:35:36 GMT WITH 13 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct, CommandExecute } from './types/commandTypes.js';
 
@@ -65,6 +65,12 @@ import ranking_ranks_add_bulk from './commands/ranking/ranks/add_bulk.js';
 import ranking_ranks_edit from './commands/ranking/ranks/edit.js';
 import ranking_ranks_remove from './commands/ranking/ranks/remove.js';
 import ranking_ranks_in from './commands/ranking/ranks/in.js';
+import ranking_groups_list from './commands/ranking/groups/list.js';
+import ranking_groups_create from './commands/ranking/groups/create.js';
+import ranking_groups_delete from './commands/ranking/groups/delete.js';
+import ranking_groups_add from './commands/ranking/groups/add.js';
+import ranking_groups_remove from './commands/ranking/groups/remove.js';
+import ranking_groups_view from './commands/ranking/groups/view.js';
 import rbx_blacklist_add from './commands/rbx/blacklist/add.js';
 import rbx_blacklist_remove from './commands/rbx/blacklist/remove.js';
 import rbx_blacklist_list from './commands/rbx/blacklist/list.js';
@@ -180,6 +186,14 @@ ranking: {
     edit: ranking_ranks_edit,
     remove: ranking_ranks_remove,
     in: ranking_ranks_in
+  },
+  groups: {
+    list: ranking_groups_list,
+    create: ranking_groups_create,
+    delete: ranking_groups_delete,
+    add: ranking_groups_add,
+    remove: ranking_groups_remove,
+    view: ranking_groups_view
   }
 },
 rbx: {

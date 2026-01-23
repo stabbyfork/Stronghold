@@ -48,6 +48,26 @@ const fields = [
 		value: 'Users with this permission can send messages to other guilds via the diplomacy system (see `/dpm setup`).',
 		inline: true,
 	},
+	{
+		name: Permission.ManageBlacklist,
+		value: 'Users with this permission can manage (add/remove) entries in the Roblox user blacklist.',
+		inline: true,
+	},
+	{
+		name: Permission.ManageProxies,
+		value: 'Users with this permission can manage (add/remove) command alias configurations.',
+		inline: true,
+	},
+	{
+		name: Permission.ManagePrefixes,
+		value: 'Users with this permission can manage (add/remove/change) role prefixes.',
+		inline: true,
+	},
+	{
+		name: Permission.ManageRoleGroups,
+		value: 'Users with this permission can manage (create/delete/add/remove) role groups.',
+		inline: true,
+	},
 ] as const as RestOrArray<APIEmbedField>;
 
 export default async (interaction: ChatInputCommandInteraction) => {

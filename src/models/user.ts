@@ -1,5 +1,6 @@
 import {
 	BelongsToGetAssociationMixin,
+	BelongsToManyAddAssociationMixin,
 	BelongsToManyAddAssociationsMixin,
 	BelongsToManyGetAssociationsMixin,
 	BelongsToManyRemoveAssociationsMixin,
@@ -18,6 +19,7 @@ import {
 import { Attribute, BelongsTo, BelongsToMany, HasOne, Table } from '@sequelize/core/decorators-legacy';
 import { Guild } from './guild.js';
 import { Rank } from './rank.js';
+import { RoleGroup } from './roleGroup.js';
 import { UserPermission } from './userPermission.js';
 
 export enum UserAssociations {
@@ -26,6 +28,7 @@ export enum UserAssociations {
 	SecondaryRanks = 'ranks',
 	NextRank = 'nextRank',
 	MainRank = 'mainRank',
+	RoleGroups = 'roleGroups',
 }
 
 /** Per guild */
@@ -55,7 +58,7 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
 	declare nextRankId: number | null;
 
 	@HasOne(() => UserPermission, { foreignKey: 'userId', inverse: 'user' })
-	declare userPermission?: UserPermission;
+	declare userPermission?: NonAttribute<UserPermission>;
 
 	declare getUserPermission: HasOneGetAssociationMixin<UserPermission>;
 	declare createUserPermission: HasOneCreateAssociationMixin<UserPermission, 'userId'>;
@@ -85,6 +88,11 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
 	declare nextRank?: NonAttribute<Rank | null>;
 	declare getNextRank: BelongsToGetAssociationMixin<Rank>;
 	declare setNextRank: BelongsToSetAssociationMixin<Rank, Rank['rankId']>;
+
+	@BelongsToMany(() => RoleGroup, { through: 'UserRoleGroups' })
+	declare roleGroups: NonAttribute<RoleGroup[]>;
+
+	declare addRoleGroup: BelongsToManyAddAssociationMixin<RoleGroup, RoleGroup['id']>;
 
 	@Attribute({ type: DataTypes.DATE })
 	declare createdAt: CreationOptional<Date>;

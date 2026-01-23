@@ -1,8 +1,15 @@
-import { CreationOptional, DataTypes, ForeignKey, InferCreationAttributes, Model } from '@sequelize/core';
+import {
+	CreationOptional,
+	DataTypes,
+	ForeignKey,
+	InferAttributes,
+	InferCreationAttributes,
+	Model,
+} from '@sequelize/core';
 import { Attribute, Table } from '@sequelize/core/decorators-legacy';
 import { Guild } from './guild.js';
 @Table({ indexes: [{ unique: true, fields: ['guildId', 'roleId'] }] })
-export class RolePermission extends Model<RolePermission, InferCreationAttributes<RolePermission>> {
+export class RolePermission extends Model<InferAttributes<RolePermission>, InferCreationAttributes<RolePermission>> {
 	@Attribute({ type: DataTypes.STRING(20), allowNull: false })
 	declare guildId: ForeignKey<Guild['guildId']>;
 
@@ -14,7 +21,6 @@ export class RolePermission extends Model<RolePermission, InferCreationAttribute
 
 	@Attribute({ type: DataTypes.DATE, allowNull: false })
 	declare createdAt: CreationOptional<Date>;
-
 	@Attribute({ type: DataTypes.DATE, allowNull: false })
 	declare updatedAt: CreationOptional<Date>;
 }

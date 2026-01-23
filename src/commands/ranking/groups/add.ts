@@ -8,6 +8,7 @@ import { Data } from '../../../data.js';
 import { RoleGroupAssociations } from '../../../models/roleGroup.js';
 import { defaultEmbed } from '../../../utils/discordUtils.js';
 import { Logging } from '../../../utils/loggingUtils.js';
+import { canManageRoleGroup } from './create.js';
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.ranking.groups.add) => {
 	const guild = interaction.guild;
@@ -50,6 +51,8 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		);
 		return;
 	}
+	const roleIds = roleGroup.roles!.map((roleData) => roleData.roleId);
+	if (!(await canManageRoleGroup(interaction, guild, roleIds))) return;
 	await Data.mainDb.transaction(async (transaction) => {
 		const [dbUser] = await Data.models.User.findCreateFind({
 			where: {
@@ -60,11 +63,14 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		});
 		await dbUser.addRoleGroup(roleGroup, { transaction });
 		try {
-			await member.roles.add(roleGroup.roles!.map((roleData) => roleData.roleId));
+			await member.roles.add(
+				roleIds,
+				`Adding role group ${groupName} per /ranking groups add command. Requested by: ${interaction.user.id}`,
+			);
 		} catch (error) {
 			await reportErrorToUser(
 				interaction,
-				`Failed to add roles: ${roleGroup.roles!.map((roleData) => roleMention(roleData.roleId)).join(', ')} to user ${userMention(user.id)}. Please ensure the bot has the necessary permissions and the roles are assignable.`,
+				`Failed to add roles: ${roleIds.map(roleMention).join(', ')} to user ${userMention(user.id)}. Please ensure the bot has the necessary permissions and the roles are assignable.`,
 				true,
 			);
 			throw error; // Re-throw to rollback transaction if needed
@@ -75,7 +81,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			defaultEmbed()
 				.setTitle('Role group added to user')
 				.setDescription(
-					`Group \`${groupName}\` has been added to user ${userMention(user.id)}, assigning them ${roleGroup.roles!.length} role${roleGroup.roles!.length !== 1 ? 's' : ''}: ${roleGroup.roles!.map((roleData) => roleMention(roleData.roleId)).join(', ')}`,
+					`Group \`${groupName}\` has been added to user ${userMention(user.id)}, assigning them ${roleIds.length} role${roleIds.length !== 1 ? 's' : ''}: ${roleIds.map(roleMention).join(', ')}`,
 				)
 				.setColor('Green'),
 		],

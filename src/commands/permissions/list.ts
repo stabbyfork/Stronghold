@@ -65,7 +65,7 @@ const fields = [
 	},
 	{
 		name: Permission.ManageRoleGroups,
-		value: 'Users with this permission can manage (create/delete/add/remove) role groups.',
+		value: 'Users with this permission can manage (create/add/remove, NOT delete) role groups. Only administrators can delete role groups.',
 		inline: true,
 	},
 ] as const as RestOrArray<APIEmbedField>;

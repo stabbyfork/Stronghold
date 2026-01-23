@@ -7,6 +7,8 @@ import { commandOptions } from '../../../cmdOptions.js';
 import { Data } from '../../../data.js';
 import { RoleGroupAssociations } from '../../../models/roleGroup.js';
 import { defaultEmbed } from '../../../utils/discordUtils.js';
+import { canManageRoleGroup } from './create.js';
+import { Logging } from '../../../utils/loggingUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.ranking.groups.remove) => {
 	const guild = interaction.guild;
@@ -56,6 +58,14 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		Debug.error('Error removing roles for /ranking groups remove command:', error);
 		return;
 	}
+	if (
+		!(await canManageRoleGroup(
+			interaction,
+			guild,
+			group.roles!.map((r) => r.roleId),
+		))
+	)
+		return;
 
 	await Data.mainDb.transaction(async (transaction) => {
 		const [dbUser] = await Data.models.User.findCreateFind({
@@ -82,4 +92,5 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		],
 		allowedMentions: { users: [], roles: [] },
 	});
+	Logging.quickInfo(interaction, `Removed role group \`${groupName}\` from user ${userMention(user.id)}.`);
 };

@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON FRI, 23 JAN 2026 16:35:36 GMT WITH 13 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON FRI, 23 JAN 2026 20:13:12 GMT WITH 13 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct } from "./types/commandTypes.js";
 
@@ -424,6 +424,12 @@ ranking: {
         "type": "string",
         "required": true
       }
+    },
+    "get": {
+      "user": {
+        "type": "user",
+        "required": false
+      }
     }
   }
 },
@@ -714,7 +720,8 @@ ranking: {
     delete: T,
     add: T,
     remove: T,
-    view: T
+    view: T,
+    get: T
   }
 },
 rbx: {

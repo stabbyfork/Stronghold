@@ -19,15 +19,10 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		return;
 	}
 	if (!(await reportErrorIfNotSetup(interaction))) return;
-	if (!(await hasPermissions(interaction.member as GuildMember, guild, true, Permission.ManageRoleGroups))) {
-		await reportErrorToUser(
-			interaction,
-			constructError([ErrorReplies.PermissionsNeededSubstitute], Permission.ManageRoleGroups),
-			true,
-		);
+	if (interaction.user.id !== guild.ownerId) {
+		await reportErrorToUser(interaction, 'Only the server owner can delete role groups.', true);
 		return;
 	}
-
 	const groupName = getOption(interaction, args, 'group_name');
 	if (!groupName) {
 		await reportErrorToUser(interaction, constructError([ErrorReplies.GroupNameEmpty]), true);

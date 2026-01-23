@@ -403,6 +403,17 @@ export default createCommand<{}, 'ranking'>({
 								.setRequired(true)
 								.setAutocomplete(true),
 						),
+				)
+				.addSubcommand((cmd) =>
+					cmd
+						.setName('get')
+						.setDescription('List all role groups a user has')
+						.addUserOption((option) =>
+							option
+								.setName('user')
+								.setDescription('User to view role groups of. Omit to view your own role groups')
+								.setRequired(false),
+						),
 				),
 		),
 	description: {

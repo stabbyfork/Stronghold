@@ -2,7 +2,7 @@
 
 Faction bot for Discord
 
-More info on the website: https://stronghold.kasekorp.com/
+More info on the website: https://stronghold.kasekorp.com/ (https://github.com/StrongholdBot/stronghold-website)
 
 Originally a closed-source bot with little intention of going open source, so code may be poorly readable and branches have barely been used.
 

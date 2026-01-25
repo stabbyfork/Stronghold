@@ -219,7 +219,7 @@ export default createEvent({
 						data: interaction,
 						formatData: {
 							msg: `Unexpected non-fatal error encountered`,
-							action: `Execution of command \`${name}\``,
+							action: `Execution of command \`${name.join(' ')}\``,
 							userId: interaction.user.id,
 							cause: `\`${err.toString()}\``,
 						},

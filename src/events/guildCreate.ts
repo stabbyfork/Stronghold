@@ -14,7 +14,7 @@ export default createEvent({
 					defaultEmbed()
 						.setTitle('Thanks for using Stronghold!')
 						.setDescription(
-							`Use \`/setup\` in the server to get started and for further instructions.\nJoin the support server or DM ${userMention(Config.get('appOwnerId'))} for help.`,
+							`Use \`/setup\` in the server to get started and for further instructions.\nJoin the support server at ${Config.get('website').discordUrl} or DM ${userMention(Config.get('appOwnerId'))} for help.`,
 						),
 				],
 			}),

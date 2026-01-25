@@ -66,7 +66,9 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		for (let i = 0; i < members.length; i++) {
 			const member = members[i];
 			const oldPrefix = prevPrefixes[i];
-			console.log(`Updating prefix for member ${members[i].user.tag} from ${oldPrefix} to ${prefix}`);
+			const highestPrefix = await Prefix.getHighestPrefix(member);
+			if (highestPrefix === oldPrefix) continue;
+			console.log(`Updating prefix for member ${members[i].user.tag} from ${oldPrefix} to ${highestPrefix}`);
 			await Prefix.updateMemberPrefix(member, oldPrefix, await Prefix.getHighestPrefix(member));
 		}
 	});

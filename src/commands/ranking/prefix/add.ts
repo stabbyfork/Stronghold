@@ -53,7 +53,6 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			await roleData.save({ transaction });
 		}
 
-		console.log('Cache size:', guild.members.cache.size);
 		// Owner and bot are always cached, so check for <= 2
 		if (guild.members.cache.size <= 2) {
 			await guild.members.fetch();
@@ -68,7 +67,6 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			const oldPrefix = prevPrefixes[i];
 			const highestPrefix = await Prefix.getHighestPrefix(member);
 			if (highestPrefix === oldPrefix) continue;
-			console.log(`Updating prefix for member ${members[i].user.tag} from ${oldPrefix} to ${highestPrefix}`);
 			await Prefix.updateMemberPrefix(member, oldPrefix, await Prefix.getHighestPrefix(member));
 		}
 	});

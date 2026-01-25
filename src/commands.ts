@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON FRI, 23 JAN 2026 20:13:12 GMT WITH 13 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON SUN, 25 JAN 2026 07:49:09 GMT WITH 13 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct, CommandExecute } from './types/commandTypes.js';
 
@@ -72,6 +72,9 @@ import ranking_groups_add from './commands/ranking/groups/add.js';
 import ranking_groups_remove from './commands/ranking/groups/remove.js';
 import ranking_groups_view from './commands/ranking/groups/view.js';
 import ranking_groups_get from './commands/ranking/groups/get.js';
+import ranking_prefix_add from './commands/ranking/prefix/add.js';
+import ranking_prefix_remove from './commands/ranking/prefix/remove.js';
+import ranking_prefix_list from './commands/ranking/prefix/list.js';
 import rbx_blacklist_add from './commands/rbx/blacklist/add.js';
 import rbx_blacklist_remove from './commands/rbx/blacklist/remove.js';
 import rbx_blacklist_list from './commands/rbx/blacklist/list.js';
@@ -196,6 +199,11 @@ ranking: {
     remove: ranking_groups_remove,
     view: ranking_groups_view,
     get: ranking_groups_get
+  },
+  prefix: {
+    add: ranking_prefix_add,
+    remove: ranking_prefix_remove,
+    list: ranking_prefix_list
   }
 },
 rbx: {

@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON FRI, 23 JAN 2026 20:13:12 GMT WITH 13 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON SUN, 25 JAN 2026 07:49:09 GMT WITH 13 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct } from "./types/commandTypes.js";
 
@@ -431,6 +431,24 @@ ranking: {
         "required": false
       }
     }
+  },
+  "prefix": {
+    "add": {
+      "role": {
+        "type": "role",
+        "required": true
+      },
+      "prefix": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "remove": {
+      "role": {
+        "type": "role",
+        "required": true
+      }
+    }
   }
 },
 rbx: {
@@ -722,6 +740,11 @@ ranking: {
     remove: T,
     view: T,
     get: T
+  },
+  prefix: {
+    add: T,
+    remove: T,
+    list: T
   }
 },
 rbx: {

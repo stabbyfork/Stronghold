@@ -1,4 +1,6 @@
 import {
+	BelongsToManyAddAssociationMixin,
+	BelongsToManyGetAssociationsMixin,
 	CreationOptional,
 	DataTypes,
 	InferAttributes,
@@ -8,8 +10,8 @@ import {
 } from '@sequelize/core';
 import { Attribute, BelongsToMany, Table } from '@sequelize/core/decorators-legacy';
 import { RoleGroup } from './roleGroup.js';
-import { BelongsToManyAddAssociationMixin } from 'sequelize';
 
+@Table({ indexes: [{ fields: ['guildId', 'roleId'] }] })
 export class RoleData extends Model<InferAttributes<RoleData>, InferCreationAttributes<RoleData>> {
 	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, allowNull: false, primaryKey: true, autoIncrement: true })
 	declare id: CreationOptional<number>;
@@ -27,6 +29,7 @@ export class RoleData extends Model<InferAttributes<RoleData>, InferCreationAttr
 	})
 	declare roleGroups?: NonAttribute<RoleGroup[]>;
 
+	declare getRoleGroups: BelongsToManyGetAssociationsMixin<RoleGroup>;
 	declare addRoleGroup: BelongsToManyAddAssociationMixin<RoleGroup, RoleGroup['id']>;
 
 	@Attribute({ type: DataTypes.STRING(16), allowNull: true })

@@ -27,7 +27,6 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		await reportErrorToUser(interaction, constructError([ErrorReplies.RankNotFoundSubstitute], name), true);
 		return;
 	}
-	const roleId = rank.roleId;
 	// May error
 	await Data.mainDb.transaction(async (transaction) => {
 		for (const user of await Data.models.User.findAll({ where: { mainRankId: rank.rankId }, transaction })) {
@@ -35,7 +34,6 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		}
 		await rank.destroy({ transaction });
 	});
-	await guild.roles.delete(roleId, 'Deleted by /ranking ranks remove.');
 	await interaction.reply({
 		embeds: [defaultEmbed().setTitle('Success').setDescription(`Removed rank ${rank.name}.`).setColor('Green')],
 	});

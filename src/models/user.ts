@@ -59,6 +59,9 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
 	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, allowNull: true })
 	declare nextRankId: number | null;
 
+	@Attribute({ type: DataTypes.STRING(16), allowNull: true })
+	declare prefix: string | null;
+
 	@HasOne(() => UserPermission, { foreignKey: 'userId', inverse: 'user' })
 	declare userPermission?: NonAttribute<UserPermission>;
 

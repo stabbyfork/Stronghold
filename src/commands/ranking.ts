@@ -5,6 +5,8 @@ import { Data } from '../data.js';
 import fuzzysort from 'fuzzysort';
 import { Rank } from '../models/rank.js';
 import { RoleGroup } from '../models/roleGroup.js';
+import { Op } from '@sequelize/core';
+import { RoleData } from '../models/roleData.js';
 
 const exampleRankObjs = [
 	{
@@ -415,6 +417,36 @@ export default createCommand<{}, 'ranking'>({
 								.setRequired(false),
 						),
 				),
+		)
+		.addSubcommandGroup((group) =>
+			group
+				.setName('prefix')
+				.setDescription('Manage role prefixes for this server')
+				.addSubcommand((cmd) =>
+					cmd
+						.setName('add')
+						.setDescription('Add a role prefix')
+						.addRoleOption((option) =>
+							option.setName('role').setDescription('Role to give prefix to').setRequired(true),
+						)
+						.addStringOption((option) =>
+							option
+								.setName('prefix')
+								.setDescription('Prefix to assign to the role')
+								.setRequired(true)
+								.setMaxLength(16)
+								.setMinLength(1),
+						),
+				)
+				.addSubcommand((cmd) =>
+					cmd
+						.setName('remove')
+						.setDescription("Remove a role's prefix")
+						.addRoleOption((option) =>
+							option.setName('role').setDescription('Role to remove prefix from').setRequired(true),
+						),
+				)
+				.addSubcommand((cmd) => cmd.setName('list').setDescription('List all role prefixes')),
 		),
 	description: {
 		ranks: {
@@ -443,6 +475,11 @@ export default createCommand<{}, 'ranking'>({
 			add: { usesPerInterval: 5, useCooldown: 10 * 1000, intervalMs: 40 * 1000 },
 			remove: { usesPerInterval: 5, useCooldown: 10 * 1000, intervalMs: 40 * 1000 },
 			view: { usesPerInterval: 5, useCooldown: 8 * 1000, intervalMs: 30 * 1000 },
+		},
+		prefix: {
+			add: { usesPerInterval: 5, useCooldown: 8 * 1000, intervalMs: 60 * 1000 },
+			remove: { usesPerInterval: 4, useCooldown: 10 * 1000, intervalMs: 60 * 1000 },
+			list: { usesPerInterval: 6, useCooldown: 10 * 1000, intervalMs: 30 * 1000 },
 		},
 	},
 	autocomplete: {

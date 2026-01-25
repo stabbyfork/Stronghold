@@ -97,6 +97,10 @@ export const ErrorReplies = {
 	SessionNotCreated: 'A session has not been created yet. Please run `/session start` first.',
 	ProxyNotFoundSubstitute: 'Proxy command not found: `!{ERROR}`',
 	GroupNameEmpty: 'Group name cannot be empty.',
+	PrefixTooLong: 'Prefix is too long. It may be a maximum of 16 characters.',
+	PrefixEmpty: 'Prefix cannot be empty.',
+	NoPrefixesSet: 'No prefixes have been set in this server. See `/ranking prefix add` to add one.',
+	PrefixNotSetForRole: 'No prefix has been set for the role with ID `!{ERROR}`.',
 } as const;
 
 export namespace Errors {

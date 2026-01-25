@@ -12,6 +12,7 @@ export namespace Prefix {
 	export const userPrefixCache = new Map<string, string>();
 
 	Data.models.RoleData.hooks.addListener('afterDestroy', async (roleData: RoleData) => {
+		if (!roleData.prefix) return;
 		const guildPrefixes = prefixCache.get(roleData.guildId);
 		if (!guildPrefixes) return;
 		guildPrefixes.delete(roleData.roleId);

@@ -1,18 +1,21 @@
 import { Events } from 'discord.js';
 import { createEvent } from '../types/eventTypes.js';
 import { Prefix } from '../utils/prefixUtils.js';
-import { Debug } from '../utils/errorsUtils.js';
 
 export default createEvent({
 	name: Events.GuildMemberUpdate,
 	once: false,
 	async execute(oldMember, newMember) {
-		// Either roles didn't change or member has only @everyone role
-		if (oldMember.roles.cache.size === newMember.roles.cache.size || newMember.roles.cache.size === 0) {
+		if (oldMember.roles.cache.size === newMember.roles.cache.size) {
+			console.log('GuildMemberUpdate roles unchanged');
 			// Roles have not changed
 			return;
 		}
 		const newRoles = newMember.roles.cache.sorted((a, b) => b.position - a.position);
+		console.log(
+			'GuildMemberUpdate roles changed:',
+			newRoles.map((r) => r.name),
+		);
 		const guild = newMember.guild;
 		let prefixCache = Prefix.prefixCache.get(guild.id) ?? (await Prefix.loadGuildPrefixes(guild.id));
 		const prevPrefix = await Prefix.getMemberPrefix(newMember);

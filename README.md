@@ -9,9 +9,15 @@ Originally a closed-source bot with little intention of going open source, so th
 ## Setup & Hosting
 
 You are free to host this yourself (to the extent allowed by the license); however, complications may arise regarding data saving.
-- To install, simply clone the repository and run `npm install`
+- To install, clone the repository and run `npm install`
 - Create `src/config.json` and fill it out according to `config.json.schema`
 - Run with `npm run bundleAndRestart`
+
+## Contributing
+
+Issues and pull requests are welcome, but held to a high standard (given the responsibility of maintaining the security and safety of many servers).
+
+There is no standard or preferred format, so use your best judgment.
 
 ## AI Notice
 

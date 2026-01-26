@@ -28,3 +28,16 @@ Copilot's autocomplete is used frequently, but it simply saves time, rather than
 AI-generated code/additions are thoroughly verified.
 
 Almost all detailed function documentation (JSDocs) is AI-written and human-refined. I am a programmer, not a novel author.
+
+## License Notice
+
+Stronghold: the Discord bot
+Copyright (C) 2026 Markus (@stabbyfork)
+
+This project is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0).
+
+You may self-host and modify this bot for your own Discord server.
+If you run a modified version as a public or commercial bot, you must
+make the source code available to its users.
+
+See `LICENSE` (at the root of this repository) for a full description.

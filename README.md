@@ -9,9 +9,19 @@ Originally a closed-source bot with little intention of going open source, so th
 ## Setup & Hosting
 
 You are free to host this yourself (to the extent allowed by the license); however, complications may arise regarding data saving.
-- To install, clone the repository and run `npm install`
+- To install, clone the repository and run `npm install` (developed with npm@11.8.0, should work with newer versions)
 - Create `src/config.json` and fill it out according to `config.json.schema`
 - Run with `npm run bundleAndRestart`
+
+### Command Indexing
+
+`build:index` generates 2 files containing an index of all commands and another with an index of all their options/
+
+### Registering Commands
+
+`build:register prod/dev` registers commands to either the production or development environments, defined in `src/config.json`.
+
+Other package functions are currently undocumented.
 
 ## Contributing
 

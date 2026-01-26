@@ -14,8 +14,11 @@ You are free to host this yourself (to the extent allowed by the license); howev
 - Run with `npm run bundleAndRestart`
 
 ## AI Notice
+
 Some lengthy commit descriptions are written with AI (something it's really good at).
-Code is very minimally AI-written. A few ideas were "co-authored" by AI, and very few functions were refined by AI.
+
+Code is very minimally AI-written. Very few functions were refined by AI.
+Copilot's autocomplete is used frequently, but it simply saves time, rather than creating and implementing ideas.
 AI-generated code/additions are thoroughly verified.
+
 Almost all detailed function documentation (JSDocs) is AI-written and human-refined. I am a programmer, not a novel author.
-Copilot's autocomplete is used frequently, but it simply saves time instead of creating ideas.

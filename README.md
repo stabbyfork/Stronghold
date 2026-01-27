@@ -15,7 +15,7 @@ You are free to host this yourself (to the extent allowed by the license); howev
 
 ### Command Indexing
 
-`build:index` generates 2 files containing an index of all commands and another with an index of all their options/
+`build:index` generates 2 files containing an index of all commands and another with an index of all their options.
 
 ### Registering Commands
 
@@ -41,7 +41,8 @@ Almost all detailed function documentation (JSDocs) is AI-written and human-refi
 
 ## License Notice
 
-Stronghold: the Discord bot
+Stronghold: the Discord faction bot
+
 Copyright (C) 2026 Markus (@stabbyfork)
 
 This project is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0).

@@ -73,8 +73,8 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				failedMembers.push(member);
 				continue;
 			}
+			updatedMemberN++;
 		}
-		updatedMemberN++;
 	});
 
 	if (failedMembers.length > 0) {
@@ -102,5 +102,8 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			allowedMentions: { roles: [], users: [] },
 		});
 	}
-	Logging.quickInfo(interaction, `Removed prefix for role ${roleMention(role.id)} (${role.id}).`);
+	Logging.quickInfo(
+		interaction,
+		`Removed prefix for role ${roleMention(role.id)} (${role.id}). Updated prefixes for ${updatedMemberN} member(s), out of ${members.size} total member(s).`,
+	);
 };

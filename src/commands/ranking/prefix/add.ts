@@ -69,18 +69,12 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		}
 		const guildPrefixes = Prefix.prefixCache.get(guild.id) ?? (await Prefix.loadGuildPrefixes(guild.id));
 		guildPrefixes.set(role.id, prefix);
-		console.log(
-			'Members',
-			members.map((m) => m.user.username),
-		);
 		for (const [, member] of members) {
 			const oldPrefix = prevPrefixes.get(member.id);
 			const highestPrefix = await Prefix.getHighestPrefix(member);
-			console.log('Prefixes', oldPrefix, highestPrefix, prefix, member.user.username);
 			if (highestPrefix === oldPrefix) continue;
 			else totalMembersToUpdate++;
 			const hasUpdatedToNew = await Prefix.updateMemberPrefix(member, oldPrefix, highestPrefix);
-			console.log('Has updated', hasUpdatedToNew, member.user.username);
 			if (!hasUpdatedToNew) {
 				failedMembers.push(member);
 				continue;
@@ -114,5 +108,8 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			allowedMentions: { users: [], roles: [] },
 		});
 	}
-	Logging.quickInfo(interaction, `Set prefix for role ${role.id} to \`${prefix}\`.`);
+	Logging.quickInfo(
+		interaction,
+		`Set prefix for role ${role.id} to \`${prefix}\`. Updated prefixes for ${updatedMemberN} member(s), out of ${totalMembersToUpdate} to be updated (${members.size} total members).`,
+	);
 };

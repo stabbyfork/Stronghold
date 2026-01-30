@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, GuildMember, roleMention, userMention } from 'discord.js';
+import { ChatInputCommandInteraction, Collection, GuildMember, roleMention, userMention } from 'discord.js';
 import { ErrorReplies, Errors } from '../../../types/errors.js';
 import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js';
 import { getOption, reportErrorIfNotSetup } from '../../../utils/subcommandsUtils.js';
@@ -36,16 +36,16 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		return;
 	}
 	await interaction.deferReply();
-	await CacheUtils.fetchGuildMembers(guild);
-	const members = (await guild.roles.fetch(role.id))?.members;
-	if (!members) {
-		await reportErrorToUser(interaction, 'Could not get role members.', true);
-		return;
-	}
-	console.log(
-		'Members:',
-		members.map((m) => m.user.username),
-	);
+	let members: Collection<string, GuildMember>;
+	await CacheUtils.fetchGuildMembers(guild).then(async () => {
+		const newMembers = (await guild.roles.fetch(role.id))?.members;
+		if (!newMembers) {
+			await reportErrorToUser(interaction, 'Could not get role members.', true);
+			return;
+		}
+		members = newMembers;
+	});
+
 	let totalMembersWithTopPrefix = 0;
 	let updatedMemberN = 0;
 	const failedMembers: GuildMember[] = [];
@@ -79,22 +79,11 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			if (highestPrefix === oldPrefix) continue;
 			else totalMembersWithTopPrefix++;
 			const hasUpdatedToNew = await Prefix.updateMemberPrefix(member, oldPrefix, highestPrefix);
-			console.log(
-				'Updated:',
-				hasUpdatedToNew,
-				'Member:',
-				member.user.username,
-				'Old:',
-				oldPrefix,
-				'New:',
-				highestPrefix,
-			);
 			if (!hasUpdatedToNew) {
 				failedMembers.push(member);
 				continue;
 			}
 			updatedMemberN++;
-			console.log('Updated prefix:', prefix);
 		}
 	});
 

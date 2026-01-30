@@ -36,17 +36,14 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		return;
 	}
 	await interaction.deferReply();
-	let members: Collection<string, GuildMember>;
-	await CacheUtils.fetchGuildMembers(guild).then(async () => {
-		const newMembers = (await guild.roles.fetch(role.id))?.members;
-		if (!newMembers) {
-			await reportErrorToUser(interaction, 'Could not get role members.', true);
-			return;
-		}
-		members = newMembers;
-	});
+	await CacheUtils.fetchGuildMembers(guild);
+	const members = (await guild.roles.fetch(role.id))?.members;
+	if (!members) {
+		await reportErrorToUser(interaction, 'Could not get role members.', true);
+		return;
+	}
 
-	let totalMembersWithTopPrefix = 0;
+	let totalMembersToUpdate = 0;
 	let updatedMemberN = 0;
 	const failedMembers: GuildMember[] = [];
 	await Data.mainDb.transaction(async (transaction) => {
@@ -73,12 +70,18 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		);
 		const guildPrefixes = Prefix.prefixCache.get(guild.id) ?? (await Prefix.loadGuildPrefixes(guild.id));
 		guildPrefixes.set(role.id, prefix);
+		console.log(
+			'Members',
+			members.map((m) => m.user.username),
+		);
 		for (const [, member] of members) {
 			const oldPrefix = prevPrefixes.get(member.id);
 			const highestPrefix = await Prefix.getHighestPrefix(member);
+			console.log('Prefixes', oldPrefix, highestPrefix, prefix, member.user.username);
 			if (highestPrefix === oldPrefix) continue;
-			else totalMembersWithTopPrefix++;
+			else totalMembersToUpdate++;
 			const hasUpdatedToNew = await Prefix.updateMemberPrefix(member, oldPrefix, highestPrefix);
+			console.log('Has updated', hasUpdatedToNew, member.user.username);
 			if (!hasUpdatedToNew) {
 				failedMembers.push(member);
 				continue;
@@ -105,7 +108,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				defaultEmbed()
 					.setTitle('Prefix set')
 					.setDescription(
-						`Successfully set prefix for role ${roleMention(role.id)} to \`${prefix}\`. Updated prefixes for ${updatedMemberN} member(s), out of ${totalMembersWithTopPrefix}.`,
+						`Successfully set prefix for role ${roleMention(role.id)} to \`${prefix}\`. Updated prefixes for ${updatedMemberN} member(s), out of ${totalMembersToUpdate} to be updated (${members.size} total members).`,
 					)
 					.setColor('Green'),
 			],

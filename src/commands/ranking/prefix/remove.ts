@@ -95,7 +95,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				defaultEmbed()
 					.setTitle('Prefix removed')
 					.setDescription(
-						`Successfully removed prefix for role ${roleMention(role.id)} (${role.id}). Updated prefixes for ${updatedMemberN} members, out of ${members.size} total members.`,
+						`Successfully removed prefix for role ${roleMention(role.id)} (${role.id}). Updated prefixes for ${updatedMemberN} member(s), out of ${members.size} total member(s).`,
 					)
 					.setColor('Green'),
 			],

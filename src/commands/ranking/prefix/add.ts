@@ -47,6 +47,10 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	let updatedMemberN = 0;
 	const failedMembers: GuildMember[] = [];
 	await Data.mainDb.transaction(async (transaction) => {
+		// Must be separated in case the user prefix cache has not been updated
+		const prevPrefixes = new Map(
+			await Promise.all(members.map(async (mem) => [mem.id, await Prefix.getMemberPrefix(mem)] as const)),
+		);
 		const [roleData, created] = await Data.models.RoleData.findCreateFind({
 			where: {
 				guildId: guild.id,
@@ -63,11 +67,6 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			roleData.prefix = prefix;
 			await roleData.save({ transaction });
 		}
-
-		// Must be separated in case the user prefix cache has not been updated
-		const prevPrefixes = new Map(
-			await Promise.all(members.map(async (mem) => [mem.id, await Prefix.getMemberPrefix(mem)] as const)),
-		);
 		const guildPrefixes = Prefix.prefixCache.get(guild.id) ?? (await Prefix.loadGuildPrefixes(guild.id));
 		guildPrefixes.set(role.id, prefix);
 		console.log(

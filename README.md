@@ -4,16 +4,51 @@ Faction bot for Discord
 
 More info on the website: https://stronghold.kasekorp.com/ (https://github.com/StrongholdBot/stronghold-website)
 
-Originally a closed-source bot with little intention of going open source, so code may be poorly readable and branches have barely been used.
+Originally a closed-source bot with little intention of going open source, so the code may be poorly readable, and branches have barely been used.
 
 ## Setup & Hosting
 
-You are free to host this yourself (to the extent allowed by the license), however, complications may arise in regards to data saving.
-- To install, simply clone the repository and run `npm install`
+You are free to host this yourself (to the extent allowed by the license); however, complications may arise regarding data saving.
+- To install, clone the repository and run `npm install` (developed with npm@11.8.0, should work with newer versions)
 - Create `src/config.json` and fill it out according to `config.json.schema`
 - Run with `npm run bundleAndRestart`
 
+### Command Indexing
+
+`build:index` generates 2 files containing an index of all commands and another with an index of all their options.
+
+### Registering Commands
+
+`build:register prod/dev` registers commands to either the production or development environments, defined in `src/config.json`.
+
+Other package functions are currently undocumented.
+
+## Contributing
+
+Issues and pull requests are welcome, but held to a high standard (given the responsibility of maintaining the security and safety of many servers).
+
+There is no standard or preferred format, so use your best judgment.
+
 ## AI Notice
-Some lengthy commit descriptions are written with AI.
-Code is very minimally AI. Some ideas were "co-authored" and some functions were refined by AI.
+
+Some lengthy commit descriptions are written with AI (something it's really good at).
+
+Code is very minimally AI-written. Very few functions were refined by AI.
+Copilot's autocomplete is used frequently, but it simply saves time, rather than creating and implementing ideas.
 AI-generated code/additions are thoroughly verified.
+
+Almost all detailed function documentation (JSDocs) is AI-written and human-refined. I am a programmer, not a novel author.
+
+## License Notice
+
+Stronghold: the Discord faction bot
+
+Copyright (C) 2026 Markus (@stabbyfork)
+
+This project is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0).
+
+You may self-host and modify this bot for your own Discord server.
+If you run a modified version as a public or commercial bot, you must
+make the source code available to its users.
+
+See `LICENSE` (at the root of this repository) for a full description.

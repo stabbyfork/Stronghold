@@ -102,9 +102,9 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		await interaction.followUp({
 			embeds: [
 				defaultEmbed()
-					.setTitle('Prefix update failed')
+					.setTitle('Prefix update partially failed')
 					.setDescription(
-						`Failed to update prefix for member(s) ${failedMembers.map((member) => userMention(member.user.id)).join(', ')}. Only some members' prefixes may have been updated.\nTo retry, repeat the command.`,
+						`Failed to update prefix for member(s) ${failedMembers.map((member) => userMention(member.user.id)).join(', ')}. Only some members' prefixes may have been updated.\nTo retry, repeat the command.\nThe rest of the members' prefixes have been updated.`,
 					)
 					.setColor('Red'),
 			],

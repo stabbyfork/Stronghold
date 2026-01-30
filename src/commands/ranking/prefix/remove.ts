@@ -83,7 +83,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				defaultEmbed()
 					.setTitle('Error updating member prefixes')
 					.setDescription(
-						`An error occurred while updating prefixes for members (${failedMembers.map((member) => userMention(member.user.id)).join(', ')}) of role ${roleMention(role.id)}. Check logs for details.\nTo retry updating their prefixes, repeat the command.\nThe rest of the members' prefixes have been updated.`,
+						`An error occurred while updating prefixes for members (${failedMembers.map((member) => userMention(member.user.id)).join(', ')}) of role ${roleMention(role.id)}. Check logs for details.\nTo retry updating their prefixes, add the prefix back and repeat this command.\nThe rest of the members' prefixes have been updated.`,
 					)
 					.setColor('Red'),
 			],

@@ -1,12 +1,10 @@
 import { AutocompleteInteraction, SlashCommandBuilder } from 'discord.js';
-import { createCommand } from '../types/commandTypes.js';
-import { UsageScope } from '../utils/usageLimitsUtils.js';
-import { Data } from '../data.js';
 import fuzzysort from 'fuzzysort';
+import { Data } from '../data.js';
 import { Rank } from '../models/rank.js';
 import { RoleGroup } from '../models/roleGroup.js';
-import { Op } from '@sequelize/core';
-import { RoleData } from '../models/roleData.js';
+import { createCommand } from '../types/commandTypes.js';
+import { UsageScope } from '../utils/usageLimitsUtils.js';
 
 const exampleRankObjs = [
 	{

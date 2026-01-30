@@ -60,30 +60,70 @@ export namespace Prefix {
 		return prefix;
 	}
 
-	export async function updateMemberPrefix(member: GuildMember, oldPrefix?: string, newPrefix?: string) {
+	export async function updateMemberPrefix(
+		member: GuildMember,
+		oldPrefix?: string,
+		newPrefix?: string,
+	): Promise<boolean> {
 		const oldDisplay = member.nickname ?? member.user.displayName;
 		let noPrefixName = oldDisplay;
 		if (oldPrefix && oldDisplay.startsWith(oldPrefix)) {
 			noPrefixName = oldDisplay.slice(oldPrefix.length).trim();
 		}
 		const newDisplay = newPrefix ? `${newPrefix} ${noPrefixName}` : noPrefixName;
-		await member.setNickname(newDisplay).catch((e: Error) => {
+		if (newDisplay.length >= 32) {
+			Logging.log({
+				logType: Logging.Type.Warning,
+				extents: [GuildFlag.LogWarnings],
+				formatData: {
+					msg: `Member ${userMention(member.id)} has a new nickname that would exceed Discord's maximum length of 32 characters. Their prefix will be removed.`,
+					action: 'Member prefix update',
+					userId: member.id,
+				},
+				data: { guildId: member.guild.id },
+			});
+			try {
+				// Revert to no prefix name
+				await member.setNickname(noPrefixName);
+				userPrefixCache.delete(member.id);
+			} catch (e) {
+				Logging.log({
+					logType: Logging.Type.Warning,
+					extents: [GuildFlag.LogWarnings],
+					formatData: {
+						msg: `Failed to remove prefix for member ${userMention(member.id)} as the new nickname would exceed Discord's maximum length of 32 characters. The bot is possibly missing the permission to rename members (Manage Nicknames). The user may be above the bot in the role hierarchy (or might be the server owner).`,
+						action: 'Member prefix removal',
+						cause: (e as Error).message,
+						userId: member.id,
+					},
+					data: { guildId: member.guild.id },
+				});
+			}
+
+			// Can't update nickname, would exceed max length
+			return false;
+		}
+		try {
+			await member.setNickname(newDisplay);
+		} catch (e) {
 			Logging.log({
 				logType: Logging.Type.Warning,
 				extents: [GuildFlag.LogWarnings],
 				formatData: {
 					msg: `Failed to update prefix for member ${userMention(member.id)}. The bot is possibly missing the permission to rename members (Manage Nicknames). The user may be above the bot in the role hierarchy (or might be the server owner).`,
 					action: 'Member prefix update',
-					cause: e.message,
+					cause: (e as Error).message,
 					userId: member.id,
 				},
 				data: { guildId: member.guild.id },
 			});
-		});
+			return false;
+		}
 		if (newPrefix !== undefined) {
 			userPrefixCache.set(member.id, newPrefix);
 		} else {
 			userPrefixCache.delete(member.id);
 		}
+		return true;
 	}
 }

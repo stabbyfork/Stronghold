@@ -1,5 +1,5 @@
-import { ChatInputCommandInteraction, GuildMember, roleMention } from 'discord.js';
-import { ErrorReplies } from '../../../types/errors.js';
+import { ChatInputCommandInteraction, GuildMember, roleMention, userMention } from 'discord.js';
+import { ErrorReplies, Errors } from '../../../types/errors.js';
 import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js';
 import { getOption, reportErrorIfNotSetup } from '../../../utils/subcommandsUtils.js';
 import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
@@ -8,6 +8,7 @@ import { Data } from '../../../data.js';
 import { defaultEmbed } from '../../../utils/discordUtils.js';
 import { Logging } from '../../../utils/loggingUtils.js';
 import { Prefix } from '../../../utils/prefixUtils.js';
+import { CacheUtils } from '../../../utils/cacheUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.ranking.prefix.add) => {
 	const guild = interaction.guild;
@@ -35,6 +36,19 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		return;
 	}
 	await interaction.deferReply();
+	await CacheUtils.fetchGuildMembers(guild);
+	const members = (await guild.roles.fetch(role.id))?.members;
+	if (!members) {
+		await reportErrorToUser(interaction, 'Could not get role members.', true);
+		return;
+	}
+	console.log(
+		'Members:',
+		members.map((m) => m.user.username),
+	);
+	let totalMembersWithTopPrefix = 0;
+	let updatedMemberN = 0;
+	const failedMembers: GuildMember[] = [];
 	await Data.mainDb.transaction(async (transaction) => {
 		const [roleData, created] = await Data.models.RoleData.findCreateFind({
 			where: {
@@ -53,31 +67,61 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			await roleData.save({ transaction });
 		}
 
-		// Owner and bot are always cached, so check for <= 2
-		if (guild.members.cache.size <= 2) {
-			await guild.members.fetch();
-		}
-		const members = Array.from(role.members.values());
 		// Must be separated in case the user prefix cache has not been updated
-		const prevPrefixes = await Promise.all(members.map(async (mem) => await Prefix.getMemberPrefix(mem)));
+		const prevPrefixes = new Map(
+			await Promise.all(members.map(async (mem) => [mem.id, await Prefix.getMemberPrefix(mem)] as const)),
+		);
 		const guildPrefixes = Prefix.prefixCache.get(guild.id) ?? (await Prefix.loadGuildPrefixes(guild.id));
 		guildPrefixes.set(role.id, prefix);
-		for (let i = 0; i < members.length; i++) {
-			const member = members[i];
-			const oldPrefix = prevPrefixes[i];
+		for (const member of members.values()) {
+			const oldPrefix = prevPrefixes.get(member.id);
 			const highestPrefix = await Prefix.getHighestPrefix(member);
 			if (highestPrefix === oldPrefix) continue;
-			await Prefix.updateMemberPrefix(member, oldPrefix, await Prefix.getHighestPrefix(member));
+			else totalMembersWithTopPrefix++;
+			const hasUpdatedToNew = await Prefix.updateMemberPrefix(member, oldPrefix, highestPrefix);
+			console.log(
+				'Updated:',
+				hasUpdatedToNew,
+				'Member:',
+				member.user.username,
+				'Old:',
+				oldPrefix,
+				'New:',
+				highestPrefix,
+			);
+			if (!hasUpdatedToNew) {
+				failedMembers.push(member);
+				continue;
+			}
+			updatedMemberN++;
+			console.log('Updated prefix:', prefix);
 		}
 	});
 
-	await interaction.editReply({
-		embeds: [
-			defaultEmbed()
-				.setTitle('Prefix set')
-				.setDescription(`Successfully set prefix for role ${roleMention(role.id)} to \`${prefix}\`.`)
-				.setColor('Green'),
-		],
-	});
+	if (failedMembers.length > 0) {
+		await interaction.followUp({
+			embeds: [
+				defaultEmbed()
+					.setTitle('Prefix update failed')
+					.setDescription(
+						`Failed to update prefix for member(s) ${failedMembers.map((member) => userMention(member.user.id)).join(', ')}. Only some members' prefixes may have been updated.\nTo retry, repeat the command.`,
+					)
+					.setColor('Red'),
+			],
+			allowedMentions: { users: [], roles: [] },
+		});
+	} else {
+		await interaction.followUp({
+			embeds: [
+				defaultEmbed()
+					.setTitle('Prefix set')
+					.setDescription(
+						`Successfully set prefix for role ${roleMention(role.id)} to \`${prefix}\`. Updated prefixes for ${updatedMemberN} member(s), out of ${totalMembersWithTopPrefix}.`,
+					)
+					.setColor('Green'),
+			],
+			allowedMentions: { users: [], roles: [] },
+		});
+	}
 	Logging.quickInfo(interaction, `Set prefix for role ${role.id} to \`${prefix}\`.`);
 };

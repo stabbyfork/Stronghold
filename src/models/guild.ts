@@ -56,6 +56,9 @@ export class Guild extends Model<InferAttributes<Guild>, InferCreationAttributes
 	/** Log channel ID */
 	@Attribute({ allowNull: true, type: DataTypes.STRING(20) })
 	declare logChannelId: string | null;
+	/** Priority level for listing (used for promotions) */
+	@Attribute({ allowNull: false, defaultValue: 0, type: DataTypes.INTEGER.UNSIGNED })
+	declare priority: CreationOptional<number>;
 
 	/** Diplomacy channel */
 	@Attribute({ allowNull: true, type: DataTypes.STRING(20) })

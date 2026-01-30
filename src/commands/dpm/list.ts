@@ -27,7 +27,10 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			const targets = await Data.models.Guild.findAndCountAll({
 				offset: start,
 				limit: perPage,
-				order: [['createdAt', 'DESC']],
+				order: [
+					['priority', 'DESC'],
+					['createdAt', 'DESC'],
+				],
 				where: {
 					tag: { [Op.ne]: null },
 					...(selectedGame ? { dpmGame: selectedGame } : {}),

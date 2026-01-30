@@ -40,7 +40,7 @@ export default async (interaction: ChatInputCommandInteraction) => {
 	const pages = new Pages({
 		itemsPerPage: 20,
 		totalItems: neutrals.count,
-		files: [Assets.getAsFile(AssetId.DefaultGuildIcon)],
+		files: [Assets.getAsFile(AssetId.UnknownIcon)],
 		createPage: async (index, perPage, files) => {
 			const start = index * perPage;
 			/* new ContainerBuilder().addTextDisplayComponents(

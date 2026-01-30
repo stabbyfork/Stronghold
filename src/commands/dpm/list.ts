@@ -21,7 +21,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	const pages = new Pages({
 		itemsPerPage: 5,
 		totalItems: nGuilds,
-		files: [new AttachmentBuilder(Assets.getById(AssetId.DefaultGuildIcon), { name: AssetId.DefaultGuildIcon })],
+		files: [new AttachmentBuilder(Assets.getById(AssetId.UnknownIcon), { name: AssetId.UnknownIcon })],
 		createPage: async (index, perPage, files) => {
 			const start = index * perPage;
 			const targets = await Data.models.Guild.findAndCountAll({

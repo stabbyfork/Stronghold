@@ -30,7 +30,7 @@ export default async (interaction: ChatInputCommandInteraction) => {
 	const pages = new Pages({
 		itemsPerPage: 10,
 		totalItems: nBlacklisted,
-		files: [Assets.getAsFile(AssetId.DefaultGuildIcon)],
+		files: [Assets.getAsFile(AssetId.UnknownIcon)],
 		createPage: async (index, perPage, files) => {
 			const users = await Data.models.RobloxUser.findAll({
 				where: { guildId: guild.id, blacklisted: true },

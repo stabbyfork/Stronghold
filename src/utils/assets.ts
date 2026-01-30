@@ -1,7 +1,7 @@
 import { AttachmentBuilder } from 'discord.js';
 
 export enum AssetId {
-	DefaultGuildIcon = 'noguildicon.png',
+	UnknownIcon = 'unknownicon.png',
 }
 export namespace Assets {
 	export function getByName<N extends string>(name: N): `./assets/${N}` {

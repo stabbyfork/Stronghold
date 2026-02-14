@@ -64,6 +64,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		const guildPrefixes = Prefix.prefixCache.get(guild.id) ?? (await Prefix.loadGuildPrefixes(guild.id));
 		guildPrefixes.delete(role.id);
 		for (const [, member] of members) {
+			if (member.user.bot) continue;
 			const hasUpdated = await Prefix.updateMemberPrefix(
 				member,
 				prevPrefixes.get(member.id),

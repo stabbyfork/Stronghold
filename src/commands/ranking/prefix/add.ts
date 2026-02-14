@@ -70,6 +70,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		const guildPrefixes = Prefix.prefixCache.get(guild.id) ?? (await Prefix.loadGuildPrefixes(guild.id));
 		guildPrefixes.set(role.id, prefix);
 		for (const [, member] of members) {
+			if (member.user.bot) continue;
 			const oldPrefix = prevPrefixes.get(member.id);
 			const highestPrefix = await Prefix.getHighestPrefix(member);
 			if (highestPrefix === oldPrefix) continue;

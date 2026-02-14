@@ -6,8 +6,8 @@ export default createEvent({
 	name: Events.GuildMemberUpdate,
 	once: false,
 	async execute(oldMember, newMember) {
-		if (oldMember.roles.cache.size === newMember.roles.cache.size) {
-			// Roles have not changed
+		if (oldMember.roles.cache.size === newMember.roles.cache.size || newMember.user.bot) {
+			// Roles have not changed or member is a bot
 			return;
 		}
 		const newRoles = newMember.roles.cache.sorted((a, b) => b.position - a.position);

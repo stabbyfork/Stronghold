@@ -199,7 +199,7 @@ export namespace Logging {
 		}
 		if ((logExtents & exts) !== exts) return;
 		if (!logChannel) return;
-		let todayThread: ForumThreadChannel | undefined;
+		let todayThread: ForumThreadChannel;
 		try {
 			todayThread = await getTodayThread(logChannel);
 		} catch {
@@ -208,7 +208,7 @@ export namespace Logging {
 					data,
 					constructError(
 						[ErrorReplies.ClientPermissionsMissingSubstitute],
-						`\`Send Messages\` in ${channelMention(logChannel.id)}`,
+						`\`Send Messages and Create Posts\` in ${channelMention(logChannel.id)}`,
 					),
 					true,
 				);

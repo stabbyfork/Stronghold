@@ -91,7 +91,7 @@ export interface Config {
    */
   assetsDirectory: string;
   /**
-   * Properties and options for news sending.
+   * Properties and options for news sending. WIP feature, used but not fully implemented.
    */
   news?: {
     /**
@@ -99,7 +99,7 @@ export interface Config {
      */
     endpoints: {
       /**
-       * Array of endpoints to send to when a relation between guilds changes
+       * Array of endpoints to send to when a relation between guilds changes.
        *
        * @minItems 1
        */

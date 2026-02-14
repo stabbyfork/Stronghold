@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON SUN, 25 JAN 2026 16:48:00 GMT WITH 13 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON SAT, 14 FEB 2026 09:53:37 GMT WITH 14 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct, CommandExecute } from './types/commandTypes.js';
 
@@ -10,6 +10,7 @@ import proxy from './commands/proxy.js';
 import ranking from './commands/ranking.js';
 import rbx from './commands/rbx.js';
 import session from './commands/session.js';
+import set from './commands/set.js';
 import feedback from './commands/utility/feedback.js';
 import help from './commands/utility/help.js';
 import invite from './commands/utility/invite.js';
@@ -97,6 +98,7 @@ import session_quota from './commands/session/quota.js';
 import session_remove from './commands/session/remove.js';
 import session_time from './commands/session/time.js';
 import session_auto_points from './commands/session/auto_points.js';
+import set_bot_pfp from './commands/set/bot_pfp.js';
 
 export const commands = {
   'activity': activity,
@@ -107,6 +109,7 @@ export const commands = {
   'ranking': ranking,
   'rbx': rbx,
   'session': session,
+  'set': set,
   'feedback': feedback,
   'help': help,
   'invite': invite,
@@ -235,6 +238,9 @@ session: {
   remove: session_remove,
   time: session_time,
   auto_points: session_auto_points
+},
+set: {
+  bot_pfp: set_bot_pfp
 },
 } as const satisfies {
 	[K in keyof Partial<typeof commands>]: { [key: string]: CommandExecute<any> | { [key: string]: CommandExecute<any> } };

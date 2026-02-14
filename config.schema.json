@@ -98,7 +98,7 @@
 		},
 		"news": {
 			"type": "object",
-			"description": "Properties and options for news sending.",
+			"description": "Properties and options for news sending. WIP feature, used but not fully implemented.",
 			"properties": {
 				"endpoints": {
 					"type": "object",

@@ -131,7 +131,10 @@ export default createEvent({
 					}
 					const limits = cmd.limits;
 					const mainMap = Usages.byScope(interaction);
-					const execLim = mainMap.getSetClone(UsageEnum.CommandExecute, UsageDefaults[UsageEnum.DMSend]);
+					const execLim = mainMap.getSetClone(
+						UsageEnum.CommandExecute,
+						UsageDefaults[UsageEnum.CommandExecute],
+					);
 					if (!execLim.use()) {
 						await reportErrorToUser(
 							interaction,

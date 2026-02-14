@@ -58,7 +58,7 @@
 		"announceUpdate": "pm2 trigger stronghold logUpdate",
 		"updateDatabase": "pm2 trigger stronghold alterSyncDb"
 	},
-	"version": "1.5.0",
+	"version": "1.5.1",
 	"name": "stronghold",
 	"displayName": "Stronghold"
 }

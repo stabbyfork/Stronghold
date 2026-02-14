@@ -149,8 +149,8 @@ export class UsageLimit {
 	}
 }
 export const UsageDefaults = {
-	[UsageEnum.DMSend]: new UsageLimit({ usesPerInterval: 2, useCooldown: 10, intervalMs: 60 * 60 * 2 }),
-	[UsageEnum.CommandExecute]: new UsageLimit({ usesPerInterval: 15, useCooldown: 1 * 1000, intervalMs: 60 * 1000 }),
+	[UsageEnum.DMSend]: new UsageLimit({ usesPerInterval: 2, useCooldown: 10, intervalMs: 60 * 60 * 2 * 1000 }),
+	[UsageEnum.CommandExecute]: new UsageLimit({ usesPerInterval: 15, useCooldown: 2 * 1000, intervalMs: 60 * 1000 }),
 	[UsageEnum.APIRequest]: new UsageLimit({ usesPerInterval: 20, useCooldown: 0, intervalMs: 60 * 1000 }),
 } as const satisfies { [T in UsageType]: UsageLimit };
 

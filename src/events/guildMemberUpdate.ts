@@ -10,9 +10,13 @@ export default createEvent({
 			// Roles have not changed or member is a bot
 			return;
 		}
-		const newRoles = newMember.roles.cache.sorted((a, b) => b.position - a.position);
 		const guild = newMember.guild;
 		let prefixCache = Prefix.prefixCache.get(guild.id) ?? (await Prefix.loadGuildPrefixes(guild.id));
+		if (prefixCache.size === 0) {
+			// No prefixes set up for this guild
+			return;
+		}
+		const newRoles = newMember.roles.cache.sorted((a, b) => b.position - a.position);
 		const prevPrefix = await Prefix.getMemberPrefix(newMember);
 
 		for (const role of newRoles.values()) {

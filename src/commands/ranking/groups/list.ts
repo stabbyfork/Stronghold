@@ -1,10 +1,17 @@
-import { ChatInputCommandInteraction, ContainerBuilder, TextDisplayBuilder } from 'discord.js';
+import {
+	ButtonStyle,
+	ChatInputCommandInteraction,
+	ContainerBuilder,
+	SectionBuilder,
+	TextDisplayBuilder,
+} from 'discord.js';
 import { Data } from '../../../data.js';
 import { RoleGroupAssociations } from '../../../models/roleGroup.js';
 import { ErrorReplies } from '../../../types/errors.js';
 import { Pages } from '../../../utils/discordUtils.js';
 import { constructError, reportErrorToUser } from '../../../utils/errorsUtils.js';
 import { reportErrorIfNotSetup } from '../../../utils/subcommandsUtils.js';
+import { GlobalCustomIds, InformedCustomId } from '../../../types/eventTypes.js';
 
 export default async (interaction: ChatInputCommandInteraction) => {
 	const guild = interaction.guild;
@@ -25,11 +32,25 @@ export default async (interaction: ChatInputCommandInteraction) => {
 			const start = pageIndex * itemsPerPage;
 			const end = start + itemsPerPage;
 			const pageRoleGroups = roleGroups.slice(start, end);
-			return new ContainerBuilder().addTextDisplayComponents(
-				pageRoleGroups.map((rg) =>
-					new TextDisplayBuilder().setContent(`**${rg.name}** - ${rg.roles!.length} role(s)`),
-				),
-			);
+			const builder = new ContainerBuilder();
+			for (const rg of pageRoleGroups) {
+				const defaultContent = new TextDisplayBuilder().setContent(
+					`**${rg.name}** - ${rg.roles!.length} role(s)`,
+				);
+				if (rg.joinable) {
+					builder.addSectionComponents(
+						new SectionBuilder().addTextDisplayComponents(defaultContent).setButtonAccessory((btn) =>
+							btn
+								.setCustomId(InformedCustomId.format(GlobalCustomIds.GroupJoin, rg.id.toString()))
+								.setLabel(rg.joinNeedsApproval ? 'Request to join' : 'Join')
+								.setStyle(ButtonStyle.Primary),
+						),
+					);
+				} else {
+					builder.addTextDisplayComponents(defaultContent);
+				}
+			}
+			return builder;
 		},
 	});
 	await pages.replyTo(interaction, false);

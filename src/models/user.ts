@@ -91,7 +91,7 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
 	declare getNextRank: BelongsToGetAssociationMixin<Rank>;
 	declare setNextRank: BelongsToSetAssociationMixin<Rank, Rank['rankId']>;
 
-	@BelongsToMany(() => RoleGroup, { through: 'UserRoleGroups' })
+	@BelongsToMany(() => RoleGroup, { through: 'UserRoleGroups', inverse: 'users' })
 	declare roleGroups: NonAttribute<RoleGroup[]>;
 
 	declare addRoleGroup: BelongsToManyAddAssociationMixin<RoleGroup, RoleGroup['id']>;

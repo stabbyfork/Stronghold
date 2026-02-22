@@ -345,6 +345,18 @@ export default createCommand<{}, 'ranking'>({
 								.setName('role_ids')
 								.setDescription('Space-separated list of role IDs to add to this group')
 								.setRequired(true),
+						)
+						.addBooleanOption((option) =>
+							option
+								.setName('joinable')
+								.setDescription('Whether users can join/request this group themselves. Default = false')
+								.setRequired(false),
+						)
+						.addBooleanOption((option) =>
+							option
+								.setName('needs_approval')
+								.setDescription('Whether joining this group needs approval. Default = true')
+								.setRequired(false),
 						),
 				)
 				.addSubcommand((cmd) =>

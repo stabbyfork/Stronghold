@@ -1,6 +1,7 @@
 //#region Logging
 
 import {
+	channelMention,
 	ChatInputCommandInteraction,
 	EmbedBuilder,
 	ForumChannel,
@@ -8,17 +9,15 @@ import {
 	Interaction,
 	MessageCreateOptions,
 	ThreadAutoArchiveDuration,
-	TimestampStyles,
-	channelMention,
 	time,
+	TimestampStyles,
 	userMention,
 } from 'discord.js';
 import { client } from '../client.js';
 import { Data } from '../data.js';
-import { defaultEmbed } from './discordUtils.js';
-import { GuildFlag, GuildFlagBits, GuildFlagField } from './guildFlagsUtils.js';
-import { constructError, Debug, reportErrorToUser } from './errorsUtils.js';
 import { ErrorReplies } from '../types/errors.js';
+import { constructError, Debug, reportErrorToUser } from './errorsUtils.js';
+import { GuildFlag, GuildFlagBits, GuildFlagField } from './guildFlagsUtils.js';
 
 export namespace Logging {
 	export enum Type {
@@ -97,6 +96,7 @@ export namespace Logging {
 		[GuildFlag.LogDebug]: 0b1000,
 	} as const satisfies { [K in GuildFlag]?: number };
 	export type LogExtent = keyof typeof Extents;
+
 	export function hasExtents(flags: GuildFlagField, ...extents: LogExtent[]) {
 		const exts = extents.reduce((acc, extent) => acc | Extents[extent], 0);
 		return (
@@ -154,6 +154,18 @@ export namespace Logging {
 	export function getTodayThread(logChannel: ForumChannel) {
 		return getThreadAtDay(logChannel, new Date(), true);
 	}
+
+	export async function getLogChannel(guildId: string) {
+		const cached = logChannelCache.get(guildId);
+		if (cached) return cached;
+		const guild = await Data.models.Guild.findOne({ where: { guildId } });
+		if (!guild) return;
+		if (!guild.logChannelId) return;
+		const logChannel = (await client.channels.fetch(guild.logChannelId)) as ForumChannel;
+		logChannelCache.set(guildId, logChannel);
+		return logChannel;
+	}
+
 	/**
 	 * Logs a message to the specified log channel.
 	 *
@@ -178,15 +190,10 @@ export namespace Logging {
 		let { guildId } = data;
 		if (!guildId) return;
 		const exts = extents.reduce((acc, extent) => acc | Extents[extent], 0);
-		let logChannel = logChannelCache.get(guildId);
+		const logChannel = await getLogChannel(guildId);
+		if (!logChannel) return;
 		let logExtents = logExtentsCache.get(guildId);
-		if (!logChannel) {
-			const guild = await Data.models.Guild.findOne({ where: { guildId } });
-			if (!guild) return;
-			if (!guild.logChannelId) return;
-			logChannel = (await client.channels.fetch(guild.logChannelId)) as ForumChannel;
-			logChannelCache.set(guildId, logChannel);
-		}
+
 		if (!logExtents) {
 			const guild = await Data.models.Guild.findOne({ where: { guildId } });
 			if (!guild) return;

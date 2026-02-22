@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON SAT, 14 FEB 2026 09:53:37 GMT WITH 14 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON FRI, 20 FEB 2026 11:05:36 GMT WITH 14 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct } from "./types/commandTypes.js";
 
@@ -391,6 +391,14 @@ ranking: {
       "role_ids": {
         "type": "string",
         "required": true
+      },
+      "joinable": {
+        "type": "boolean",
+        "required": false
+      },
+      "needs_approval": {
+        "type": "boolean",
+        "required": false
       }
     },
     "delete": {

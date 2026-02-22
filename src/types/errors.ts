@@ -101,6 +101,31 @@ export const ErrorReplies = {
 	PrefixEmpty: 'Prefix cannot be empty.',
 	NoPrefixesSet: 'No prefixes have been set in this server. See `/ranking prefix add` to add one.',
 	PrefixNotSetForRole: 'No prefix has been set for the role with ID `!{ERROR}`.',
+	InteractionHasNoGroupId:
+		'This interaction does not have an associated group ID. This may be because of an internal error.',
+	UserAlreadyInGroup: 'You are already in this group.',
+	GroupNotJoinable: 'This group is not joinable.',
+	GroupJoinNeedsApprovalButNoLogChannel:
+		'This group requires approval to join, but no log channel is set up to log the join requests. The server owner needs to run `/setup force:true` and make sure to set a log channel to use this feature.',
+	FailedToCreateLogThread:
+		'Failed to create a log thread. Please make sure the bot has permission to manage threads in the logging channel and try again.',
+	GroupHasInvalidRoles:
+		'This group has invalid roles with the following IDs: !{ERROR}. Please fix or remove these roles to use this group.',
+	InteractionHasNoGroupIdOrUserId:
+		'This interaction does not have an associated group ID or user ID. This may be because of an internal error.',
+	InteractionHasNoMatchingGroup:
+		'No group found matching the group ID of this interaction. This may be because of an internal error or because the group was deleted.',
+	ThirdPersonUserAlreadyInGroup: 'This user is already in this group.',
+	FailedToEditMessage:
+		'Failed to edit the message for this interaction. This may be due to a permissions issue, because the interaction has expired, or because of an internal error.',
+	FailedToGetHighestBotRole:
+		'Failed to get the highest role of the bot. This may be because of an internal error or because the bot does not have any roles in this server.',
+	FailedToGetUserHighestRole:
+		'Failed to get the highest role of the user. This may be because of an internal error or because the user does not have any roles in this server.',
+	GroupHasRoleHigherThanBot:
+		"This group has a role that is higher than or equal to the bot's highest role. The bot cannot manage roles that are higher than or equal to its highest role. Move the role(s) in this group below the bot's highest role or move the bot's roles higher.",
+	GroupHasRoleHigherThanUser:
+		'This group has a role that is higher than or equal to your highest role. You cannot approve groups that have roles higher than or equal to your highest role.',
 } as const;
 
 export namespace Errors {

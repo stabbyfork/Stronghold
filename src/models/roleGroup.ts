@@ -7,11 +7,13 @@ import {
 	Model,
 	NonAttribute,
 } from '@sequelize/core';
-import { Attribute, BelongsTo, BelongsToMany, HasMany, Table } from '@sequelize/core/decorators-legacy';
+import { Attribute, Table } from '@sequelize/core/decorators-legacy';
 import { RoleData } from './roleData.js';
+import { User } from './user.js';
 
 export enum RoleGroupAssociations {
 	Roles = 'roles',
+	Users = 'users',
 }
 
 @Table({ indexes: [{ unique: true, fields: ['guildId', 'name'] }] })
@@ -26,10 +28,19 @@ export class RoleGroup extends Model<InferAttributes<RoleGroup>, InferCreationAt
 	@Attribute({ type: DataTypes.STRING(32), allowNull: false })
 	declare name: string;
 
+	@Attribute({ type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false })
+	declare joinable: boolean;
+
+	@Attribute({ type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true })
+	declare joinNeedsApproval: boolean;
+
 	/** Associated in {@link RoleData} */
 	declare roles?: NonAttribute<RoleData[]>;
 
 	declare setRoles: HasManySetAssociationsMixin<RoleData, RoleData['id']>;
+
+	/** Associated in {@link User} */
+	declare users?: NonAttribute<User[]>;
 
 	@Attribute({ type: DataTypes.DATE, allowNull: false })
 	declare createdAt: CreationOptional<Date>;

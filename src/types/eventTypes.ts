@@ -5,6 +5,9 @@ import { ClientEvents } from 'discord.js';
 export enum GlobalCustomIds {
 	InSessionJoin = 'in-session-join',
 	InSessionLeave = 'in-session-leave',
+	GroupJoin = 'ranking-group-join',
+	GroupJoinApprove = 'ranking-group-join-approve',
+	GroupJoinDeny = 'ranking-group-join-deny',
 }
 
 /**

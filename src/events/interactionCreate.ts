@@ -1,9 +1,14 @@
 import {
+	ActionRowBuilder,
 	AutocompleteInteraction,
+	ButtonBuilder,
+	ButtonStyle,
+	Colors,
 	Events,
 	GuildMember,
 	InteractionReplyOptions,
 	MessageFlags,
+	Role,
 	userMention,
 } from 'discord.js';
 import ms from 'ms';
@@ -12,6 +17,8 @@ import { commands } from '../commands.js';
 import { Data } from '../data.js';
 import { GuildAssociations } from '../models/guild.js';
 import { GuildRelation } from '../models/relatedGuild.js';
+import { RoleData } from '../models/roleData.js';
+import { RoleGroupAssociations } from '../models/roleGroup.js';
 import { SessionParticipantAssociations } from '../models/sessionParticipant.js';
 import { CommandConstruct, CommandExecute, CommandOptionDictDeclare } from '../types/commandTypes.js';
 import { ErrorReplies, Errors } from '../types/errors.js';
@@ -21,7 +28,7 @@ import { constructError, Debug, reportErrorToUser } from '../utils/errorsUtils.j
 import { getValue } from '../utils/genericsUtils.js';
 import { GuildFlag } from '../utils/guildFlagsUtils.js';
 import { Logging } from '../utils/loggingUtils.js';
-import { getAllOptionsOfCommand, getCommandFullName, getSubcommandExec } from '../utils/subcommandsUtils.js';
+import { getAllOptionsOfCommand, getSubcommandExec } from '../utils/subcommandsUtils.js';
 import {
 	UsageDefaults,
 	UsageEnum,
@@ -30,6 +37,8 @@ import {
 	Usages,
 	UsageScope,
 } from '../utils/usageLimitsUtils.js';
+import { UserAssociations } from '../models/user.js';
+import { defaultEmbed } from '../utils/discordUtils.js';
 
 export default createEvent({
 	name: Events.InteractionCreate,
@@ -896,6 +905,442 @@ export default createEvent({
 						}
 						break;
 					}
+					case GlobalCustomIds.GroupJoin:
+						{
+							const groupId = data[0];
+							if (!groupId) {
+								Debug.error(`Interaction for ${GlobalCustomIds.GroupJoin} has no group id`);
+								await reportErrorToUser(
+									interaction,
+									constructError([ErrorReplies.InteractionHasNoGroupId, ErrorReplies.ReportToOwner]),
+									true,
+								);
+								return;
+							}
+							const group = await Data.models.RoleGroup.findOne({
+								where: { id: groupId },
+								include: [RoleGroupAssociations.Roles],
+							});
+							if (!group) {
+								Debug.error(
+									`Interaction for ${GlobalCustomIds.GroupJoin} has invalid group id: ${groupId}`,
+								);
+								await reportErrorToUser(
+									interaction,
+									constructError([
+										ErrorReplies.InteractionHasNoMatchingGroup,
+										ErrorReplies.ReportToOwner,
+									]),
+									true,
+								);
+								return;
+							}
+							if (!group.joinable) {
+								await reportErrorToUser(
+									interaction,
+									constructError([ErrorReplies.GroupNotJoinable, ErrorReplies.ReportToOwner]),
+									true,
+								);
+								return;
+							}
+
+							const [dbUser, created] = await Data.models.User.findCreateFind({
+								where: { userId: interaction.user.id, guildId: group.guildId },
+								defaults: { userId: interaction.user.id, guildId: group.guildId },
+							});
+							if (!created && dbUser.roleGroups?.some((g) => g.id === group.id)) {
+								await reportErrorToUser(
+									interaction,
+									constructError([ErrorReplies.UserAlreadyInGroup]),
+									true,
+								);
+								return;
+							}
+							if (group.joinNeedsApproval) {
+								const logChannel = await Logging.getLogChannel(group.guildId);
+								if (!logChannel) {
+									await reportErrorToUser(
+										interaction,
+										constructError([ErrorReplies.GroupJoinNeedsApprovalButNoLogChannel]),
+										true,
+									);
+									return;
+								}
+								const todayThread = await Logging.getTodayThread(logChannel);
+								if (!todayThread) {
+									await reportErrorToUser(
+										interaction,
+										constructError([
+											ErrorReplies.FailedToCreateLogThread,
+											ErrorReplies.ReportToOwner,
+										]),
+										true,
+									);
+									return;
+								}
+								await todayThread.send({
+									embeds: [
+										defaultEmbed()
+											.setTitle('Group join request')
+											.setDescription(
+												`${userMention(interaction.user.id)} has requested to join the group \`${group.name}\`.\n-# Approve or deny this request with the buttons below.`,
+											)
+											.setColor(Colors.Yellow),
+									],
+									components: [
+										new ActionRowBuilder<ButtonBuilder>().addComponents(
+											new ButtonBuilder()
+												.setCustomId(
+													InformedCustomId.format(
+														GlobalCustomIds.GroupJoinApprove,
+														group.id.toString(),
+														interaction.user.id,
+													),
+												)
+												.setLabel('Approve')
+												.setStyle(ButtonStyle.Success),
+											new ButtonBuilder()
+												.setCustomId(
+													InformedCustomId.format(
+														GlobalCustomIds.GroupJoinDeny,
+														group.id.toString(),
+														interaction.user.id,
+													),
+												)
+												.setLabel('Deny')
+												.setStyle(ButtonStyle.Danger),
+										),
+									],
+									allowedMentions: { users: [] },
+								});
+								await interaction.reply({
+									content: `✅ Your request to join the group \`${group.name}\` has been sent and is pending approval.`,
+									flags: MessageFlags.Ephemeral,
+								});
+							} else {
+								const guild = interaction.guild;
+								if (!guild) {
+									Debug.error(`Interaction for ${GlobalCustomIds.GroupJoin} is not in a guild`);
+									await reportErrorToUser(
+										interaction,
+										constructError([
+											ErrorReplies.InteractionHasNoGuild,
+											ErrorReplies.ReportToOwner,
+										]),
+										true,
+									);
+									return;
+								}
+								const origRoles = group.roles ?? [];
+								const roles = await Promise.all(
+									origRoles.map(async (r) => await guild.roles.fetch(r.roleId)),
+								);
+								const failedRoles: RoleData[] = [];
+								origRoles.forEach((r, i) => {
+									if (!roles[i]) {
+										failedRoles.push(r);
+									}
+								});
+								if (failedRoles.length > 0) {
+									await reportErrorToUser(
+										interaction,
+										constructError(
+											[ErrorReplies.GroupHasInvalidRoles, ErrorReplies.ReportToOwner],
+											failedRoles.map((r) => r.id).join(', '),
+										),
+										true,
+									);
+									return;
+								}
+
+								const member = interaction.member as GuildMember | null;
+								if (!member) {
+									Debug.error(`Interaction for ${GlobalCustomIds.GroupJoin} has no member`);
+									await reportErrorToUser(
+										interaction,
+										constructError([
+											ErrorReplies.InteractionHasNoMember,
+											ErrorReplies.ReportToOwner,
+										]),
+										true,
+									);
+									return;
+								}
+								await Data.mainDb.transaction(async (transaction) => {
+									await dbUser.addRoleGroup(group, { transaction });
+									await member.roles.add(
+										roles.filter((r): r is Role => r !== null) as Role[],
+										'Joined role group ' + group.name,
+									);
+								});
+
+								await interaction.reply({
+									content: `✅ You have successfully joined the group \`${group.name}\``,
+									flags: MessageFlags.Ephemeral,
+								});
+							}
+						}
+						break;
+					case GlobalCustomIds.GroupJoinApprove:
+						{
+							const groupId = data[0];
+							const userId = data[1];
+							if (!groupId || !userId) {
+								Debug.error(
+									`Interaction for ${GlobalCustomIds.GroupJoinApprove} has no group id or user id: ${groupId}, ${userId}`,
+								);
+								await reportErrorToUser(
+									interaction,
+									constructError([
+										ErrorReplies.InteractionHasNoGroupIdOrUserId,
+										ErrorReplies.ReportToOwner,
+									]),
+									true,
+								);
+								return;
+							}
+							const guild = interaction.guild;
+							if (!guild) {
+								Debug.error(`Interaction for ${GlobalCustomIds.GroupJoinApprove} is not in a guild`);
+								await reportErrorToUser(
+									interaction,
+									constructError([ErrorReplies.InteractionHasNoGuild, ErrorReplies.ReportToOwner]),
+									true,
+								);
+								return;
+							}
+							const group = await Data.models.RoleGroup.findOne({
+								where: { id: groupId },
+								include: [RoleGroupAssociations.Roles, RoleGroupAssociations.Users],
+							});
+							if (!group) {
+								Debug.error(
+									`Interaction for ${GlobalCustomIds.GroupJoinApprove} in ${guild.id} has invalid group id: ${groupId}`,
+								);
+								await reportErrorToUser(
+									interaction,
+									constructError([
+										ErrorReplies.InteractionHasNoMatchingGroup,
+										ErrorReplies.ReportToOwner,
+									]),
+									true,
+								);
+								return;
+							}
+							const dbUser = await Data.models.User.findOne({
+								where: { userId: userId, guildId: group.guildId },
+								include: [UserAssociations.RoleGroups],
+							});
+							if (!dbUser) {
+								Debug.error(
+									`Interaction for ${GlobalCustomIds.GroupJoinApprove} in ${guild.id} has invalid user id: ${userId}`,
+								);
+								await reportErrorToUser(
+									interaction,
+									constructError(
+										[ErrorReplies.UserNotFoundSubstitute, ErrorReplies.ReportToOwner],
+										userId,
+									),
+									true,
+								);
+								return;
+							}
+							if (dbUser.roleGroups?.some((g) => g.id === group.id)) {
+								await reportErrorToUser(
+									interaction,
+									constructError([ErrorReplies.ThirdPersonUserAlreadyInGroup]),
+									true,
+								);
+								return;
+							}
+							const origRoles = group.roles ?? [];
+							const roles = await Promise.all(
+								origRoles.map(async (r) => await guild.roles.fetch(r.roleId)),
+							);
+							const failedRoles: RoleData[] = [];
+							origRoles.forEach((r, i) => {
+								if (!roles[i]) {
+									failedRoles.push(r);
+								}
+							});
+							if (failedRoles.length > 0) {
+								await reportErrorToUser(
+									interaction,
+									constructError(
+										[ErrorReplies.GroupHasInvalidRoles, ErrorReplies.ReportToOwner],
+										failedRoles.map((r) => r.id).join(', '),
+									),
+									true,
+								);
+								return;
+							}
+							const member = await guild.members.fetch(userId).catch(() => null);
+							if (!member) {
+								Debug.error(`Could not fetch member for user ${userId} in guild ${guild.id}`);
+								await reportErrorToUser(
+									interaction,
+									constructError([ErrorReplies.UserNotFoundSubstitute, ErrorReplies.ReportToOwner]),
+									true,
+								);
+								return;
+							}
+							const existingRoles = roles.filter((r): r is Role => r !== null);
+							const highestBotRole = guild.members.me?.roles.highest;
+							if (!highestBotRole) {
+								Debug.error(`Could not get highest bot role in guild ${guild.id}`);
+								await reportErrorToUser(
+									interaction,
+									constructError([
+										ErrorReplies.FailedToGetHighestBotRole,
+										ErrorReplies.ReportToOwner,
+									]),
+									true,
+								);
+								return;
+							}
+							const userHighestRole = (interaction.member as GuildMember).roles.highest;
+							if (!userHighestRole) {
+								await reportErrorToUser(
+									interaction,
+									constructError([ErrorReplies.FailedToGetUserHighestRole]),
+									true,
+								);
+								return;
+							}
+							for (const r of existingRoles) {
+								if (r.position >= highestBotRole.position) {
+									await reportErrorToUser(
+										interaction,
+										constructError(
+											[ErrorReplies.GroupHasRoleHigherThanBot],
+											r?.name ?? r?.id ?? 'unknown role',
+										),
+										true,
+									);
+									return;
+								}
+								if (r.position >= userHighestRole.position) {
+									await reportErrorToUser(
+										interaction,
+										constructError(
+											[ErrorReplies.GroupHasRoleHigherThanUser],
+											r?.name ?? r?.id ?? 'unknown role',
+										),
+										true,
+									);
+									return;
+								}
+							}
+							await Data.mainDb.transaction(async (transaction) => {
+								await dbUser.addRoleGroup(group, { transaction });
+								await member.roles.add(
+									existingRoles,
+									`Approved group join for ${group.name} by @${interaction.user.tag} (${interaction.user.id})`,
+								);
+							});
+
+							await interaction.reply({
+								content: `✅ User ${userMention(userId)} has been approved to join the group \`${group.name}\``,
+								flags: MessageFlags.Ephemeral,
+							});
+							const msg = interaction.message;
+							const newEmbed = defaultEmbed()
+								.setTitle('Group join request')
+								.setDescription(
+									msg.embeds[0].description +
+										`\n\n✅ This request has been approved by ${userMention(interaction.user.id)}.`,
+								)
+								.setColor(Colors.Green);
+							try {
+								await msg.edit({
+									components: [],
+									embeds: [newEmbed],
+									allowedMentions: { users: [] },
+								});
+							} catch (e) {
+								await reportErrorToUser(
+									interaction,
+									constructError([ErrorReplies.FailedToEditMessage, ErrorReplies.ReportToOwner]),
+									true,
+								);
+								return;
+							}
+						}
+						break;
+					case GlobalCustomIds.GroupJoinDeny:
+						{
+							const groupId = data[0];
+							const userId = data[1];
+							const guild = interaction.guild;
+							if (!guild) {
+								Debug.error(`Interaction for ${GlobalCustomIds.GroupJoinDeny} is not in a guild`);
+								await reportErrorToUser(
+									interaction,
+									constructError([ErrorReplies.InteractionHasNoGuild, ErrorReplies.ReportToOwner]),
+									true,
+								);
+								return;
+							}
+							if (!groupId || !userId) {
+								Debug.error(
+									`Interaction for ${GlobalCustomIds.GroupJoinDeny} in ${guild.id} has no group id or user id: ${groupId}, ${userId}`,
+								);
+								await reportErrorToUser(
+									interaction,
+									constructError([
+										ErrorReplies.InteractionHasNoGroupIdOrUserId,
+										ErrorReplies.ReportToOwner,
+									]),
+									true,
+								);
+								return;
+							}
+							const group = await Data.models.RoleGroup.findOne({
+								where: { id: groupId },
+							});
+							if (!group) {
+								Debug.error(
+									`Interaction for ${GlobalCustomIds.GroupJoinDeny} in ${guild.id} has invalid group id: ${groupId}`,
+								);
+								await reportErrorToUser(
+									interaction,
+									constructError([
+										ErrorReplies.InteractionHasNoMatchingGroup,
+										ErrorReplies.ReportToOwner,
+									]),
+									true,
+								);
+								return;
+							}
+
+							const msg = interaction.message;
+							const newEmbed = defaultEmbed()
+								.setTitle('Group join request')
+								.setDescription(
+									msg.embeds[0].description +
+										`\n\n❌ This request has been denied by ${userMention(interaction.user.id)}.`,
+								)
+								.setColor(Colors.Red);
+							try {
+								await msg.edit({
+									components: [],
+									embeds: [newEmbed],
+									allowedMentions: { users: [] },
+								});
+							} catch (e) {
+								await reportErrorToUser(
+									interaction,
+									constructError([ErrorReplies.FailedToEditMessage, ErrorReplies.ReportToOwner]),
+									true,
+								);
+								return;
+							}
+							await interaction.reply({
+								content: `✅ User ${userMention(userId)} has been denied to join the group \`${group.name}\``,
+								flags: MessageFlags.Ephemeral,
+							});
+						}
+						break;
 				}
 			}
 		}

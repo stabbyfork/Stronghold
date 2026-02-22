@@ -14,7 +14,7 @@ export async function canManageRoleGroup(interaction: ChatInputCommandInteractio
 			async (roleId) => guild.roles.cache.get(roleId) ?? (await guild.roles.fetch(roleId).catch(() => null)),
 		),
 	)) as Role[];
-	if (roles.some((role) => !role)) {
+	if (roles.some((role) => role === null)) {
 		await reportErrorToUser(
 			interaction,
 			`The following role IDs are invalid or could not be found in this guild: ${roles
@@ -25,7 +25,6 @@ export async function canManageRoleGroup(interaction: ChatInputCommandInteractio
 		);
 		return false;
 	}
-	roles = roles.filter((role) => role !== null);
 	const clientHighestRole = guild.members.me?.roles.highest;
 	if (!clientHighestRole) {
 		await reportErrorToUser(
@@ -122,11 +121,15 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	}
 	if (!(await canManageRoleGroup(interaction, guild, roleIds))) return;
 
+	const joinable = getOption(interaction, args, 'joinable') ?? false;
+	const joinNeedsApproval = getOption(interaction, args, 'needs_approval') ?? true;
 	await Data.mainDb.transaction(async (transaction) => {
 		const roleGroup = await Data.models.RoleGroup.create(
 			{
 				guildId: guild.id,
 				name: groupName,
+				joinable,
+				joinNeedsApproval,
 			},
 			{ transaction },
 		);
@@ -151,7 +154,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			defaultEmbed()
 				.setTitle('Role group created')
 				.setDescription(
-					`Role group \`${groupName}\` has been created, containing ${roleIds.length} role${roleIds.length !== 1 ? 's' : ''}: ${roleIds.map(roleMention).join(', ')}`,
+					`Role group \`${groupName}\` has been created, containing ${roleIds.length} role${roleIds.length !== 1 ? 's' : ''}: ${roleIds.map(roleMention).join(', ')}\nUsers without permissions ${joinable ? `can join this group${joinNeedsApproval ? ' (after approval)' : ''}` : 'cannot join this group on their own'}.`,
 				)
 				.setColor('Green'),
 		],

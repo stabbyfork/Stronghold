@@ -90,7 +90,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				defaultEmbed()
 					.setTitle('Prefix update partially failed')
 					.setDescription(
-						`Failed to update prefix for member(s) ${failedMembers.map((member) => userMention(member.user.id)).join(', ')}.\nTo retry, remove the prefix and repeat this command.\nThe rest of the members' prefixes have been updated.\nPossible reasons include the bot being below the users' highest roles.`,
+						`Failed to update prefix for member(s) ${failedMembers.map((member) => userMention(member.user.id)).join(', ')}.\nTo retry, remove the prefix and repeat this command.\nThe rest of the members' prefixes have been updated.\nPossible reasons include the bot being below the users' highest roles.\nMore information can be found in the logs.`,
 					)
 					.setColor('Red'),
 			],

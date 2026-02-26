@@ -128,7 +128,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				.setTitle('Rank added')
 				.setColor('Green')
 				.setDescription(
-					`Added rank ${roleMention((createdRank as Rank).roleId)} (${(createdRank as Rank).roleId}). You may change the role colour in the server's roles menu.`,
+					`Added rank ${roleMention((createdRank as Rank).roleId)} (${(createdRank as Rank).roleId}). You may change the role colour in the server's roles menu.${pointsReq === 0 ? '\n\nNote: This rank has 0 points required, so might not be given to everyone immediately. Use /ranking promote to force everyone eligible to receive the rank.' : ''}`,
 				),
 		],
 		flags: MessageFlags.Ephemeral,

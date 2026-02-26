@@ -32,9 +32,11 @@ export default async (interaction: ChatInputCommandInteraction) => {
 	await interaction.deferReply();
 	const dbMembers = await Data.models.User.findAll({ where: { guildId: guild.id } });
 	const members = await guild.members.fetch({ user: dbMembers.map((u) => u.userId) });
+	const zeroRankExists =
+		(await Data.models.Rank.findOne({ where: { guildId: guild.id, pointsRequired: 0 } })) === null;
 	await Data.mainDb.transaction(async (transaction) => {
 		for (const user of dbMembers) {
-			if (members.get(user.userId) === null) continue;
+			if (members.get(user.userId) === null && !zeroRankExists) continue;
 			await Data.promoteUser(user, transaction);
 		}
 	});

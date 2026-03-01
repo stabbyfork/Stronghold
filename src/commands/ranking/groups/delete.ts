@@ -55,7 +55,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	}
 	const roles = await Promise.all(
 		group.roles.map((r) => {
-			return guild.roles.fetch(r.roleId);
+			return guild.roles.fetch(r.roleId).catch(() => null);
 		}),
 	);
 	const failedRoles = [] as string[];

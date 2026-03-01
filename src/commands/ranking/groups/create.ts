@@ -154,7 +154,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			defaultEmbed()
 				.setTitle('Role group created')
 				.setDescription(
-					`Role group \`${groupName}\` has been created, containing ${roleIds.length} role${roleIds.length !== 1 ? 's' : ''}: ${roleIds.map(roleMention).join(', ')}\nUsers without permissions ${joinable ? `can join this group${joinNeedsApproval ? ' (after approval)' : ''}` : 'cannot join this group on their own'}.`,
+					`Role group \`${groupName}\` has been created, containing ${roleIds.length} role${roleIds.length !== 1 ? 's' : ''}: ${roleIds.map(roleMention).join(', ')}\n**Anyone** (users without permissions) ${joinable ? `can join this group${joinNeedsApproval ? ' (after approval by staff)' : ''}` : 'cannot join this group on their own'}.`,
 				)
 				.setColor('Green'),
 		],

@@ -13,6 +13,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		return;
 	}
 	if (!(await reportErrorIfNotSetup(interaction))) return;
+	await interaction.deferReply();
 	const user = interaction.user;
 	if (user.id !== guild.ownerId) {
 		await reportErrorToUser(interaction, ErrorReplies.MustBeServerOwner, true);
@@ -20,7 +21,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	}
 
 	const image = getOption(interaction, args, 'image');
-	await interaction.deferReply();
+
 	if (!image) {
 		await guild.members.editMe({
 			avatar: null,

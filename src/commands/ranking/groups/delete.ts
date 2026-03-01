@@ -7,6 +7,7 @@ import { commandOptions } from '../../../cmdOptions.js';
 import { Data } from '../../../data.js';
 import { defaultEmbed } from '../../../utils/discordUtils.js';
 import { Logging } from '../../../utils/loggingUtils.js';
+import { RoleGroupAssociations } from '../../../models/roleGroup.js';
 
 const enum CustomIds {
 	ConfirmDelete = 'confirm_delete',
@@ -19,8 +20,12 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		return;
 	}
 	if (!(await reportErrorIfNotSetup(interaction))) return;
-	if (interaction.user.id !== guild.ownerId) {
-		await reportErrorToUser(interaction, 'Only the server owner can delete role groups.', true);
+	if (!(await hasPermissions(interaction.member as GuildMember, guild, true, Permission.ManageRoleGroups))) {
+		await reportErrorToUser(
+			interaction,
+			constructError([ErrorReplies.PermissionsNeededSubstitute], Permission.ManageRoleGroups),
+			true,
+		);
 		return;
 	}
 	const groupName = getOption(interaction, args, 'group_name');
@@ -28,11 +33,79 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		await reportErrorToUser(interaction, constructError([ErrorReplies.GroupNameEmpty]), true);
 		return;
 	}
-	const group = await Data.models.RoleGroup.findOne({ where: { guildId: guild.id, name: groupName } });
+	const group = await Data.models.RoleGroup.findOne({
+		where: { guildId: guild.id, name: groupName },
+		include: [RoleGroupAssociations.Roles],
+	});
 	if (!group) {
 		await reportErrorToUser(interaction, `A role group with the name \`${groupName}\` does not exist.`, true);
 		return;
 	}
+	if (!group.roles || group.roles.length === 0) {
+		await reportErrorToUser(
+			interaction,
+			constructError(
+				[ErrorReplies.OnlySubstitute, ErrorReplies.ReportToOwner],
+				'The specified role group has an invalid configuration with no roles included.',
+			),
+			true,
+		);
+		Debug.error(`Role group ${groupName} in guild ${guild.id} has no roles included, which is invalid.`);
+		return;
+	}
+	const roles = await Promise.all(
+		group.roles.map((r) => {
+			return guild.roles.fetch(r.roleId);
+		}),
+	);
+	const failedRoles = [] as string[];
+	roles.forEach((role, index) => {
+		if (!role) failedRoles.push(group.roles![index].roleId);
+	});
+	if (failedRoles.length > 0) {
+		await reportErrorToUser(
+			interaction,
+			constructError(
+				[ErrorReplies.RoleNotFoundSubstitute],
+				`The following role IDs could not be found: ${failedRoles.join(', ')}`,
+			),
+		);
+		return;
+	}
+	const existingRoles = roles.filter((r): r is Exclude<typeof r, null> => r !== null);
+	const highestBotRole = guild.members.me?.roles.highest;
+	if (!highestBotRole) {
+		await reportErrorToUser(
+			interaction,
+			constructError(
+				[ErrorReplies.OnlySubstitute],
+				'The bot does not have any roles, which is required to manage role groups. Ensure the bot has appropriate permissions and role hierarchy to manage all the roles in this group.',
+			),
+		);
+		return;
+	}
+	const highestUserRole = (interaction.member as GuildMember).roles.highest;
+	if (!highestUserRole) {
+		await reportErrorToUser(
+			interaction,
+			constructError(
+				[ErrorReplies.OnlySubstitute],
+				'You do not have any roles, which is required to manage role groups. Ensure you have appropriate permissions and role hierarchy to manage all the roles in this group.',
+			),
+		);
+		return;
+	}
+	for (const role of existingRoles) {
+		if (role.position >= highestBotRole.position) {
+			await reportErrorToUser(interaction, constructError([ErrorReplies.GroupHasRoleHigherThanBot]));
+			return;
+		}
+		if (role.position >= highestUserRole.position) {
+			await reportErrorToUser(interaction, constructError([ErrorReplies.GroupHasRoleHigherThanUser]));
+			return;
+		}
+	}
+
 	const reply = await interaction.reply({
 		embeds: [
 			defaultEmbed()
@@ -46,7 +119,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			new ActionRowBuilder<ButtonBuilder>().addComponents(
 				new ButtonBuilder()
 					.setCustomId(CustomIds.ConfirmDelete)
-					.setLabel('Confirm Deletion')
+					.setLabel('Confirm deletion')
 					.setStyle(ButtonStyle.Danger),
 			),
 		],

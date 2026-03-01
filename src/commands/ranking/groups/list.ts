@@ -35,7 +35,7 @@ export default async (interaction: ChatInputCommandInteraction) => {
 			const builder = new ContainerBuilder();
 			for (const rg of pageRoleGroups) {
 				const defaultContent = new TextDisplayBuilder().setContent(
-					`**${rg.name}** - ${rg.roles!.length} role(s)`,
+					`**${rg.name}** - ${rg.roles!.length} role${rg.roles!.length !== 1 ? 's' : ''}`,
 				);
 				if (rg.joinable) {
 					builder.addSectionComponents(

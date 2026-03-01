@@ -161,9 +161,14 @@ export namespace Logging {
 		const guild = await Data.models.Guild.findOne({ where: { guildId } });
 		if (!guild) return;
 		if (!guild.logChannelId) return;
-		const logChannel = (await client.channels.fetch(guild.logChannelId)) as ForumChannel;
-		logChannelCache.set(guildId, logChannel);
-		return logChannel;
+		try {
+			const logChannel = (await client.channels.fetch(guild.logChannelId)) as ForumChannel;
+			logChannelCache.set(guildId, logChannel);
+			return logChannel;
+		} catch (e) {
+			Debug.error(`Failed to fetch log channel for guild ${guildId}: ${e}`);
+			return;
+		}
 	}
 
 	/**

@@ -50,9 +50,13 @@ export default async (interaction: ChatInputCommandInteraction) => {
 		await reportErrorToUser(interaction, constructError([ErrorReplies.NoExistingSession]), true);
 		return;
 	}
-	const channel = await interaction.guild.channels.fetch(session.channelId);
+	const channel = await guild.channels.fetch(session.channelId);
 	if (!channel) {
-		await reportErrorToUser(interaction, constructError([ErrorReplies.ChannelNotFoundSubstitute]), true);
+		await reportErrorToUser(
+			interaction,
+			constructError([ErrorReplies.ChannelNotFoundSubstitute], session.channelId),
+			true,
+		);
 		return;
 	}
 	if (!channel.isSendable()) {

@@ -2,7 +2,10 @@ import {
 	channelMention,
 	ChatInputCommandInteraction,
 	ContainerComponent,
+	GuildBasedChannel,
+	GuildChannel,
 	GuildMember,
+	InteractionReplyOptions,
 	Message,
 	MessageFlags,
 	time,
@@ -15,7 +18,7 @@ import { GuildSessionAssociations } from '../../models/session.js';
 import { SessionParticipantAssociations } from '../../models/sessionParticipant.js';
 import { ErrorReplies } from '../../types/errors.js';
 import { defaultEmbed } from '../../utils/discordUtils.js';
-import { constructError, reportErrorToUser } from '../../utils/errorsUtils.js';
+import { constructError, Debug, reportErrorToUser } from '../../utils/errorsUtils.js';
 import { GuildFlag } from '../../utils/guildFlagsUtils.js';
 import { Logging } from '../../utils/loggingUtils.js';
 import { hasPermissions, Permission } from '../../utils/permissionsUtils.js';
@@ -50,32 +53,38 @@ export default async (interaction: ChatInputCommandInteraction) => {
 		await reportErrorToUser(interaction, constructError([ErrorReplies.NoExistingSession]), true);
 		return;
 	}
-	const channel = await guild.channels.fetch(session.channelId);
+	let channel: GuildBasedChannel | null = null;
+	try {
+		channel = await guild.channels.fetch(session.channelId);
+	} catch (e) {
+		Debug.error(`Failed to fetch channel with ID ${session.channelId} in guild ${guild.id}: ${e}`);
+	}
+
 	if (!channel) {
 		await reportErrorToUser(
 			interaction,
 			constructError([ErrorReplies.ChannelNotFoundSubstitute], session.channelId),
 			true,
 		);
-		return;
 	}
-	if (!channel.isSendable()) {
+	if (channel && !channel.isSendable()) {
 		await reportErrorToUser(
 			interaction,
 			constructError(
 				[ErrorReplies.OnlySubstitute, ErrorReplies.ReportToOwner],
-				`Channel must be a regular -text-based channel (${channelMention(session.channelId)}).`,
+				`Channel must be a regular text-based channel (${channelMention(session.channelId)}).`,
 			),
 			true,
 		);
-		return;
 	}
 	let endTime: Date | null = null;
 	const participants = session.participants;
 	if (session.sessionMessageId) {
 		let message: Message | undefined = undefined;
 		try {
-			message = await channel.messages.fetch({ message: session.sessionMessageId, force: true });
+			if (channel && channel.isTextBased()) {
+				message = await channel.messages.fetch({ message: session.sessionMessageId, force: true });
+			}
 		} catch {
 			await Logging.log({
 				logType: Logging.Type.Warning,
@@ -206,16 +215,28 @@ export default async (interaction: ChatInputCommandInteraction) => {
 				allowedMentions: { roles: [], users: [] },
 			});
 		} else {
-			// In case the message was deleted or not found
-			await channel.send({
-				embeds: [embed],
-				allowedMentions: { roles: [], users: [] },
-			});
+			if (channel && channel.isTextBased()) {
+				// In case the message was deleted or not found
+				await channel.send({
+					embeds: [embed],
+					allowedMentions: { roles: [], users: [] },
+				});
+			} else {
+				// If the channel is not text-based or couldn't be fetched, send a reply to the user
+				await interaction.followUp({
+					embeds: [embed],
+					allowedMentions: { roles: [], users: [] },
+					flags: MessageFlags.Ephemeral,
+				});
+			}
 		}
 	} else {
 		await reportErrorToUser(
 			interaction,
-			constructError([ErrorReplies.OnlySubstitute, ErrorReplies.ReportToOwner], 'No session message'),
+			constructError(
+				[ErrorReplies.OnlySubstitute, ErrorReplies.ReportToOwner],
+				'No session message set in the database',
+			),
 			true,
 		);
 		return;
@@ -223,6 +244,7 @@ export default async (interaction: ChatInputCommandInteraction) => {
 	await Data.mainDb.transaction(async (transaction) => {
 		await session.update({ endedAt: new Date(), sessionMessageId: null, active: false }, { transaction });
 		await session.setParticipants([], { transaction, destroyPrevious: true });
+		// For Roblox integration commands
 		await Data.models.RobloxUser.update(
 			{
 				inSession: false,
@@ -248,7 +270,7 @@ export default async (interaction: ChatInputCommandInteraction) => {
 		}
 	});
 	try {
-		await interaction.reply({
+		const msg = {
 			embeds: [
 				defaultEmbed()
 					.setTitle('Session stopped')
@@ -258,7 +280,12 @@ export default async (interaction: ChatInputCommandInteraction) => {
 					),
 			],
 			flags: MessageFlags.Ephemeral,
-		});
+		} as InteractionReplyOptions;
+		if (interaction.replied) {
+			await interaction.followUp(msg);
+		} else {
+			await interaction.reply(msg);
+		}
 	} catch (e) {
 		await reportErrorToUser(interaction, constructError([ErrorReplies.InteractionTimedOut]), true);
 		return;

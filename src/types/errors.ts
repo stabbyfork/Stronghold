@@ -58,7 +58,7 @@ export const ErrorReplies = {
 	InvalidColorSubstitute: 'Invalid color: !{ERROR}.',
 	SeeHelp: 'See the help entry of this command for more information.',
 	NoExistingSession: 'There is no active session. See `/session start`.',
-	ChannelNotFoundSubstitute: 'Channel not found: !{ERROR}.',
+	ChannelNotFoundSubstitute: 'Channel not found: !{ERROR}. Can the bot access this channel?',
 	MessageNotFoundSubstitute: 'Message not found: !{ERROR}.',
 	CantBeStackableAndLimited: 'Role cannot be stackable and limited at the same time.',
 	DiploNotSetup: 'Diplomacy is not set up. Please run `/dpm setup` first.',

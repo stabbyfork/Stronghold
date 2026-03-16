@@ -70,7 +70,7 @@ export async function setRbxPoints(
 		return false;
 	}
 	if (rbxUsers.length !== usernames.length) {
-		const notFound = usernames.filter((name) => !rbxUsers.find((d) => d.name === name));
+		const notFound = usernames.filter((name) => !rbxUsers.find((d) => d.requestedUsername === name));
 		await reportErrorToUser(
 			interaction,
 			`Some usernames were not found: ${notFound.map((n) => `\`${n}\``).join(', ')}`,

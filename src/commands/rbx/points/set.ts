@@ -143,6 +143,6 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 					`Set point count to \`${points}\` for ${users.map((u) => `\`${u.name}\``).join(', ')}.`,
 				),
 		(users, points) =>
-			`Set point count of ${users.map((u) => `\`${u.displayName}\` (\`${u.name}\`/\`${u.id}\`)`).join(', ')} to \`${points}\``,
+			`Set point count of ${users.map((u) => `\`${u.displayName}\` (\`${u.name}\`/\`${u.id}\`)`).join(',\n')} to \`${points}\``,
 	);
 };

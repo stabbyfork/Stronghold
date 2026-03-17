@@ -18,6 +18,6 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 					`Removed \`${points}\` point${points === 1 ? '' : 's'} from ${users.map((u) => `\`${u.name}\``).join(', ')}.`,
 				),
 		(users, points) =>
-			`Removed ${points} point${points === 1 ? '' : 's'} from ${users.map((u) => `\`${u.displayName}\` (\`${u.name}\`/\`${u.id}\`)`).join(', ')}`,
+			`Removed ${points} point${points === 1 ? '' : 's'} from ${users.map((u) => `\`${u.displayName}\` (\`${u.name}\`/\`${u.id}\`)`).join(',\n')}`,
 	);
 };

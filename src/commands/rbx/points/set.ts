@@ -60,6 +60,7 @@ export async function setRbxPoints(
 		await reportErrorToUser(interaction, 'You can only set points for up to 50 users at once.', true);
 		return false;
 	}
+	await interaction.deferReply();
 	const rbxUsers = await Roblox.usernamesToData(...usernames);
 	if (rbxUsers.length === 0) {
 		await reportErrorToUser(
@@ -121,15 +122,9 @@ export async function setRbxPoints(
 		if (e instanceof Errors.HandledError) return false;
 		throw e;
 	}
-	if (interaction.replied) {
-		await interaction.followUp({
-			embeds: [successEmbed(rbxUsers, points)],
-		});
-	} else {
-		await interaction.reply({
-			embeds: [successEmbed(rbxUsers, points)],
-		});
-	}
+	await interaction.followUp({
+		embeds: [successEmbed(rbxUsers, points)],
+	});
 	Logging.quickInfo(interaction, logText(rbxUsers, points));
 	return true;
 }

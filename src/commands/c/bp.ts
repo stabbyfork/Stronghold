@@ -1,14 +1,13 @@
-import { ChatInputCommandInteraction, GuildMember, MessageFlags, userMention } from 'discord.js';
+import { ChatInputCommandInteraction, GuildMember, MessageFlags } from 'discord.js';
 import { commandOptions } from '../../cmdOptions.js';
 import { Data } from '../../data.js';
-import { ErrorReplies, Errors } from '../../types/errors.js';
+import { ErrorReplies } from '../../types/errors.js';
 import { defaultEmbed } from '../../utils/discordUtils.js';
 import { constructError, reportErrorToUser } from '../../utils/errorsUtils.js';
-import { Roblox } from '../../utils/robloxUtils.js';
-import { getOption, reportErrorIfNotSetup } from '../../utils/subcommandsUtils.js';
-import { setRbxPoints } from '../rbx/points/set.js';
 import { Logging } from '../../utils/loggingUtils.js';
 import { hasPermissions, Permission } from '../../utils/permissionsUtils.js';
+import { Roblox } from '../../utils/robloxUtils.js';
+import { getOption, reportErrorIfNotSetup } from '../../utils/subcommandsUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.c.bp) => {
 	const guild = interaction.guild;

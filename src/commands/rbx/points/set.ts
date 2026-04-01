@@ -65,7 +65,7 @@ export async function setRbxPoints(
 	if (rbxUsers.length === 0) {
 		await reportErrorToUser(
 			interaction,
-			`No users were found matching the username(s) ${usernames.map((n) => `\`${n}\``).join(', ')}.`,
+			`No users were found matching the username(s) ${usernames.map((n) => `\`${n}\``).join(', ')}.\n-# Points were not modified.`,
 			true,
 		);
 		return false;

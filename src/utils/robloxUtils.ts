@@ -55,10 +55,18 @@ export namespace Roblox {
 		});
 		if (existing.length === usernames.length) return existing;
 		return axios
-			.post('https://users.roblox.com/v1/usernames/users', {
-				usernames: usernames.filter((username) => !Caches.usernamesToData.has(username)),
-				excludeBannedUsers: true,
-			})
+			.post(
+				'https://users.roblox.com/v1/usernames/users',
+				{
+					usernames: usernames.filter((username) => !Caches.usernamesToData.has(username)),
+					excludeBannedUsers: true,
+				},
+				{
+					timeout: 15000,
+					timeoutErrorMessage:
+						'Roblox API did not respond within 15 seconds. Perhaps too many users are being requested at once or a username is taking too long to resolve?',
+				},
+			)
 			.catch((err) => Debug.error(`Failed to convert usernames to data: ${err}`))
 			.then((res) => {
 				if (!res) return existing;
@@ -92,9 +100,17 @@ export namespace Roblox {
 		});
 		if (existing.length === ids.length) return existing;
 		return axios
-			.post('https://users.roblox.com/v1/users', {
-				userIds: ids.filter((id) => !Caches.idsToData.has(id)),
-			})
+			.post(
+				'https://users.roblox.com/v1/users',
+				{
+					userIds: ids.filter((id) => !Caches.idsToData.has(id)),
+				},
+				{
+					timeout: 15000,
+					timeoutErrorMessage:
+						'Roblox API did not respond within 15 seconds. Perhaps too many users are being requested at once or the server is busy?',
+				},
+			)
 			.catch((err) => Debug.error(`Failed to convert ids to data: ${err}`))
 			.then((res) => {
 				if (!res) return existing;

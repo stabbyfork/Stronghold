@@ -1,17 +1,13 @@
-import { Transaction, TransactionNestMode } from '@sequelize/core';
 import { ChatInputCommandInteraction, EmbedBuilder, GuildMember, MessageFlags, userMention } from 'discord.js';
+import { commandOptions } from '../../../cmdOptions.js';
 import { Data } from '../../../data.js';
 import { ErrorReplies, Errors } from '../../../types/errors.js';
-import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js';
+import { defaultEmbed } from '../../../utils/discordUtils.js';
+import { constructError, reportErrorToUser } from '../../../utils/errorsUtils.js';
 import { Logging } from '../../../utils/loggingUtils.js';
 import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
-import { getOption, reportErrorIfNotSetup } from '../../../utils/subcommandsUtils.js';
-import { User } from '../../../models/user.js';
 import { Roblox, UsernameToUserData } from '../../../utils/robloxUtils.js';
-import rbx from '../../rbx.js';
-import { RobloxUser } from '../../../models/robloxUser.js';
-import { commandOptions } from '../../../cmdOptions.js';
-import { defaultEmbed } from '../../../utils/discordUtils.js';
+import { getOption, reportErrorIfNotSetup } from '../../../utils/subcommandsUtils.js';
 
 const enum SafeInt32 {
 	Min = -(2 ** 31),
@@ -98,7 +94,7 @@ export async function setRbxPoints(
 					if (avtr.state === 'Completed') {
 						toReply.setThumbnail(avtr.imageUrl);
 					}
-					await interaction.reply({
+					await interaction.followUp({
 						embeds: [toReply],
 						flags: MessageFlags.Ephemeral,
 					});

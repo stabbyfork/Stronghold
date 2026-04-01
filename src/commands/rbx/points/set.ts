@@ -140,9 +140,9 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				.setColor('Green')
 				.setTitle('Success')
 				.setDescription(
-					`Set point count to \`${points}\` for ${users.map((u) => `\`${u.name}\``).join(', ')}.`,
+					`Set point count to \`${points}\` for ${users.map((u) => `\`${u.name}\``).join(',\n')} (${users.length} user${users.length === 1 ? '' : 's'}).`,
 				),
 		(users, points) =>
-			`Set point count of:\n${users.map((u) => `\`${u.displayName}\` (\`${u.name}\`/\`${u.id}\`)`).join(',\n')} to \`${points}\``,
+			`Set point count of:\n${users.map((u) => `\`${u.displayName}\` (\`${u.name}\`/\`${u.id}\`)`).join(',\n')} to \`${points}\` (${users.length} user${users.length === 1 ? '' : 's'})`,
 	);
 };

@@ -15,9 +15,9 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				.setColor('Green')
 				.setTitle('Success')
 				.setDescription(
-					`Removed \`${points}\` point${points === 1 ? '' : 's'} from ${users.map((u) => `\`${u.name}\``).join(', ')}.`,
+					`Removed \`${points}\` point${points === 1 ? '' : 's'} from ${users.map((u) => `\`${u.name}\``).join(',\n')} (${users.length} user${users.length === 1 ? '' : 's'}).`,
 				),
 		(users, points) =>
-			`Removed ${points} point${points === 1 ? '' : 's'} from:\n${users.map((u) => `\`${u.displayName}\` (\`${u.name}\`/\`${u.id}\`)`).join(',\n')}`,
+			`Removed ${points} point${points === 1 ? '' : 's'} from:\n${users.map((u) => `\`${u.displayName}\` (\`${u.name}\`/\`${u.id}\`)`).join(',\n')} (${users.length} user${users.length === 1 ? '' : 's'})`,
 	);
 };

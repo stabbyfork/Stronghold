@@ -89,7 +89,7 @@ export async function setRbxPoints(
 						.setColor('Red')
 						.setTitle('User is blacklisted')
 						.setDescription(
-							`${usr.displayName} (${usr.name}/${usr.id}) is blacklisted by ${userMention(dbRbxUsr.blacklister!)}. Reason: ${dbRbxUsr.blacklistReason ?? 'none.'}`,
+							`\`${usr.displayName}\` (\`${usr.name}\`/\`${usr.id}\`) is blacklisted by ${userMention(dbRbxUsr.blacklister!)}. Reason: ${dbRbxUsr.blacklistReason ?? 'none provided.'}`,
 						);
 					if (avtr.state === 'Completed') {
 						toReply.setThumbnail(avtr.imageUrl);

@@ -65,6 +65,10 @@ export interface Config {
      */
     url: string;
     /**
+     * The link to the bot's privacy policy
+     */
+    privacyPolicyUrl: string;
+    /**
      * The link to the bot's support Discord server
      */
     discordUrl: string;

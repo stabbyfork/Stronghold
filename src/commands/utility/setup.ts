@@ -45,7 +45,7 @@ const enum RoleNames {
 	Inactive = 'Inactive',
 }
 
-const { discordUrl, url: websiteUrl } = Config.get('website');
+const { discordUrl, url: websiteUrl, privacyPolicyUrl } = Config.get('website');
 
 /**
  * Creates the default Inactive role if it does not exist yet.
@@ -145,11 +145,11 @@ async function createSetupMessage(
 				(text) => text.setContent('## Setup'),
 				(text) =>
 					text.setContent(
-						`This will set up the bot for this server. You (the server owner) will be made a bot administrator automatically. Only you (the server owner) can add or remove bot administrators. This will create the \`${RoleNames.InSession}\` and \`${RoleNames.Inactive}\` roles if they have not been added yet.\nAll choices are applied when you click \`Start setup\`.`,
+						`This will set up the bot for this server. You (the server owner) will be made a bot administrator automatically. Only you (the server owner) can add or remove bot administrators. This will create the \`${RoleNames.InSession}\` and \`${RoleNames.Inactive}\` roles if they have not been added yet.\nAll choices are applied when you click \`Start setup\`. Bot data is reset at least 21 days after the bot is removed.`,
 					),
 				(text) =>
 					text.setContent(
-						`The Getting Started guide and further documentation are available at ${buildUrl(websiteUrl, { path: 'getting-started' })}.`,
+						`The Getting Started guide and further documentation are available at ${buildUrl(websiteUrl, { path: 'getting-started' })}.\nJoin the support server for help and updates: ${discordUrl}\nRead the bot's privacy policy at ${buildUrl(privacyPolicyUrl)}`,
 					),
 			)
 			.setThumbnailAccessory((image) => image.setURL(guild.iconURL() ?? client.user?.avatarURL()!)),

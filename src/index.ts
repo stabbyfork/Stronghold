@@ -111,6 +111,7 @@ async function cleanupGuilds() {
 			Data.models.Guild.destroy({ where: { guildId: guild.guildId } }),
 		]);
 		console.log(`[CLEANUP] Finished cleaning up guild ${guildId} (${guildTag})`);
+		await delay(5000); // Delay between guild cleanups to avoid overwhelming the database
 	}
 }
 

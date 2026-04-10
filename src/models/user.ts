@@ -25,7 +25,6 @@ import { RoleGroup } from './roleGroup.js';
 import { UserPermission } from './userPermission.js';
 
 export enum UserAssociations {
-	Guilds = 'guilds',
 	UserPermission = 'userPermission',
 	SecondaryRanks = 'ranks',
 	NextRank = 'nextRank',

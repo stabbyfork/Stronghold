@@ -16,8 +16,11 @@ import * as Events from './events/*';
 import { Environment } from './types/envTypes.js';
 import { GuildFlag } from './utils/guildFlagsUtils.js';
 import { Logging } from './utils/loggingUtils.js';
+import { GuildAssociations } from './models/guild.js';
+import ms from 'ms';
 
 let activityChecksId: NodeJS.Timeout;
+let cleanupGuildsId: NodeJS.Timeout;
 
 async function registerEvents() {
 	for (const file of Events.default) {
@@ -51,7 +54,8 @@ async function runActivityChecks() {
 				[Op.ne]: null,
 			},
 			paused: false,
-			[Op.and]: sql`(${sql.identifier('lastRun')} + ${sql.identifier('interval')}) <= ${intDiv(Date.now(), 1000)}`,
+			// Run with a 30 minute precision
+			[Op.and]: sql`(${sql.identifier('lastRun')} + ${sql.identifier('interval')}) - ${intDiv(Date.now(), 1000)} <= 1800`, // Due in the next 30 minutes
 		},
 	});
 	const gen = (function* () {
@@ -71,12 +75,55 @@ async function runActivityChecks() {
 	}
 }
 
-console.log('Initialising data');
+function delay(timeInMillis: number): Promise<void> {
+	return new Promise((resolve) => setTimeout(() => resolve(), timeInMillis));
+}
+
+async function cleanupGuilds() {
+	const leftGuilds = await Data.models.Guild.findAll({
+		where: {
+			leftAt: {
+				[Op.ne]: null,
+				[Op.lte]: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000), // Has been 21 days since leave
+			},
+		},
+	});
+	for (const guild of leftGuilds) {
+		const guildTag = guild.tag ? ` (${guild.tag})` : 'no tag';
+		const guildId = guild.guildId;
+		console.log(
+			`[CLEANUP] Cleaning up guild ${guildId} (${guildTag}) due to prolonged absence (left at ${guild.leftAt!.toISOString()}, ${ms(Date.now() - guild.leftAt!.getTime())} ago)`,
+		);
+		await Promise.all([
+			Data.models.User.destroy({ where: { guildId: guild.guildId } }),
+			Data.models.Rank.destroy({ where: { guildId: guild.guildId } }),
+			Data.models.UserPermission.destroy({ where: { guildId: guild.guildId } }),
+			Data.models.ActivityCheck.destroy({ where: { guildId: guild.guildId } }),
+			Data.models.RolePermission.destroy({ where: { guildId: guild.guildId } }),
+			Data.models.GuildSession.destroy({ where: { guildId: guild.guildId } }),
+			Data.models.RelatedGuild.destroy({ where: { guildId: guild.guildId } }),
+			Data.models.RobloxUser.destroy({ where: { guildId: guild.guildId } }),
+			Data.models.ProxyCommand.destroy({ where: { guildId: guild.guildId } }),
+			Data.models.RoleGroup.destroy({ where: { guildId: guild.guildId } }),
+			Data.models.RoleData.destroy({ where: { guildId: guild.guildId } }),
+			Data.models.RelatedGuild.destroy({ where: { targetGuildId: guild.guildId } }),
+			Data.models.MessageLink.destroy({ where: { guildId: guild.guildId } }),
+			Data.models.Guild.destroy({ where: { guildId: guild.guildId } }),
+		]);
+		console.log(`[CLEANUP] Finished cleaning up guild ${guildId} (${guildTag})`);
+	}
+}
+
+console.log('[STARTUP] Initialising data');
 await Data.setup();
-console.log('Registering events');
+console.log('[STARTUP] Registering events');
 await registerEvents();
-console.log('Registering activity checks');
+console.log('[STARTUP] Registering activity checks');
+// Every hour
 activityChecksId = setInterval(runActivityChecks, 60 * 60 * 1000);
+console.log('[STARTUP] Registering guild cleanup');
+// Every 24 hours
+cleanupGuildsId = setInterval(cleanupGuilds, 24 * 60 * 60 * 1000);
 
 process
 	.on('SIGINT', async (signal) => await safeShutdown(signal))
@@ -87,8 +134,8 @@ process
 //@ts-ignore
 subcommands.activity.checks.create = activity_check_create;
 
-console.log('Logging in');
-console.log('Running in', process.env.NODE_ENV);
+console.log('[STARTUP] Logging in');
+console.log('[STARTUP] Running in', process.env.NODE_ENV);
 if (process.env.NODE_ENV !== Environment.Production) {
 	const dev = Config.get('dev');
 	if (!dev) throw new Error('No dev config found');

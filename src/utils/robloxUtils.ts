@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { Debug } from './errorsUtils.js';
 import urlBuilder from 'build-url-ts';
+import fuzzysort from 'fuzzysort';
 const { buildUrl } = urlBuilder;
 
 export interface UsernameToUserData {
@@ -30,7 +31,7 @@ interface IdToAvatarBust {
 type RobloxUsername = string;
 type RobloxUserId = number;
 
-namespace Caches {
+export namespace RbxCaches {
 	/** Uses requested usernames as keys */
 	export const usernamesToData: Map<RobloxUsername, UsernameToUserData> = new Map<
 		RobloxUsername,
@@ -38,6 +39,7 @@ namespace Caches {
 	>();
 	export const idsToData: Map<RobloxUserId, IdToUserData> = new Map<RobloxUserId, IdToUserData>();
 	export const idsToAvatarBusts: Map<RobloxUserId, IdToAvatarBust> = new Map<RobloxUserId, IdToAvatarBust>();
+	export const preparedUsernames: Fuzzysort.Prepared[] = [];
 }
 
 export namespace Roblox {
@@ -51,14 +53,14 @@ export namespace Roblox {
 		if (usernames.length === 0) return [];
 		const existing = [] as UsernameToUserData[];
 		usernames.forEach((username) => {
-			if (Caches.usernamesToData.has(username)) existing.push(Caches.usernamesToData.get(username)!);
+			if (RbxCaches.usernamesToData.has(username)) existing.push(RbxCaches.usernamesToData.get(username)!);
 		});
 		if (existing.length === usernames.length) return existing;
 		return axios
 			.post(
 				'https://users.roblox.com/v1/usernames/users',
 				{
-					usernames: usernames.filter((username) => !Caches.usernamesToData.has(username)),
+					usernames: usernames.filter((username) => !RbxCaches.usernamesToData.has(username)),
 					excludeBannedUsers: true,
 				},
 				{
@@ -71,7 +73,10 @@ export namespace Roblox {
 			.then((res) => {
 				if (!res) return existing;
 				existing.push(...(res.data.data as UsernameToUserData[]));
-				existing.forEach((user) => Caches.usernamesToData.set(user.requestedUsername, user));
+				(res.data.data as UsernameToUserData[]).forEach((user) => {
+					RbxCaches.usernamesToData.set(user.requestedUsername, user);
+					RbxCaches.preparedUsernames.push(fuzzysort.prepare(user.name));
+				});
 				return existing;
 			});
 	}
@@ -96,14 +101,14 @@ export namespace Roblox {
 		if (ids.length === 0) return [];
 		const existing = [] as IdToUserData[];
 		ids.forEach((id) => {
-			if (Caches.idsToData.has(id)) existing.push(Caches.idsToData.get(id)!);
+			if (RbxCaches.idsToData.has(id)) existing.push(RbxCaches.idsToData.get(id)!);
 		});
 		if (existing.length === ids.length) return existing;
 		return axios
 			.post(
 				'https://users.roblox.com/v1/users',
 				{
-					userIds: ids.filter((id) => !Caches.idsToData.has(id)),
+					userIds: ids.filter((id) => !RbxCaches.idsToData.has(id)),
 				},
 				{
 					timeout: 15000,
@@ -115,7 +120,7 @@ export namespace Roblox {
 			.then((res) => {
 				if (!res) return existing;
 				existing.push(...(res.data.data as IdToUserData[]));
-				existing.forEach((user) => Caches.idsToData.set(user.id, user));
+				(res.data.data as IdToUserData[]).forEach((user) => RbxCaches.idsToData.set(user.id, user));
 				return existing;
 			});
 	}
@@ -154,8 +159,8 @@ export namespace Roblox {
 		if (ids.length === 0) return [];
 		const existing = [] as IdToAvatarBust[];
 		ids.forEach((id) => {
-			if (Caches.idsToAvatarBusts.has(id)) {
-				existing.push(Caches.idsToAvatarBusts.get(id)!);
+			if (RbxCaches.idsToAvatarBusts.has(id)) {
+				existing.push(RbxCaches.idsToAvatarBusts.get(id)!);
 			}
 		});
 		if (existing.length === ids.length) return existing;
@@ -163,7 +168,7 @@ export namespace Roblox {
 			.get(
 				buildUrl('https://thumbnails.roblox.com/v1/users/avatar-bust', {
 					queryParams: {
-						userIds: ids.filter((id) => !Caches.idsToAvatarBusts.has(id)),
+						userIds: ids.filter((id) => !RbxCaches.idsToAvatarBusts.has(id)),
 						size: '150x150',
 						format: 'Png',
 						isCircular: false,
@@ -174,7 +179,9 @@ export namespace Roblox {
 			.then((res) => {
 				if (!res) return existing;
 				existing.push(...(res.data.data as IdToAvatarBust[]));
-				existing.forEach((avtr) => Caches.idsToAvatarBusts.set(avtr.targetId, avtr));
+				(res.data.data as IdToAvatarBust[]).forEach((avtr) =>
+					RbxCaches.idsToAvatarBusts.set(avtr.targetId, avtr),
+				);
 				return existing;
 			});
 	}

@@ -1,6 +1,18 @@
-import { InteractionContextType, SlashCommandBuilder } from 'discord.js';
+import { AutocompleteInteraction, InteractionContextType, SlashCommandBuilder } from 'discord.js';
 import { createCommand } from '../types/commandTypes.js';
 import { UsageScope } from '../utils/usageLimitsUtils.js';
+import fuzzysort from 'fuzzysort';
+import { RbxCaches, Roblox } from '../utils/robloxUtils.js';
+
+async function completeRbxUsername(interaction: AutocompleteInteraction) {
+	const focusedOption = interaction.options.getFocused(true);
+	const matched = fuzzysort.go(focusedOption.value, RbxCaches.preparedUsernames, {
+		limit: 25,
+		threshold: 0.6,
+		all: true,
+	});
+	await interaction.respond(matched.map((m) => ({ name: m.target, value: m.target })));
+}
 
 export default createCommand<{}, 'rbx'>({
 	data: new SlashCommandBuilder()
@@ -21,7 +33,8 @@ export default createCommand<{}, 'rbx'>({
 								.setDescription('Username to add')
 								.setRequired(true)
 								.setMinLength(1)
-								.setMaxLength(50),
+								.setMaxLength(50)
+								.setAutocomplete(true),
 						)
 						.addStringOption((option) =>
 							option
@@ -37,7 +50,11 @@ export default createCommand<{}, 'rbx'>({
 						.setName('remove')
 						.setDescription('Remove a Roblox user from the blacklist')
 						.addStringOption((option) =>
-							option.setName('name').setDescription('Username to remove').setRequired(true),
+							option
+								.setName('name')
+								.setDescription('Username to remove')
+								.setRequired(true)
+								.setAutocomplete(true),
 						),
 				)
 				.addSubcommand((cmd) => cmd.setName('list').setDescription('List all users in the blacklist'))
@@ -96,7 +113,11 @@ export default createCommand<{}, 'rbx'>({
 						.setName('get')
 						.setDescription('Get the points of a Roblox user')
 						.addStringOption((option) =>
-							option.setName('name').setDescription('Username to get points of').setRequired(true),
+							option
+								.setName('name')
+								.setDescription('Username to get points of')
+								.setRequired(true)
+								.setAutocomplete(true),
 						),
 				),
 		),
@@ -132,6 +153,15 @@ export default createCommand<{}, 'rbx'>({
 				intervalMs: 20 * 1000,
 				usesPerInterval: 4,
 			},
+		},
+	},
+	autocomplete: {
+		blacklist: {
+			add: completeRbxUsername,
+			remove: completeRbxUsername,
+		},
+		points: {
+			get: completeRbxUsername,
 		},
 	},
 });

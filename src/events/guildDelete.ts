@@ -16,6 +16,7 @@ export default createEvent({
 				logChannelId: null,
 				serverInvite: null,
 				guildFlags: 0,
+				leftAt: new Date(),
 			},
 			{
 				where: {

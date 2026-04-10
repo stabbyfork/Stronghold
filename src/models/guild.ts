@@ -94,7 +94,7 @@ export class Guild extends Model<InferAttributes<Guild>, InferCreationAttributes
 	})
 	declare tag: string | null;
 
-	//** Associated in user.ts */
+	@HasMany(() => User, { foreignKey: { name: 'guildId', onUpdate: 'RESTRICT', onDelete: 'CASCADE' } })
 	declare users?: NonAttribute<User[]>;
 
 	@HasOne(() => ActivityCheck, { foreignKey: { name: 'guildId', onUpdate: 'RESTRICT', onDelete: 'CASCADE' } })

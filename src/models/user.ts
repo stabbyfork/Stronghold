@@ -66,12 +66,6 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
 	declare getUserPermission: HasOneGetAssociationMixin<UserPermission>;
 	declare createUserPermission: HasOneCreateAssociationMixin<UserPermission, 'userId'>;
 
-	@BelongsToMany(() => Guild, {
-		through: 'UserGuilds',
-		inverse: 'users',
-	})
-	declare guilds?: NonAttribute<Guild[]>;
-
 	/** The main unstackable rank */
 	@BelongsTo(() => Rank, { foreignKey: { name: 'mainRankId', allowNull: true } })
 	declare mainRank?: NonAttribute<Rank | null>;

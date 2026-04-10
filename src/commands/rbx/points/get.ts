@@ -28,7 +28,11 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		attributes: ['points'],
 	});
 	if (!dbRbxUser) {
-		await reportErrorToUser(interaction, constructError([ErrorReplies.UserNotFoundSubstitute], username), true);
+		await reportErrorToUser(
+			interaction,
+			`User not found: \`${username}\`. This means they do not have any points.`,
+			true,
+		);
 		return;
 	}
 

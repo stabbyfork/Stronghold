@@ -36,6 +36,7 @@ export enum UserAssociations {
 /** Per guild */
 @Table({
 	indexes: [{ unique: true, fields: ['guildId', 'userId'] }],
+	modelName: 'User',
 	tableName: 'Users',
 })
 export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {

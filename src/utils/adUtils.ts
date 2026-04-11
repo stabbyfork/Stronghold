@@ -20,10 +20,11 @@ export namespace AdUtils {
 	 * Checks if ads are enabled and there are ads in the list, then randomly selects an ad based on their weights and the adChance.
 	 * @returns The selected ad or null if no ad is selected.
 	 */
-	export async function weightedChancedRandomAd(guildId: string, userId: string) {
+	export async function weightedChancedRandomAd(guildId: string, userId: string, customChance?: number) {
 		if (!isEnabled) return null;
 		if (allAds.length === 0) return null;
-		if (Math.random() > chance) return null; // Check if the ad should be shown based on the adChance
+		const adChance = customChance !== undefined ? customChance : chance;
+		if (Math.random() > adChance) return null; // Check if the ad should be shown based on the adChance
 		if ((await isEnabledForUser(guildId, userId)) === false) return null; // Check if ads are enabled for the user in this guild
 		const randomNum = Math.random() * totalWeight;
 		let weightSum = 0;
@@ -56,7 +57,7 @@ export namespace AdUtils {
 				}
 			}
 		}
-		throw new Error('Failed to select an advert. This should never happen.');
+		throw new Error('Failed to select an advert. This should never happen. Oh no.');
 	}
 
 	async function isEnabledForUser(guildId: string, userId: string) {

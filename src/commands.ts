@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON FRI, 20 FEB 2026 11:05:36 GMT WITH 14 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON SAT, 11 APR 2026 13:09:41 GMT WITH 14 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct, CommandExecute } from './types/commandTypes.js';
 
@@ -99,6 +99,7 @@ import session_remove from './commands/session/remove.js';
 import session_time from './commands/session/time.js';
 import session_auto_points from './commands/session/auto_points.js';
 import set_bot_pfp from './commands/set/bot_pfp.js';
+import set_ads from './commands/set/ads.js';
 
 export const commands = {
   'activity': activity,
@@ -240,7 +241,8 @@ session: {
   auto_points: session_auto_points
 },
 set: {
-  bot_pfp: set_bot_pfp
+  bot_pfp: set_bot_pfp,
+  ads: set_ads
 },
 } as const satisfies {
 	[K in keyof Partial<typeof commands>]: { [key: string]: CommandExecute<any> | { [key: string]: CommandExecute<any> } };

@@ -16,7 +16,15 @@
 		"sourceMap": true,
 		"outDir": "dist",
 		"resolvePackageJsonExports": true,
-		"experimentalDecorators": true
+		"experimentalDecorators": true,
+		"jsx": "react-jsx",
+		"jsxImportSource": "@dui/core",
+		"paths": {
+			"@dui": ["./src/dui"],
+			"@dui/*": ["./src/dui/*"],
+			"@dui/core": ["./src/dui/core.js"],
+			"@dui/core/*": ["./src/dui/*"]
+		}
 	},
 	"include": ["src"],
 	"exclude": ["node_modules", "dist"]

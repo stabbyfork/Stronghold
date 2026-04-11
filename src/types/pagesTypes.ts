@@ -2,7 +2,7 @@
 
 import { AttachmentBuilder, ContainerBuilder } from 'discord.js';
 
-export type Page = ContainerBuilder;
+export type Page = ContainerBuilder[] | ContainerBuilder;
 export type CreatePageFunction = (index: number, itemsPerPage: number, files: AttachmentBuilder[]) => Promise<Page>;
 
 //#endregion

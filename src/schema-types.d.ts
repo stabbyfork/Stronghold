@@ -104,10 +104,58 @@ export interface Config {
     endpoints: {
       /**
        * Array of endpoints to send to when a relation between guilds changes.
-       *
-       * @minItems 1
        */
-      relationChanges?: [HttpPattern, ...HttpPattern[]];
+      relationChanges?: HttpPattern[];
     };
+  };
+  /**
+   * Properties and options for adverts.
+   */
+  advertisement?: {
+    /**
+     * Whether to enable adverts or not. If false, adverts are not shown at all.
+     */
+    enabled: boolean;
+    /**
+     * The percentage chance (0-1) for an advert to be shown when it is eligible to be shown. Defaults to 1 (always show).
+     */
+    adChance?: number;
+    /**
+     * Array of adverts to show in various places.
+     */
+    list: {
+      /**
+       * Name of the advert. Used for internal identification only.
+       */
+      name: string;
+      /**
+       * The content of the advert. Can be markdown.
+       */
+      content: string;
+      /**
+       * The link the advert points to (URL).
+       */
+      link: string;
+      /**
+       * The text to display on the link button. Optional. If not provided, defaults to 'Learn More'.
+       */
+      linkText?: string;
+      /**
+       * The URL of the advert's image. Optional.
+       */
+      imageUrl?: string;
+      /**
+       * The associated colour of the advert in one of Discord's colour options. Optional.
+       */
+      colour?: string;
+      /**
+       * Array of game names that this advert is relevant to. Optional. If not provided, the advert is shown for all games.
+       */
+      games?: string[];
+      /**
+       * The weight of the advert. Higher weights make the advert more likely to be selected.
+       */
+      weight?: number;
+    }[];
   };
 }

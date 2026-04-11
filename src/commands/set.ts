@@ -16,6 +16,17 @@ export default createCommand<{}, 'set'>({
 						.setDescription('The image to set as the bot profile picture. Leave empty to reset')
 						.setRequired(false),
 				),
+		)
+		.addSubcommand((subcommand) =>
+			subcommand
+				.setName('ads')
+				.setDescription('Enable or disable sponsored content in this server')
+				.addBooleanOption((option) =>
+					option
+						.setName('enabled')
+						.setDescription('Whether to enable ads for you in this server. Omit to disable')
+						.setRequired(false),
+				),
 		),
 	limits: {
 		bot_pfp: {

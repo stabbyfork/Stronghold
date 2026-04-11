@@ -216,7 +216,7 @@ export class Pages {
 	}
 
 	async getFormattedPage(includeNavButtons = true) {
-		const page = this.cachePages
+		let page = this.cachePages
 			? (this.pages.get(this.currentPageI) ??
 				(await (async () => {
 					const newPage = await this.createPage(this.currentPageI);
@@ -224,7 +224,11 @@ export class Pages {
 					return newPage;
 				})()))
 			: await this.createPage(this.currentPageI);
-		page.spliceComponents(
+
+		if (!Array.isArray(page)) {
+			page = [page];
+		}
+		page[0].spliceComponents(
 			0,
 			0,
 			new TextDisplayBuilder({
@@ -232,7 +236,7 @@ export class Pages {
 			}),
 		);
 		if (includeNavButtons) {
-			page.addActionRowComponents(this.getNavButtons());
+			page[0].addActionRowComponents(this.getNavButtons());
 		}
 		return page;
 	}
@@ -272,7 +276,7 @@ export class Pages {
 	 * Creates a new pagination instance.
 	 * @param itemsPerPage The number of items to show per page.
 	 * @param totalItems The total number of items.
-	 * @param createPage A function that creates a page given the page index and the number of items to show per page.
+	 * @param createPage A function that creates a page given the page index and the number of items to show per page. (may be multiple containers or a single container)
 	 * @param startingPage The page index to start on.
 	 * @param cachePages Whether to cache pages or not. Defaults to false.
 	 */
@@ -383,7 +387,7 @@ export class Pages {
 	 */
 	async replyTo(interaction: RepliableInteraction, ephemeral = true, attachmentIndexes: number[] = []) {
 		const toReply = {
-			components: [await this.getFormattedPage(this.shouldDisplayNavButtons())],
+			components: await this.getFormattedPage(this.shouldDisplayNavButtons()),
 			flags: (ephemeral ? MessageFlags.Ephemeral : 0) | MessageFlags.IsComponentsV2,
 			withResponse: true,
 			files: attachmentIndexes.map((index) => this.attachments[index]),
@@ -406,7 +410,6 @@ export class Pages {
 		}
 		const collector = resp.createMessageComponentCollector({
 			componentType: ComponentType.Button,
-			time: 3 * 60 * 1000,
 			idle: 60 * 1000,
 		});
 		collector.once('end', async () => {
@@ -415,7 +418,7 @@ export class Pages {
 			await this.onExpire?.(resp);
 			try {
 				await resp.edit({
-					components: [await this.getFormattedPage(false)],
+					components: await this.getFormattedPage(false),
 					allowedMentions: { roles: [], users: [] },
 				});
 			} catch (e) {
@@ -445,7 +448,7 @@ export class Pages {
 					throw new Errors.ValueError(`Unknown customId: ${i.customId}`);
 			}
 			await i.update({
-				components: [await this.getFormattedPage(this.shouldDisplayNavButtons())],
+				components: await this.getFormattedPage(this.shouldDisplayNavButtons()),
 				files: attachmentIndexes.map((i) => this.attachments[i]),
 				allowedMentions: { roles: [], users: [] },
 			});

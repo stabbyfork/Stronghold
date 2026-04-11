@@ -39,6 +39,7 @@ import {
 } from '../utils/usageLimitsUtils.js';
 import { UserAssociations } from '../models/user.js';
 import { defaultEmbed } from '../utils/discordUtils.js';
+import { Dui } from '../dui/core.js';
 
 export default createEvent({
 	name: Events.InteractionCreate,
@@ -245,6 +246,9 @@ export default createEvent({
 				}
 			}
 		} else if (interaction.isMessageComponent()) {
+			if (await Dui.dispatchInteraction(interaction)) {
+				return;
+			}
 			let handled = false;
 			switch (interaction.customId) {
 				case GlobalCustomIds.InSessionJoin:
@@ -1342,6 +1346,10 @@ export default createEvent({
 						}
 						break;
 				}
+			}
+		} else if (interaction.isModalSubmit()) {
+			if (await Dui.dispatchModalSubmit(interaction)) {
+				return;
 			}
 		}
 	},

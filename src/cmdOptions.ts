@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON FRI, 20 FEB 2026 11:05:36 GMT WITH 14 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON SAT, 11 APR 2026 13:09:41 GMT WITH 14 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct } from "./types/commandTypes.js";
 
@@ -627,6 +627,12 @@ set: {
       "type": "attachment",
       "required": false
     }
+  },
+  "ads": {
+    "enabled": {
+      "type": "boolean",
+      "required": false
+    }
   }
 },
 feedback: {
@@ -794,6 +800,7 @@ session: {
   auto_points: T
 },
 set: {
-  bot_pfp: T
+  bot_pfp: T,
+  ads: T
 },	
 };

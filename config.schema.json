@@ -114,7 +114,6 @@
 							"items": {
 								"$ref": "#/definitions/httpPattern"
 							},
-							"minItems": 1,
 							"uniqueItems": true,
 							"additionalItems": false,
 							"readOnly": true
@@ -126,6 +125,82 @@
 			},
 			"readOnly": true,
 			"required": ["endpoints"],
+			"additionalProperties": false
+		},
+		"advertisement": {
+			"type": "object",
+			"description": "Properties and options for adverts.",
+			"properties": {
+				"enabled": {
+					"type": "boolean",
+					"description": "Whether to enable adverts or not. If false, adverts are not shown at all."
+				},
+				"adChance": {
+					"type": "number",
+					"description": "The percentage chance (0-1) for an advert to be shown when it is eligible to be shown. Defaults to 1 (always show).",
+					"default": 1,
+					"exclusiveMinimum": 0,
+					"maximum": 1
+				},
+				"list": {
+					"type": "array",
+					"description": "Array of adverts to show in various places.",
+					"items": {
+						"type": "object",
+						"description": "Properties of an advert.",
+						"properties": {
+							"name": {
+								"type": "string",
+								"description": "Name of the advert. Used for internal identification only."
+							},
+							"content": {
+								"type": "string",
+								"description": "The content of the advert. Can be markdown."
+							},
+							"link": {
+								"$ref": "#/definitions/httpPattern",
+								"description": "The link the advert points to (URL)."
+							},
+							"linkText": {
+								"type": "string",
+								"description": "The text to display on the link button. Optional. If not provided, defaults to 'Learn More'."
+							},
+							"imageUrl": {
+								"$ref": "#/definitions/httpPattern",
+								"description": "The URL of the advert's image. Optional."
+							},
+							"colour": {
+								"type": "string",
+								"description": "The associated colour of the advert in one of Discord's colour options. Optional."
+							},
+							"games": {
+								"type": "array",
+								"description": "Array of game names that this advert is relevant to. Optional. If not provided, the advert is shown for all games.",
+								"items": {
+									"type": "string"
+								},
+								"uniqueItems": true,
+								"additionalItems": false
+							},
+							"weight": {
+								"type": "number",
+								"description": "The weight of the advert. Higher weights make the advert more likely to be selected.",
+								"default": 1,
+								"exclusiveMinimum": 0
+							}
+						},
+						"required": ["name", "content", "link"],
+						"additionalProperties": false,
+						"readOnly": true,
+						"uniqueItems": true
+					},
+					"uniqueItems": true,
+					"additionalItems": false,
+					"readOnly": true
+				}
+			},
+			"readOnly": true,
+			"required": ["list", "enabled"],
 			"additionalProperties": false
 		}
 	},

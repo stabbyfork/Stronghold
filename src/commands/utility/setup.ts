@@ -149,7 +149,7 @@ async function createSetupMessage(
 					),
 				(text) =>
 					text.setContent(
-						`The Getting Started guide and further documentation are available at ${buildUrl(websiteUrl, { path: 'getting-started' })}.\nJoin the support server for help and updates: ${discordUrl}\nRead the bot's privacy policy at ${buildUrl(privacyPolicyUrl)}`,
+						`The Getting Started guide and further documentation are available at ${buildUrl(websiteUrl, { path: 'getting-started' })}.\nJoin the support server for help and updates: ${discordUrl}\nRead the bot's privacy policy at:\n${buildUrl(privacyPolicyUrl)}`,
 					),
 			)
 			.setThumbnailAccessory((image) => image.setURL(guild.iconURL() ?? client.user?.avatarURL()!)),

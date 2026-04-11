@@ -92,6 +92,10 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
 	declare removeRoleGroup: BelongsToManyRemoveAssociationMixin<RoleGroup, RoleGroup['id']>;
 	declare hasRoleGroup: BelongsToManyHasAssociationMixin<RoleGroup, RoleGroup['id']>;
 
+	/** Whether the user can see ads in this guild */
+	@Attribute({ type: DataTypes.BOOLEAN, defaultValue: true, allowNull: false })
+	declare adsEnabled: CreationOptional<boolean>;
+
 	@Attribute({ type: DataTypes.DATE })
 	declare createdAt: CreationOptional<Date>;
 	@Attribute({ type: DataTypes.DATE })

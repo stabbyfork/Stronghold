@@ -67,14 +67,19 @@ export async function createInactiveRoleIfMissing(guild: Guild, transaction: Tra
 		role = guild.roles.cache.get(prevInactiveRole) ?? (await guild.roles.fetch(prevInactiveRole));
 	}
 	if (!prevInactiveRole || !role) {
-		const created = await guild.roles.create({
-			name: RoleNames.Inactive,
-			permissions: [],
-			color: [60, 60, 60],
-			reason: 'Default Inactive role created during setup',
-		});
-		if (!created) return undefined;
-		return created;
+		try {
+			const created = await guild.roles.create({
+				name: RoleNames.Inactive,
+				permissions: [],
+				color: [60, 60, 60],
+				reason: 'Default Inactive role created during setup',
+			});
+			if (!created) return undefined;
+			return created;
+		} catch (e) {
+			Debug.error('Error creating inactive role during setup:', e);
+			return undefined;
+		}
 	}
 	return role;
 }
@@ -94,14 +99,19 @@ export async function createInSessionRoleIfMissing(guild: Guild, transaction: Tr
 		role = guild.roles.cache.get(prevInSessionRole) ?? (await guild.roles.fetch(prevInSessionRole));
 	}
 	if (!prevInSessionRole || !role) {
-		const created = await guild.roles.create({
-			name: RoleNames.InSession,
-			permissions: [],
-			color: [60, 60, 200],
-			reason: 'Default in-session role created during setup',
-		});
-		if (!created) return undefined;
-		return created;
+		try {
+			const created = await guild.roles.create({
+				name: RoleNames.InSession,
+				permissions: [],
+				color: [60, 60, 200],
+				reason: 'Default in-session role created during setup',
+			});
+			if (!created) return undefined;
+			return created;
+		} catch (e) {
+			Debug.error('Error creating in-session role during setup:', e);
+			return undefined;
+		}
 	}
 	return role;
 }
@@ -708,7 +718,7 @@ export default createCommand<typeof commandOptions.setup>({
 					if (!role) {
 						await reportErrorToUser(
 							interaction,
-							constructError([ErrorReplies.UnknownError, ErrorReplies.ReportToOwner]),
+							'Failed to create inactive role. Perhaps the bot does not have the permission to create roles?',
 							true,
 						);
 						throw new Errors.ThirdPartyError('Failed to create inactive role');
@@ -724,7 +734,7 @@ export default createCommand<typeof commandOptions.setup>({
 					if (!role) {
 						reportErrorToUser(
 							interaction,
-							constructError([ErrorReplies.UnknownError, ErrorReplies.ReportToOwner]),
+							'Failed to create in-session role. Perhaps the bot does not have the permission to create roles?',
 							true,
 						);
 						throw new Errors.ThirdPartyError('Failed to create in-session role');

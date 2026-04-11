@@ -14,6 +14,7 @@ import { defaultEmbed } from '../../utils/discordUtils.js';
 import { constructError, reportErrorToUser } from '../../utils/errorsUtils.js';
 import { Logging } from '../../utils/loggingUtils.js';
 import { getOption, reportErrorIfNotSetup } from '../../utils/subcommandsUtils.js';
+import { AdUtils } from '../../utils/adUtils.js';
 
 const enum CustomIds {
 	Confirm = 'confirm',
@@ -122,6 +123,11 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				transaction,
 			},
 		);
+		if (game) {
+			AdUtils.gameCache.set(guild.id, game);
+		} else {
+			AdUtils.gameCache.delete(guild.id);
+		}
 	});
 
 	await interaction.followUp({

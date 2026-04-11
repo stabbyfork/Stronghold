@@ -5,6 +5,7 @@ import { constructError, reportErrorToUser } from '../../utils/errorsUtils.js';
 import { Data } from '../../data.js';
 import { defaultEmbed } from '../../utils/discordUtils.js';
 import { Logging } from '../../utils/loggingUtils.js';
+import { AdUtils } from '../../utils/adUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction) => {
 	const guild = interaction.guild;
@@ -45,6 +46,7 @@ export default async (interaction: ChatInputCommandInteraction) => {
 			transaction,
 		});
 	});
+	AdUtils.gameCache.delete(guild.id);
 
 	await interaction.reply({
 		embeds: [

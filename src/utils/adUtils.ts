@@ -13,6 +13,8 @@ export namespace AdUtils {
 
 	/** Server ID -> User ID -> Ads enabled */
 	const enabledCache = new Map<string, Map<string, boolean>>();
+	/** Server ID -> Game ID */
+	export const gameCache = new Map<string, string>();
 
 	/**
 	 * Checks if ads are enabled and there are ads in the list, then randomly selects an ad based on their weights and the adChance.
@@ -28,10 +30,33 @@ export namespace AdUtils {
 		for (const ad of allAds) {
 			weightSum += ad.weight ?? defaultWeight;
 			if (randomNum < weightSum) {
-				return ad;
+				if (ad.games?.length) {
+					// Game-specific
+					if (!gameCache.has(guildId)) {
+						const uncachedGame = await Data.models.Guild.findOne({
+							where: { guildId },
+							attributes: ['dpmGame', 'guildId'],
+						}).then((guild) => guild?.dpmGame);
+						if (uncachedGame) {
+							gameCache.set(guildId, uncachedGame);
+						} else {
+							return null; // Guild has no game, so don't show a game-specific ad
+						}
+					}
+					const guildGame = gameCache.get(guildId)!;
+
+					if (ad.games.includes(guildGame)) {
+						return ad;
+					} else {
+						return null; // Guild's game doesn't match the ad's games, so don't show this ad
+					}
+				} else {
+					// Generic, not game-specific ad
+					return ad;
+				}
 			}
 		}
-		throw new Error('Failed to select an advert. This should never happen if totalWeight is calculated correctly.');
+		throw new Error('Failed to select an advert. This should never happen.');
 	}
 
 	async function isEnabledForUser(guildId: string, userId: string) {

@@ -43,7 +43,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			});
 			pages.setTotalItems(targets.count);
 			// Assumes that the command is always invoked in a guild channel, so interaction.guildId is always defined
-			const randomAd = await AdUtils.weightedChancedRandomAd(interaction.guildId!, interaction.user.id, 0.5);
+			const randomAd = await AdUtils.weightedChancedRandomAd(interaction.guildId!, interaction.user.id, 0.25);
 			if (randomAd) {
 				const resolvedColour = randomAd.colour
 					? Dui.resolveAccentColor(randomAd.colour as Dui.Intrinsics['container']['accentColor'])

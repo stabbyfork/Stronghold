@@ -55,7 +55,7 @@ async function runActivityChecks() {
 			},
 			paused: false,
 			// Run with a 30 minute precision
-			[Op.and]: sql`(${sql.identifier('lastRun')} + ${sql.identifier('interval')}) - ${intDiv(Date.now(), 1000)} <= 1800`, // Due in the next 30 minutes
+			[Op.and]: sql`(${sql.identifier('lastRun')} + ${sql.identifier('interval')}) <= (1800 + ${intDiv(Date.now(), 1000)})`, // Due in the next 30 minutes
 		},
 	});
 	const gen = (function* () {

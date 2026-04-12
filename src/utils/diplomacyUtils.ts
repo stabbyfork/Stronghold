@@ -570,7 +570,7 @@ export namespace DPM {
 							},
 						});
 						throw new Errors.NotFoundError(
-							`Target thread with ID ${relation2.sourceThreadId} not found. It may have been deleted.`,
+							`Target guild's thread with ID ${relation2.sourceThreadId} not found. It may have been deleted.`,
 						);
 					}
 				} else {

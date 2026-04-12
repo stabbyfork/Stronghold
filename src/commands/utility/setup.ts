@@ -71,7 +71,7 @@ export async function createInactiveRoleIfMissing(guild: Guild, transaction: Tra
 			const created = await guild.roles.create({
 				name: RoleNames.Inactive,
 				permissions: [],
-				color: [60, 60, 60],
+				colors: { primaryColor: [60, 60, 60] },
 				reason: 'Default Inactive role created during setup',
 			});
 			if (!created) return undefined;
@@ -103,7 +103,7 @@ export async function createInSessionRoleIfMissing(guild: Guild, transaction: Tr
 			const created = await guild.roles.create({
 				name: RoleNames.InSession,
 				permissions: [],
-				color: [60, 60, 200],
+				colors: { primaryColor: [60, 60, 200] },
 				reason: 'Default in-session role created during setup',
 			});
 			if (!created) return undefined;
@@ -159,7 +159,7 @@ async function createSetupMessage(
 					),
 				(text) =>
 					text.setContent(
-						`The Getting Started guide and further documentation are available at ${buildUrl(websiteUrl, { path: 'getting-started' })}.\nJoin the support server for help and updates: ${discordUrl}\nRead the bot's privacy policy at:\n${buildUrl(privacyPolicyUrl)}\nTOS:\n${buildUrl(Config.get('website').tosUrl)}`,
+						`Getting Started guide: ${buildUrl(websiteUrl, { path: 'getting-started' })}\nPrivacy policy and TOS: ${buildUrl(privacyPolicyUrl)} / ${buildUrl(Config.get('website').tosUrl)}`,
 					),
 			)
 			.setThumbnailAccessory((image) => image.setURL(guild.iconURL() ?? client.user?.avatarURL()!)),
@@ -200,7 +200,7 @@ async function createSetupMessage(
 			sect
 				.addTextDisplayComponents((text) =>
 					text.setContent(
-						`Choose a **forum** channel (the one with posts) to send logs to. This is highly recommended to easily diagnose issues and monitor events. A channel may be automatically created by clicking the \`Create new\` button. **If empty (no channel selected) AND no channel is to be created, no logs will be sent:**`,
+						`Choose a **forum** channel (the one with posts) to send logs to. This is highly recommended to easily diagnose issues and monitor events. A channel may be automatically created by clicking the \`Create new\` button. **If empty (no channel selected) AND no channel is to be created, logs will not be sent:**`,
 					),
 				)
 				.setButtonAccessory((button) =>

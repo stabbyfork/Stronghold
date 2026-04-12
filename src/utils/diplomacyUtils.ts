@@ -460,13 +460,21 @@ export namespace DPM {
 							undefined;
 					} catch (e) {
 						Debug.error(`Error while fetching source thread: ${e}. Creating a new one`);
-						sourceThread = await sourceChannel.threads.create({
-							name: `${targetGuild.name}`,
-							autoArchiveDuration: ThreadAutoArchiveDuration.OneDay,
-							message: {
-								content: `Diplomacy between \`${sourceGuild.name}\` and \`${targetGuild.name}\``,
-							},
-						});
+						try {
+							sourceThread = await sourceChannel.threads.create({
+								name: `${targetGuild.name}`,
+								autoArchiveDuration: ThreadAutoArchiveDuration.OneDay,
+								message: {
+									content: `Diplomacy between \`${sourceGuild.name}\` and \`${targetGuild.name}\``,
+								},
+							});
+						} catch (e) {
+							Debug.error(`Error while creating source thread: ${e}`);
+							throw new Errors.DPMError(
+								'Could not create source thread. Does the bot have the permission to create threads in the diplomacy channel?',
+							);
+						}
+
 						await relation1.update({ sourceThreadId: sourceThread.id });
 					}
 					if (!sourceThread) {
@@ -487,11 +495,21 @@ export namespace DPM {
 						);
 					}
 				} else {
-					sourceThread = await sourceChannel.threads.create({
-						name: `${targetGuild.name}`,
-						autoArchiveDuration: ThreadAutoArchiveDuration.OneDay,
-						message: { content: `Diplomacy between \`${sourceGuild.name}\` and \`${targetGuild.name}\`` },
-					});
+					try {
+						sourceThread = await sourceChannel.threads.create({
+							name: `${targetGuild.name}`,
+							autoArchiveDuration: ThreadAutoArchiveDuration.OneDay,
+							message: {
+								content: `Diplomacy between \`${sourceGuild.name}\` and \`${targetGuild.name}\``,
+							},
+						});
+					} catch (e) {
+						Debug.error(`Error while creating source thread: ${e}`);
+						throw new Errors.DPMError(
+							'Could not create source thread. Does the bot have the permission to create threads in the diplomacy channel?',
+						);
+					}
+
 					await relation1.update({ sourceThreadId: sourceThread.id });
 				}
 				sourceThreads.set(sorted, sourceThread);
@@ -509,13 +527,33 @@ export namespace DPM {
 							undefined;
 					} catch (e) {
 						Debug.error(`Error while fetching target thread: ${e}. Creating a new one`);
-						targetThread = await targetChannel.threads.create({
-							name: `${sourceGuild.name}`,
-							autoArchiveDuration: ThreadAutoArchiveDuration.OneDay,
-							message: {
-								content: `Diplomacy between \`${targetGuild.name}\` and \`${sourceGuild.name}\``,
-							},
-						});
+						try {
+							targetThread = await targetChannel.threads.create({
+								name: `${sourceGuild.name}`,
+								autoArchiveDuration: ThreadAutoArchiveDuration.OneDay,
+								message: {
+									content: `Diplomacy between \`${targetGuild.name}\` and \`${sourceGuild.name}\``,
+								},
+							});
+						} catch (e) {
+							Debug.error(`Error while creating target thread: ${e}`);
+							Logging.log({
+								logType: Logging.Type.Warning,
+								data: {
+									guildId: targetGuild.id,
+								},
+								extents: [GuildFlag.LogWarnings],
+								formatData: {
+									msg: `Could not create target thread. The bot might not have the permission to create threads in this guild's diplomacy channel.`,
+									cause: `Error while creating target thread: ${e}`,
+									action: `Diplomacy between ${sourceGuild.name} and ${targetGuild.name}`,
+								},
+							});
+							throw new Errors.DPMError(
+								"Could not create target thread. The bot might not have the permission to create threads in the other guild's diplomacy channel.",
+							);
+						}
+
 						await relation2.update({ sourceThreadId: targetThread.id });
 					}
 					if (!targetThread) {
@@ -536,11 +574,33 @@ export namespace DPM {
 						);
 					}
 				} else {
-					targetThread = await targetChannel.threads.create({
-						name: `${sourceGuild.name}`,
-						autoArchiveDuration: ThreadAutoArchiveDuration.OneDay,
-						message: { content: `Diplomacy between \`${targetGuild.name}\` and \`${sourceGuild.name}\`` },
-					});
+					try {
+						targetThread = await targetChannel.threads.create({
+							name: `${sourceGuild.name}`,
+							autoArchiveDuration: ThreadAutoArchiveDuration.OneDay,
+							message: {
+								content: `Diplomacy between \`${targetGuild.name}\` and \`${sourceGuild.name}\``,
+							},
+						});
+					} catch (e) {
+						Debug.error(`Error while creating target thread: ${e}`);
+						Logging.log({
+							logType: Logging.Type.Warning,
+							data: {
+								guildId: targetGuild.id,
+							},
+							extents: [GuildFlag.LogWarnings],
+							formatData: {
+								msg: `Could not create target thread. The bot might not have the permission to create threads in this guild's diplomacy channel.`,
+								cause: `Error while creating target thread: ${e}`,
+								action: `Diplomacy between ${sourceGuild.name} and ${targetGuild.name}`,
+							},
+						});
+						throw new Errors.DPMError(
+							"Could not create target thread. The bot might not have the permission to create threads in the other guild's diplomacy channel.",
+						);
+					}
+
 					await relation2.update({ sourceThreadId: targetThread.id });
 				}
 				targetThreads.set(sorted, targetThread);

@@ -17,6 +17,8 @@ export default createEvent({
 				serverInvite: null,
 				guildFlags: 0,
 				leftAt: new Date(),
+				inactiveRoleId: null,
+				inSessionRoleId: null,
 			},
 			{
 				where: {

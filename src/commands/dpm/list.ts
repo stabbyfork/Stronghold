@@ -1,15 +1,14 @@
+import { DuiBuiltins } from '@dui/builtins.js';
+import { Dui } from '@dui/core.js';
 import { Op } from '@sequelize/core';
 import { AttachmentBuilder, ChatInputCommandInteraction } from 'discord.js';
+import { commandOptions } from '../../cmdOptions.js';
 import { Data } from '../../data.js';
+import { AdUtils } from '../../utils/adUtils.js';
 import { AssetId, Assets } from '../../utils/assets.js';
 import { listGuilds, Pages } from '../../utils/discordUtils.js';
 import { Debug, reportErrorToUser } from '../../utils/errorsUtils.js';
-import { commandOptions } from '../../cmdOptions.js';
 import { getOption } from '../../utils/subcommandsUtils.js';
-import { Dui } from '@dui/core.js';
-import { Config } from '../../config.js';
-import { AdUtils } from '../../utils/adUtils.js';
-import { DuiBuiltins } from '@dui/builtins.js';
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.dpm.list) => {
 	const selectedGame = getOption(interaction, args, 'game');
@@ -39,7 +38,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 					tag: { [Op.ne]: null },
 					...(selectedGame ? { dpmGame: selectedGame } : {}),
 				},
-				attributes: ['guildId', 'tag', 'serverInvite', 'dpmGame'],
+				attributes: ['guildId', 'tag', 'serverInvite', 'dpmGame', 'priority'],
 			});
 			pages.setTotalItems(targets.count);
 			// Assumes that the command is always invoked in a guild channel, so interaction.guildId is always defined

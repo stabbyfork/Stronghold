@@ -2,6 +2,7 @@ import { Events, userMention } from 'discord.js';
 import { createEvent } from '../types/eventTypes.js';
 import { defaultEmbed } from '../utils/discordUtils.js';
 import { Config } from '../config.js';
+import { Data } from '../data.js';
 
 export default createEvent({
 	name: Events.GuildCreate,
@@ -19,5 +20,6 @@ export default createEvent({
 				],
 			}),
 		);
+		await Data.models.Guild.update({ leftAt: null }, { where: { guildId: guild.id } });
 	},
 });

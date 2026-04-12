@@ -59,6 +59,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				(text) => text.setContent(`Name: ${guild.name}`),
 				(text) =>
 					text.setContent(`Tag: \`${dbGuild.tag}\`${dbGuild.tag ? '' : ' (use \`/dpm setup\` to set)'}`),
+				(text) => text.setContent(`Main game: ${dbGuild.dpmGame ?? 'none'}`),
 				(text) => text.setContent(`ID: \`${guild.id}\``),
 				(text) => text.setContent(`Members: ${guild.memberCount}`),
 				(text) => text.setContent(`Owner: ${userMention(guild.ownerId)}`),

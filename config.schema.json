@@ -66,6 +66,10 @@
 					"type": "string",
 					"description": "The link to the bot's privacy policy"
 				},
+				"tosUrl": {
+					"type": "string",
+					"description": "The link to the bot's terms of service"
+				},
 				"discordUrl": {
 					"type": "string",
 					"description": "The link to the bot's support Discord server"
@@ -73,7 +77,7 @@
 			},
 			"readOnly": true,
 			"additionalProperties": false,
-			"required": ["url", "privacyPolicyUrl", "discordUrl"]
+			"required": ["url", "privacyPolicyUrl", "discordUrl", "tosUrl"]
 		},
 		"dev": {
 			"type": "object",

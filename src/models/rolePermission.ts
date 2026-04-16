@@ -2,25 +2,36 @@ import {
 	CreationOptional,
 	DataTypes,
 	ForeignKey,
+	Model,
+	Sequelize,
 	InferAttributes,
 	InferCreationAttributes,
-	Model,
-} from '@sequelize/core';
-import { Attribute, Table } from '@sequelize/core/decorators-legacy';
+} from 'sequelize';
 import { Guild } from './guild.js';
-@Table({ indexes: [{ unique: true, fields: ['guildId', 'roleId'] }] })
 export class RolePermission extends Model<InferAttributes<RolePermission>, InferCreationAttributes<RolePermission>> {
-	@Attribute({ type: DataTypes.STRING(20), allowNull: false })
 	declare guildId: ForeignKey<Guild['guildId']>;
 
-	@Attribute({ type: DataTypes.STRING(20), allowNull: false })
 	declare roleId: string;
 
-	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, allowNull: false })
 	declare permissions: number;
 
-	@Attribute({ type: DataTypes.DATE, allowNull: false })
 	declare createdAt: CreationOptional<Date>;
-	@Attribute({ type: DataTypes.DATE, allowNull: false })
 	declare updatedAt: CreationOptional<Date>;
+}
+
+export function initRolePermissionModel(sequelize: Sequelize) {
+	RolePermission.init(
+		{
+			guildId: { type: DataTypes.STRING(20), allowNull: false },
+			roleId: { type: DataTypes.STRING(20), allowNull: false },
+			permissions: { type: DataTypes.INTEGER.UNSIGNED, allowNull: false },
+			createdAt: { type: DataTypes.DATE, allowNull: false },
+			updatedAt: { type: DataTypes.DATE, allowNull: false },
+		},
+		{
+			sequelize,
+			modelName: 'RolePermission',
+			indexes: [{ unique: true, fields: ['guildId', 'roleId'] }],
+		},
+	);
 }

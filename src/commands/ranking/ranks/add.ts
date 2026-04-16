@@ -1,4 +1,4 @@
-import { Op } from '@sequelize/core';
+import { Op } from 'sequelize';
 import { ChatInputCommandInteraction, GuildMember, MessageFlags, roleMention } from 'discord.js';
 import { commandOptions } from '../../../cmdOptions.js';
 import { Data } from '../../../data.js';

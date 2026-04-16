@@ -1,6 +1,6 @@
 import { DuiBuiltins } from '@dui/builtins.js';
 import { Dui } from '@dui/core.js';
-import { Op } from '@sequelize/core';
+import { Op } from 'sequelize';
 import { AttachmentBuilder, ChatInputCommandInteraction } from 'discord.js';
 import { commandOptions } from '../../cmdOptions.js';
 import { Data } from '../../data.js';

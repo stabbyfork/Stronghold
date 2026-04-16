@@ -2,7 +2,7 @@ import { ChatInputCommandInteraction, EmbedBuilder, GuildMember, userMention } f
 import { commandOptions } from '../../../cmdOptions.js';
 import { Data } from '../../../data.js';
 import { ErrorReplies, Errors } from '../../../types/errors.js';
-import { Transaction } from '@sequelize/core';
+import { Transaction } from 'sequelize';
 import { User } from '../../../models/user.js';
 import { defaultEmbed } from '../../../utils/discordUtils.js';
 import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js';

@@ -77,7 +77,7 @@ export default createCommand<{}, 'ranking'>({
 			arr.push(fuzzysort.prepare(rank.name));
 		}
 		// For creation/destruction
-		Data.models.Rank.hooks.addListener('afterCreate', async (instance: Rank) => {
+		Data.models.Rank.addHook('afterCreate', async (instance: Rank) => {
 			let arr = rankCaches.get(instance.guildId);
 			if (!arr) {
 				arr = [];
@@ -85,7 +85,7 @@ export default createCommand<{}, 'ranking'>({
 			}
 			arr.push(fuzzysort.prepare(instance.name));
 		});
-		Data.models.Rank.hooks.addListener('afterDestroy', async (instance: Rank) => {
+		Data.models.Rank.addHook('afterDestroy', async (instance: Rank) => {
 			let arr = rankCaches.get(instance.guildId);
 			if (!arr) {
 				return;
@@ -93,14 +93,14 @@ export default createCommand<{}, 'ranking'>({
 			arr.splice(arr.indexOf(fuzzysort.prepare(instance.name)), 1);
 		});
 		// For renaming
-		Data.models.Rank.hooks.addListener('beforeUpdate', async (instance: Rank) => {
+		Data.models.Rank.addHook('beforeUpdate', async (instance: Rank) => {
 			let arr = rankCaches.get(instance.guildId);
 			if (!arr) {
 				return;
 			}
 			arr.splice(arr.indexOf(fuzzysort.prepare(instance.name)), 1);
 		});
-		Data.models.Rank.hooks.addListener('afterUpdate', async (instance: Rank) => {
+		Data.models.Rank.addHook('afterUpdate', async (instance: Rank) => {
 			let arr = rankCaches.get(instance.guildId);
 			if (!arr) {
 				arr = [];
@@ -120,7 +120,7 @@ export default createCommand<{}, 'ranking'>({
 			arr.push(fuzzysort.prepare(roleGroup.name));
 		}
 		// For creation/destruction
-		Data.models.RoleGroup.hooks.addListener('afterCreate', async (instance: RoleGroup) => {
+		Data.models.RoleGroup.addHook('afterCreate', async (instance: RoleGroup) => {
 			let arr = roleGroupCaches.get(instance.guildId);
 			if (!arr) {
 				arr = [];
@@ -128,7 +128,7 @@ export default createCommand<{}, 'ranking'>({
 			}
 			arr.push(fuzzysort.prepare(instance.name));
 		});
-		Data.models.RoleGroup.hooks.addListener('afterDestroy', async (instance: RoleGroup) => {
+		Data.models.RoleGroup.addHook('afterDestroy', async (instance: RoleGroup) => {
 			let arr = roleGroupCaches.get(instance.guildId);
 			if (!arr) {
 				return;

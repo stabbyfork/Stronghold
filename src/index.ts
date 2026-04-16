@@ -1,4 +1,4 @@
-import { Op, sql } from '@sequelize/core';
+import { Op, literal } from 'sequelize';
 import { exec } from 'child_process';
 import { ForumChannel, Guild, ThreadAutoArchiveDuration, userMention } from 'discord.js';
 import { setInterval as yieldInterval } from 'timers/promises';
@@ -55,7 +55,7 @@ async function runActivityChecks() {
 			},
 			paused: false,
 			// Run with a 30 minute precision
-			[Op.and]: sql`(${sql.identifier('lastRun')} + ${sql.identifier('interval')}) <= (1800 + ${intDiv(Date.now(), 1000)})`, // Due in the next 30 minutes
+			[Op.and]: literal(`(lastRun + interval) <= (1800 + ${intDiv(Date.now(), 1000)})`), // Due in the next 30 minutes
 		},
 	});
 	const gen = (function* () {

@@ -16,7 +16,6 @@
 		"sourceMap": true,
 		"outDir": "dist",
 		"resolvePackageJsonExports": true,
-		"experimentalDecorators": true,
 		"jsx": "react-jsx",
 		"jsxImportSource": "@dui/core",
 		"paths": {

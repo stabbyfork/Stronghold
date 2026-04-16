@@ -1,6 +1,6 @@
 //#region activityChecks
 
-import { Op, Transaction } from '@sequelize/core';
+import { Op, Transaction } from 'sequelize';
 import { Guild, roleMention, userMention } from 'discord.js';
 import _ from 'lodash';
 import { client } from '../client.js';

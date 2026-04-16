@@ -1,12 +1,12 @@
 import {
-	Model,
 	InferAttributes,
 	InferCreationAttributes,
 	CreationOptional,
 	DataTypes,
+	Model,
 	NonAttribute,
-} from '@sequelize/core';
-import { Attribute, BelongsTo, Table } from '@sequelize/core/decorators-legacy';
+	Sequelize,
+} from 'sequelize';
 import { User } from './user.js';
 import { GuildSession } from './session.js';
 
@@ -15,49 +15,60 @@ export enum SessionParticipantAssociations {
 	User = 'user',
 }
 
-@Table({
-	indexes: [{ unique: true, fields: ['sessionId', 'userId'] }],
-})
 export class SessionParticipant extends Model<
 	InferAttributes<SessionParticipant>,
 	InferCreationAttributes<SessionParticipant>
 > {
-	@Attribute({ primaryKey: true, type: DataTypes.INTEGER.UNSIGNED, autoIncrement: true })
 	declare id: CreationOptional<number>;
 
-	@BelongsTo(() => GuildSession, {
-		foreignKey: { name: 'sessionId', allowNull: true, onUpdate: 'CASCADE', onDelete: 'CASCADE' },
-	})
 	declare session?: NonAttribute<GuildSession>;
 
-	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, allowNull: true })
 	declare sessionId: number | null;
 
-	@BelongsTo(() => User, {
-		foreignKey: { name: 'userId', allowNull: false, onUpdate: 'RESTRICT', onDelete: 'CASCADE' },
-	})
 	declare user?: NonAttribute<User>;
 
 	/** Database ID, not Discord user ID */
-	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, allowNull: false })
 	declare userId: number;
 
-	@Attribute({ type: DataTypes.BOOLEAN })
 	declare inSession: boolean;
 
-	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, allowNull: false, defaultValue: 0 })
 	declare timeSpent: CreationOptional<number>;
 
 	get totalTimeSpent(): NonAttribute<number> {
 		return this.timeSpent + (this.inSession ? Date.now() - this.joinedAt!.getTime() : 0);
 	}
 
-	@Attribute({ type: DataTypes.DATE, allowNull: true })
 	declare joinedAt: Date | null;
 
-	@Attribute({ type: DataTypes.DATE, allowNull: false })
 	declare createdAt: CreationOptional<Date>;
 
-	@Attribute({ type: DataTypes.DATE, allowNull: false })
 	declare updatedAt: CreationOptional<Date>;
+}
+
+export function initSessionParticipantModel(sequelize: Sequelize) {
+	SessionParticipant.init(
+		{
+			id: { primaryKey: true, type: DataTypes.INTEGER.UNSIGNED, autoIncrement: true },
+			sessionId: { type: DataTypes.INTEGER.UNSIGNED, allowNull: true },
+			userId: { type: DataTypes.INTEGER.UNSIGNED, allowNull: false },
+			inSession: { type: DataTypes.BOOLEAN },
+			timeSpent: { type: DataTypes.INTEGER.UNSIGNED, allowNull: false, defaultValue: 0 },
+			joinedAt: { type: DataTypes.DATE, allowNull: true },
+			createdAt: { type: DataTypes.DATE, allowNull: false },
+			updatedAt: { type: DataTypes.DATE, allowNull: false },
+		},
+		{
+			sequelize,
+			modelName: 'SessionParticipant',
+			indexes: [{ unique: true, fields: ['sessionId', 'userId'] }],
+		},
+	);
+	SessionParticipant.belongsTo(GuildSession, {
+		as: SessionParticipantAssociations.Session,
+		foreignKey: 'sessionId',
+	});
+	SessionParticipant.belongsTo(User, {
+		as: SessionParticipantAssociations.User,
+		foreignKey: 'userId',
+	});
 }

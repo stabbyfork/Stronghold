@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, ContainerBuilder, roleMention, userMention } from 'discord.js';
 import { ErrorReplies } from '../../../types/errors.js';
 import { Data } from '../../../data.js';
-import { Op } from '@sequelize/core';
+import { Op } from 'sequelize';
 import { User, UserAssociations } from '../../../models/user.js';
 import { Pages } from '../../../utils/discordUtils.js';
 import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js';

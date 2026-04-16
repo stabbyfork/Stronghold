@@ -8,7 +8,7 @@ import { Data } from '../../../data.js';
 import { defaultEmbed } from '../../../utils/discordUtils.js';
 import { Logging } from '../../../utils/loggingUtils.js';
 import { Prefix } from '../../../utils/prefixUtils.js';
-import { Op } from '@sequelize/core';
+import { Op } from 'sequelize';
 import { CacheUtils } from '../../../utils/cacheUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.ranking.prefix.remove) => {

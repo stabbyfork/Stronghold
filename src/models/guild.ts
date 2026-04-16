@@ -11,8 +11,8 @@ import {
 	InferCreationAttributes,
 	Model,
 	NonAttribute,
-} from '@sequelize/core';
-import { Attribute, HasMany, HasOne, Table, ValidateAttribute } from '@sequelize/core/decorators-legacy';
+	Sequelize,
+} from 'sequelize';
 import { User } from './user.js';
 import { ActivityCheck } from './activityCheck.js';
 import { Rank } from './rank.js';
@@ -39,39 +39,30 @@ export enum GuildAssociations {
 	RoleGroups = 'roleGroups',
 }
 
-@Table({ tableName: 'Guilds' })
 export class Guild extends Model<InferAttributes<Guild>, InferCreationAttributes<Guild>> {
 	/** Internal ID */
-	/*@Attribute({ autoIncrement: true, primaryKey: true, type: DataTypes.INTEGER.UNSIGNED })
+	/*
 	declare id: number;*/
 	/** Discord Guild ID */
-	@Attribute({ primaryKey: true, type: DataTypes.STRING(20) })
 	declare guildId: string;
 	/** Ready status */
-	@Attribute({ allowNull: false, type: DataTypes.BOOLEAN })
 	declare ready: boolean;
 	/** Bit flags for stuff to enable */
-	@Attribute({ allowNull: false, defaultValue: 0, type: DataTypes.INTEGER.UNSIGNED })
 	declare guildFlags: CreationOptional<number>;
 	/** Log channel ID */
-	@Attribute({ allowNull: true, type: DataTypes.STRING(20) })
 	declare logChannelId: string | null;
 	/** Priority level for listing (used for promotions) */
-	@Attribute({ allowNull: false, defaultValue: 0, type: DataTypes.INTEGER.UNSIGNED })
 	declare priority: CreationOptional<number>;
 
 	/** Diplomacy channel */
-	@Attribute({ allowNull: true, type: DataTypes.STRING(20) })
 	declare dpmChannelId: string | null;
 	/** Selected game */
-	@Attribute({ allowNull: true, type: DataTypes.STRING(100) })
 	declare dpmGame: string | null;
 	/**
 	 * Invite URL to the server
 	 * Only the second half (no discord.gg/)
 	 * Overshoot 10 max characters for safety
 	 * */
-	@Attribute({ allowNull: true, type: DataTypes.STRING(12) })
 	get serverInvite(): string | null {
 		const code = this.getDataValue('serverInvite');
 		if (!code) return null;
@@ -82,43 +73,24 @@ export class Guild extends Model<InferAttributes<Guild>, InferCreationAttributes
 		return this.getDataValue('serverInvite');
 	}
 
-	@Attribute({ allowNull: true, type: DataTypes.STRING(20) })
 	declare inactiveRoleId: string | null;
-	@Attribute({ allowNull: true, type: DataTypes.STRING(20) })
 	declare inSessionRoleId: string | null;
 
-	@Attribute({ allowNull: true, type: DataTypes.STRING(8), unique: true })
-	@ValidateAttribute({
-		isLowercase: true,
-		notContains: [' ', '!'],
-	})
 	declare tag: string | null;
 
-	@HasMany(() => User, { foreignKey: { name: 'guildId', onUpdate: 'RESTRICT', onDelete: 'CASCADE' } })
 	declare users?: NonAttribute<User[]>;
 
-	@HasOne(() => ActivityCheck, { foreignKey: { name: 'guildId', onUpdate: 'RESTRICT', onDelete: 'CASCADE' } })
 	declare activityCheck?: NonAttribute<ActivityCheck>;
 
-	@HasMany(() => Rank, { foreignKey: { name: 'guildId', onUpdate: 'RESTRICT', onDelete: 'CASCADE' } })
 	declare ranks?: NonAttribute<Rank[]>;
 
-	@HasMany(() => UserPermission, {
-		foreignKey: { name: 'guildId', onUpdate: 'RESTRICT', onDelete: 'CASCADE' },
-	})
 	declare userPermissions?: NonAttribute<UserPermission[]>;
 
-	@HasMany(() => RolePermission, { foreignKey: { name: 'guildId', onUpdate: 'RESTRICT', onDelete: 'CASCADE' } })
 	declare rolePermissions?: NonAttribute<RolePermission[]>;
 
-	@HasOne(() => GuildSession, { foreignKey: { name: 'guildId', onUpdate: 'RESTRICT', onDelete: 'CASCADE' } })
 	declare session?: NonAttribute<GuildSession>;
 	declare getSession: HasOneGetAssociationMixin<GuildSession>;
 
-	@HasMany(() => RelatedGuild, {
-		foreignKey: { name: 'guildId', onUpdate: 'RESTRICT', onDelete: 'CASCADE' },
-		inverse: 'guild',
-	})
 	declare relatedGuilds?: NonAttribute<RelatedGuild[]>;
 	declare getRelatedGuilds: HasManyGetAssociationsMixin<RelatedGuild>;
 	declare removeRelatedGuild: HasManyRemoveAssociationMixin<RelatedGuild, RelatedGuild['id']>;
@@ -126,32 +98,60 @@ export class Guild extends Model<InferAttributes<Guild>, InferCreationAttributes
 	declare addRelatedGuild: HasManyAddAssociationMixin<RelatedGuild, RelatedGuild['id']>;
 	declare createRelatedGuild: HasManyCreateAssociationMixin<RelatedGuild, 'guildId'>;
 
-	@HasMany(() => RobloxUser, {
-		foreignKey: { name: 'guildId', onUpdate: 'RESTRICT', onDelete: 'CASCADE' },
-	})
 	declare robloxUsers?: NonAttribute<RobloxUser[]>;
 
-	@HasMany(() => ProxyCommand, {
-		foreignKey: { name: 'guildId', onUpdate: 'RESTRICT', onDelete: 'CASCADE' },
-	})
 	declare proxyCommands?: NonAttribute<ProxyCommand[]>;
 
-	@HasMany(() => RoleGroup, {
-		foreignKey: { name: 'guildId', onUpdate: 'RESTRICT', onDelete: 'CASCADE' },
-	})
 	declare roleGroups?: NonAttribute<RoleGroup[]>;
 
-	@HasMany(() => RoleData, {
-		foreignKey: { name: 'guildId', onUpdate: 'RESTRICT', onDelete: 'CASCADE' },
-	})
 	/** Not all roles, only those with special properties */
 	declare roles?: NonAttribute<RoleData[]>;
 
-	@Attribute({ allowNull: true, type: DataTypes.DATE, defaultValue: null })
 	declare leftAt: Date | null;
 
-	@Attribute({ type: DataTypes.DATE })
 	declare createdAt: CreationOptional<Date>;
-	@Attribute({ type: DataTypes.DATE })
 	declare updatedAt: CreationOptional<Date>;
+}
+
+export function initGuildModel(sequelize: Sequelize) {
+	Guild.init(
+		{
+			guildId: { primaryKey: true, type: DataTypes.STRING(20) },
+			ready: { allowNull: false, type: DataTypes.BOOLEAN },
+			guildFlags: { allowNull: false, defaultValue: 0, type: DataTypes.INTEGER.UNSIGNED },
+			logChannelId: { allowNull: true, type: DataTypes.STRING(20) },
+			priority: { allowNull: false, defaultValue: 0, type: DataTypes.INTEGER.UNSIGNED },
+			dpmChannelId: { allowNull: true, type: DataTypes.STRING(20) },
+			dpmGame: { allowNull: true, type: DataTypes.STRING(100) },
+			serverInvite: { allowNull: true, type: DataTypes.STRING(12) },
+			inactiveRoleId: { allowNull: true, type: DataTypes.STRING(20) },
+			inSessionRoleId: { allowNull: true, type: DataTypes.STRING(20) },
+			tag: {
+				allowNull: true,
+				type: DataTypes.STRING(8),
+				unique: true,
+				validate: {
+					isLowercase: true,
+					notContains: ' ',
+					is: /^[^!]*$/,
+				},
+			},
+			leftAt: { allowNull: true, type: DataTypes.DATE, defaultValue: null },
+			createdAt: { type: DataTypes.DATE },
+			updatedAt: { type: DataTypes.DATE },
+		},
+		{ sequelize, modelName: 'Guild', tableName: 'Guilds' },
+	);
+
+	Guild.hasMany(User, { as: GuildAssociations.Users, foreignKey: 'guildId' });
+	Guild.hasOne(ActivityCheck, { as: GuildAssociations.ActivityChecks, foreignKey: 'guildId' });
+	Guild.hasMany(Rank, { as: GuildAssociations.Ranks, foreignKey: 'guildId' });
+	Guild.hasMany(UserPermission, { as: GuildAssociations.UserPermissions, foreignKey: 'guildId' });
+	Guild.hasMany(RolePermission, { as: GuildAssociations.RolePermissions, foreignKey: 'guildId' });
+	Guild.hasOne(GuildSession, { as: GuildAssociations.Session, foreignKey: 'guildId' });
+	Guild.hasMany(RelatedGuild, { as: GuildAssociations.RelatedGuilds, foreignKey: 'guildId' });
+	Guild.hasMany(RobloxUser, { as: GuildAssociations.RobloxUsers, foreignKey: 'guildId' });
+	Guild.hasMany(ProxyCommand, { as: GuildAssociations.ProxyCommands, foreignKey: 'guildId' });
+	Guild.hasMany(RoleGroup, { as: GuildAssociations.RoleGroups, foreignKey: 'guildId' });
+	Guild.hasMany(RoleData, { as: GuildAssociations.Roles, foreignKey: 'guildId' });
 }

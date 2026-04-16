@@ -7,7 +7,7 @@ import { constructError, reportErrorToUser } from '../../../utils/errorsUtils.js
 import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
 import { getOption, reportErrorIfNotSetup } from '../../../utils/subcommandsUtils.js';
 import { Logging } from '../../../utils/loggingUtils.js';
-import { Op } from '@sequelize/core';
+import { Op } from 'sequelize';
 import { RankAssociations } from '../../../models/rank.js';
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.ranking.ranks.edit) => {

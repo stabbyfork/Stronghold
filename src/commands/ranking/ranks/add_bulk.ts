@@ -1,4 +1,4 @@
-import { Op } from '@sequelize/core';
+import { Op } from 'sequelize';
 import { Ajv } from 'ajv';
 import { ChatInputCommandInteraction, Colors, GuildMember, MessageFlags, roleMention } from 'discord.js';
 import { commandOptions } from '../../../cmdOptions.js';

@@ -1,6 +1,6 @@
 import { GuildMember, userMention } from 'discord.js';
 import { Data } from '../data.js';
-import { Op } from '@sequelize/core';
+import { Op } from 'sequelize';
 import { RoleData } from '../models/roleData.js';
 import { Logging } from './loggingUtils.js';
 import { GuildFlag } from './guildFlagsUtils.js';
@@ -11,7 +11,7 @@ export namespace Prefix {
 	/** User ID -> Prefix */
 	export const userPrefixCache = new Map<string, string>();
 
-	Data.models.RoleData.hooks.addListener('afterDestroy', async (roleData: RoleData) => {
+	Data.models.RoleData.addHook('afterDestroy', async (roleData: RoleData) => {
 		if (!roleData.prefix) return;
 		const guildPrefixes = prefixCache.get(roleData.guildId);
 		if (!guildPrefixes) return;

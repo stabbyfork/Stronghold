@@ -1,22 +1,21 @@
-import {
-	Association,
-	CreationOptional,
-	DataTypes,
-	InferAttributes,
-	InferCreationAttributes,
-	Model,
-	NormalizedAssociationOptions,
-} from '@sequelize/core';
-import { Attribute } from '@sequelize/core/decorators-legacy';
+import { CreationOptional, DataTypes, Model, Sequelize, InferAttributes, InferCreationAttributes } from 'sequelize';
 export class RankUsage extends Model<InferAttributes<RankUsage>, InferCreationAttributes<RankUsage>> {
-	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, primaryKey: true })
 	declare rankId: number;
 
-	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, allowNull: false, defaultValue: 0 })
 	declare userCount: number;
 
-	@Attribute({ type: DataTypes.DATE, allowNull: false })
 	declare createdAt: CreationOptional<Date>;
-	@Attribute({ type: DataTypes.DATE, allowNull: false })
 	declare updatedAt: CreationOptional<Date>;
+}
+
+export function initRankUsageModel(sequelize: Sequelize) {
+	RankUsage.init(
+		{
+			rankId: { type: DataTypes.INTEGER.UNSIGNED, primaryKey: true },
+			userCount: { type: DataTypes.INTEGER.UNSIGNED, allowNull: false, defaultValue: 0 },
+			createdAt: { type: DataTypes.DATE, allowNull: false },
+			updatedAt: { type: DataTypes.DATE, allowNull: false },
+		},
+		{ sequelize, modelName: 'RankUsage' },
+	);
 }

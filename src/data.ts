@@ -1,6 +1,5 @@
-import { Lock, Op, Sequelize, Transaction } from '@sequelize/core';
-import { MySqlDialect } from '@sequelize/mysql';
-import { SqliteDialect } from '@sequelize/sqlite3';
+import { Op, Transaction } from 'sequelize';
+import { Sequelize } from 'sequelize';
 import { GuildMember, roleMention, userMention } from 'discord.js';
 import { client } from './client.js';
 import { Config } from './config.js';
@@ -23,6 +22,7 @@ import { ProxyCommand } from './models/proxyCommand.js';
 import { Environment } from './types/envTypes.js';
 import { RoleData } from './models/roleData.js';
 import { RoleGroup } from './models/roleGroup.js';
+import { initialiseModels } from './models/initModels.js';
 
 const dbConfg = Config.get('database');
 
@@ -51,11 +51,11 @@ export namespace Data {
 		process.env.NODE_ENV === Environment.Production
 			? new Sequelize({
 					password: dbConfg.password,
-					user: dbConfg.username,
+					username: dbConfg.username,
 					database: dbConfg.name,
 					host: dbConfg.host,
 					port: dbConfg.port,
-					dialect: MySqlDialect,
+					dialect: 'mysql',
 					logging: false,
 					pool: {
 						max: 5,
@@ -63,10 +63,9 @@ export namespace Data {
 						idle: 10000,
 						acquire: 5000,
 					},
-					models: Object.values(models),
 				})
 			: new Sequelize({
-					dialect: SqliteDialect,
+					dialect: 'sqlite',
 					storage: ':memory:',
 					pool: {
 						max: 1,
@@ -75,8 +74,9 @@ export namespace Data {
 					},
 					benchmark: true,
 					logging: (q, t) => console.log(q, t, 'ms'),
-					models: Object.values(models),
 				});
+
+	initialiseModels(mainDb);
 
 	export async function setup() {
 		if (ready) {
@@ -236,7 +236,7 @@ export namespace Data {
 			where: { rankId: bestRank.rankId },
 			defaults: { rankId: bestRank.rankId, userCount: 0 },
 			transaction: transaction,
-			lock: Lock.UPDATE,
+			lock: transaction.LOCK.UPDATE,
 		});
 
 		if (bestRank.userLimit !== -1 && usageRow.userCount >= bestRank.userLimit) {
@@ -249,7 +249,7 @@ export namespace Data {
 			const oldUsage = await Data.models.RankUsage.findOne({
 				where: { rankId: user.mainRankId },
 				transaction: transaction,
-				lock: Lock.UPDATE,
+				lock: transaction.LOCK.UPDATE,
 			});
 			if (oldUsage) {
 				oldUsage.userCount = Math.max(0, oldUsage.userCount - 1);

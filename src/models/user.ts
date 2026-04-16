@@ -17,8 +17,8 @@ import {
 	InferCreationAttributes,
 	Model,
 	NonAttribute,
-} from '@sequelize/core';
-import { Attribute, BelongsTo, BelongsToMany, HasOne, Table } from '@sequelize/core/decorators-legacy';
+	Sequelize,
+} from 'sequelize';
 import { Guild } from './guild.js';
 import { Rank } from './rank.js';
 import { RoleGroup } from './roleGroup.js';
@@ -33,46 +33,31 @@ export enum UserAssociations {
 }
 
 /** Per guild */
-@Table({
-	indexes: [{ unique: true, fields: ['guildId', 'userId'] }],
-	modelName: 'User',
-	tableName: 'Users',
-})
 export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
-	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, primaryKey: true, autoIncrement: true })
 	declare id: CreationOptional<number>;
-	@Attribute({ type: DataTypes.STRING(20), allowNull: false })
 	declare guildId: ForeignKey<Guild['guildId']>;
 
-	@Attribute({ type: DataTypes.STRING(20), allowNull: false })
 	declare userId: string;
 
-	@Attribute({ type: DataTypes.INTEGER, defaultValue: 0 })
 	declare points: CreationOptional<number>;
 
-	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, defaultValue: 0 })
 	declare inactivityStrikes: CreationOptional<number>;
 
-	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, allowNull: true })
 	declare mainRankId: number | null;
 
-	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, allowNull: true })
 	declare nextRankId: number | null;
 
-	@HasOne(() => UserPermission, { foreignKey: 'userId', inverse: 'user' })
 	declare userPermission?: NonAttribute<UserPermission>;
 
 	declare getUserPermission: HasOneGetAssociationMixin<UserPermission>;
-	declare createUserPermission: HasOneCreateAssociationMixin<UserPermission, 'userId'>;
+	declare createUserPermission: HasOneCreateAssociationMixin<UserPermission>;
 
 	/** The main unstackable rank */
-	@BelongsTo(() => Rank, { foreignKey: { name: 'mainRankId', allowNull: true } })
 	declare mainRank?: NonAttribute<Rank | null>;
 	declare getMainRank: BelongsToGetAssociationMixin<Rank>;
 	declare setMainRank: BelongsToSetAssociationMixin<Rank, Rank['rankId']>;
 
 	/** Secondary stackable ranks */
-	@BelongsToMany(() => Rank, { through: 'UserRanks', inverse: 'secondaryUsers' })
 	declare ranks?: NonAttribute<Rank[]>;
 	declare getRanks: BelongsToManyGetAssociationsMixin<Rank>;
 	declare setRanks: BelongsToManySetAssociationsMixin<Rank, Rank['rankId']>;
@@ -80,12 +65,10 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
 	declare removeRanks: BelongsToManyRemoveAssociationsMixin<Rank, Rank['rankId']>;
 
 	/** Next main unstackable rank */
-	@BelongsTo(() => Rank, { foreignKey: { name: 'nextRankId', allowNull: true } })
 	declare nextRank?: NonAttribute<Rank | null>;
 	declare getNextRank: BelongsToGetAssociationMixin<Rank>;
 	declare setNextRank: BelongsToSetAssociationMixin<Rank, Rank['rankId']>;
 
-	@BelongsToMany(() => RoleGroup, { through: 'UserRoleGroups', inverse: 'users' })
 	declare roleGroups: NonAttribute<RoleGroup[]>;
 
 	declare addRoleGroup: BelongsToManyAddAssociationMixin<RoleGroup, RoleGroup['id']>;
@@ -93,11 +76,37 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
 	declare hasRoleGroup: BelongsToManyHasAssociationMixin<RoleGroup, RoleGroup['id']>;
 
 	/** Whether the user can see ads in this guild */
-	@Attribute({ type: DataTypes.BOOLEAN, defaultValue: true, allowNull: false })
 	declare adsEnabled: CreationOptional<boolean>;
 
-	@Attribute({ type: DataTypes.DATE })
 	declare createdAt: CreationOptional<Date>;
-	@Attribute({ type: DataTypes.DATE })
 	declare updatedAt: CreationOptional<Date>;
+}
+
+export function initUserModel(sequelize: Sequelize) {
+	User.init(
+		{
+			id: { type: DataTypes.INTEGER.UNSIGNED, primaryKey: true, autoIncrement: true },
+			guildId: { type: DataTypes.STRING(20), allowNull: false },
+			userId: { type: DataTypes.STRING(20), allowNull: false },
+			points: { type: DataTypes.INTEGER, defaultValue: 0 },
+			inactivityStrikes: { type: DataTypes.INTEGER.UNSIGNED, defaultValue: 0 },
+			mainRankId: { type: DataTypes.INTEGER.UNSIGNED, allowNull: true },
+			nextRankId: { type: DataTypes.INTEGER.UNSIGNED, allowNull: true },
+			adsEnabled: { type: DataTypes.BOOLEAN, defaultValue: true, allowNull: false },
+			createdAt: { type: DataTypes.DATE },
+			updatedAt: { type: DataTypes.DATE },
+		},
+		{
+			sequelize,
+			modelName: 'User',
+			tableName: 'Users',
+			indexes: [{ unique: true, fields: ['guildId', 'userId'] }],
+		},
+	);
+
+	User.hasOne(UserPermission, { as: UserAssociations.UserPermission, foreignKey: 'userId' });
+	User.belongsTo(Rank, { as: UserAssociations.MainRank, foreignKey: 'mainRankId' });
+	User.belongsToMany(Rank, { as: UserAssociations.SecondaryRanks, through: 'UserRanks' });
+	User.belongsTo(Rank, { as: UserAssociations.NextRank, foreignKey: 'nextRankId' });
+	User.belongsToMany(RoleGroup, { as: UserAssociations.RoleGroups, through: 'UserRoleGroups' });
 }

@@ -133,10 +133,10 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			);
 		}
 
-		await session.setDefaultOptions(null, { transaction, destroyPrevious: true });
+		await session.setDefaultOptions(null as any, { transaction });
 		const sessionOpts = await session.createDefaultOptions(
-			{ title, message },
-			{ transaction, destroyPrevious: true },
+			{ sessionId: session.id as any, title, message },
+			{ transaction },
 		);
 		if (messageData) {
 			await sessionOpts.createImagesLink(
@@ -147,7 +147,6 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				},
 				{
 					transaction,
-					destroyPrevious: true,
 				},
 			);
 		}

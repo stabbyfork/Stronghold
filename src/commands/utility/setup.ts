@@ -1,4 +1,4 @@
-import { Transaction } from '@sequelize/core';
+import { Transaction } from 'sequelize';
 import urlBuilder from 'build-url-ts';
 import {
 	ButtonBuilder,
@@ -159,7 +159,7 @@ async function createSetupMessage(
 					),
 				(text) =>
 					text.setContent(
-						`Getting Started guide: ${buildUrl(websiteUrl, { path: 'getting-started' })}\nPrivacy policy and TOS: ${buildUrl(privacyPolicyUrl)} / ${buildUrl(Config.get('website').tosUrl)}`,
+						`For setup help: ${buildUrl(websiteUrl, { path: 'getting-started' })}\nPrivacy policy and TOS: ${buildUrl(privacyPolicyUrl)} / ${buildUrl(Config.get('website').tosUrl)}`,
 					),
 			)
 			.setThumbnailAccessory((image) => image.setURL(guild.iconURL() ?? client.user?.avatarURL()!)),

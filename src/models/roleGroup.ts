@@ -6,8 +6,8 @@ import {
 	InferCreationAttributes,
 	Model,
 	NonAttribute,
-} from '@sequelize/core';
-import { Attribute, Table } from '@sequelize/core/decorators-legacy';
+	Sequelize,
+} from 'sequelize';
 import { RoleData } from './roleData.js';
 import { User } from './user.js';
 
@@ -16,22 +16,16 @@ export enum RoleGroupAssociations {
 	Users = 'users',
 }
 
-@Table({ indexes: [{ unique: true, fields: ['guildId', 'name'] }] })
 export class RoleGroup extends Model<InferAttributes<RoleGroup>, InferCreationAttributes<RoleGroup>> {
-	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, allowNull: false, primaryKey: true, autoIncrement: true })
 	declare id: CreationOptional<number>;
 
 	/** Associated in {@link Guild} */
-	@Attribute({ type: DataTypes.STRING(20), allowNull: false })
 	declare guildId: string;
 
-	@Attribute({ type: DataTypes.STRING(32), allowNull: false })
 	declare name: string;
 
-	@Attribute({ type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false })
 	declare joinable: boolean;
 
-	@Attribute({ type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true })
 	declare joinNeedsApproval: boolean;
 
 	/** Associated in {@link RoleData} */
@@ -42,8 +36,28 @@ export class RoleGroup extends Model<InferAttributes<RoleGroup>, InferCreationAt
 	/** Associated in {@link User} */
 	declare users?: NonAttribute<User[]>;
 
-	@Attribute({ type: DataTypes.DATE, allowNull: false })
 	declare createdAt: CreationOptional<Date>;
-	@Attribute({ type: DataTypes.DATE, allowNull: false })
 	declare updatedAt: CreationOptional<Date>;
+}
+
+export function initRoleGroupModel(sequelize: Sequelize) {
+	RoleGroup.init(
+		{
+			id: { type: DataTypes.INTEGER.UNSIGNED, allowNull: false, primaryKey: true, autoIncrement: true },
+			guildId: { type: DataTypes.STRING(20), allowNull: false },
+			name: { type: DataTypes.STRING(32), allowNull: false },
+			joinable: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+			joinNeedsApproval: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
+			createdAt: { type: DataTypes.DATE, allowNull: false },
+			updatedAt: { type: DataTypes.DATE, allowNull: false },
+		},
+		{
+			sequelize,
+			modelName: 'RoleGroup',
+			indexes: [{ unique: true, fields: ['guildId', 'name'] }],
+		},
+	);
+
+	RoleGroup.belongsToMany(User, { as: RoleGroupAssociations.Users, through: 'UserRoleGroups' });
+	RoleGroup.belongsToMany(RoleData, { as: RoleGroupAssociations.Roles, through: 'RoleGroupRoles' });
 }

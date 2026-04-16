@@ -1,4 +1,4 @@
-import { Transaction } from '@sequelize/core';
+import { Transaction } from 'sequelize';
 import { Config } from '../config.js';
 import { PermissionsBitField } from 'discord.js';
 

@@ -5,20 +5,15 @@ import {
 	InferCreationAttributes,
 	Model,
 	NonAttribute,
-} from '@sequelize/core';
-import { Attribute, Table } from '@sequelize/core/decorators-legacy';
+	Sequelize,
+} from 'sequelize';
 import { Message } from 'discord.js';
 import { client } from '../client.js';
 
-@Table({ indexes: [{ unique: true, fields: ['guildId', 'channelId', 'messageId'] }] })
 export class MessageLink extends Model<InferAttributes<MessageLink>, InferCreationAttributes<MessageLink>> {
-	@Attribute({ primaryKey: true, type: DataTypes.INTEGER.UNSIGNED, autoIncrement: true })
 	declare id: CreationOptional<number>;
-	@Attribute({ type: DataTypes.STRING(20), allowNull: false })
 	declare guildId: string;
-	@Attribute({ type: DataTypes.STRING(20), allowNull: false })
 	declare channelId: string;
-	@Attribute({ type: DataTypes.STRING(20), allowNull: false /*, unique: true*/ })
 	declare messageId: string;
 	get fullLinkUrl(): NonAttribute<string> {
 		return `https://discord.com/channels/${this.guildId}/${this.channelId}/${this.messageId}`;
@@ -37,11 +32,27 @@ export class MessageLink extends Model<InferAttributes<MessageLink>, InferCreati
 		return message;
 	}
 
-	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, allowNull: true, unique: true })
 	declare sessionOptionsId: number | null;
 
-	@Attribute({ type: DataTypes.DATE, allowNull: false })
 	declare createdAt: CreationOptional<Date>;
-	@Attribute({ type: DataTypes.DATE, allowNull: false })
 	declare updatedAt: CreationOptional<Date>;
+}
+
+export function initMessageLinkModel(sequelize: Sequelize) {
+	MessageLink.init(
+		{
+			id: { primaryKey: true, type: DataTypes.INTEGER.UNSIGNED, autoIncrement: true },
+			guildId: { type: DataTypes.STRING(20), allowNull: false },
+			channelId: { type: DataTypes.STRING(20), allowNull: false },
+			messageId: { type: DataTypes.STRING(20), allowNull: false },
+			sessionOptionsId: { type: DataTypes.INTEGER.UNSIGNED, allowNull: true, unique: true },
+			createdAt: { type: DataTypes.DATE, allowNull: false },
+			updatedAt: { type: DataTypes.DATE, allowNull: false },
+		},
+		{
+			sequelize,
+			modelName: 'MessageLink',
+			indexes: [{ unique: true, fields: ['guildId', 'channelId', 'messageId'] }],
+		},
+	);
 }

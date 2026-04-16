@@ -1,29 +1,38 @@
-import { CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model } from '@sequelize/core';
-import { Attribute, Table, ValidateAttribute } from '@sequelize/core/decorators-legacy';
+import { CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model, Sequelize } from 'sequelize';
 
-@Table({
-	indexes: [{ unique: true, fields: ['guildId', 'proxyCommand'] }],
-})
 export class ProxyCommand extends Model<InferAttributes<ProxyCommand>, InferCreationAttributes<ProxyCommand>> {
-	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, primaryKey: true, autoIncrement: true })
 	declare id: CreationOptional<number>;
 
-	@Attribute({ type: DataTypes.STRING(20), allowNull: false })
 	declare guildId: string;
 
-	@Attribute({ type: DataTypes.STRING(32), allowNull: false })
 	declare targetCommand: string;
 
-	@Attribute({ type: DataTypes.STRING(32), allowNull: false })
-	@ValidateAttribute({
-		is: /^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$/u,
-	})
 	declare proxyCommand: string;
-	@Attribute({ type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true })
 	declare valid: CreationOptional<boolean>;
 
-	@Attribute({ type: DataTypes.DATE, allowNull: false })
 	declare createdAt: CreationOptional<Date>;
-	@Attribute({ type: DataTypes.DATE, allowNull: false })
 	declare updatedAt: CreationOptional<Date>;
+}
+
+export function initProxyCommandModel(sequelize: Sequelize) {
+	ProxyCommand.init(
+		{
+			id: { type: DataTypes.INTEGER.UNSIGNED, primaryKey: true, autoIncrement: true },
+			guildId: { type: DataTypes.STRING(20), allowNull: false },
+			targetCommand: { type: DataTypes.STRING(32), allowNull: false },
+			proxyCommand: {
+				type: DataTypes.STRING(32),
+				allowNull: false,
+				validate: { is: /^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$/u },
+			},
+			valid: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
+			createdAt: { type: DataTypes.DATE, allowNull: false },
+			updatedAt: { type: DataTypes.DATE, allowNull: false },
+		},
+		{
+			sequelize,
+			modelName: 'ProxyCommand',
+			indexes: [{ unique: true, fields: ['guildId', 'proxyCommand'] }],
+		},
+	);
 }

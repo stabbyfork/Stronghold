@@ -14,8 +14,8 @@ import {
 	InferCreationAttributes,
 	Model,
 	NonAttribute,
-} from '@sequelize/core';
-import { Attribute, HasMany, HasOne } from '@sequelize/core/decorators-legacy';
+	Sequelize,
+} from 'sequelize';
 import { SessionOptions } from './sessionOptions.js';
 import { SessionParticipant } from './sessionParticipant.js';
 
@@ -25,36 +25,27 @@ export enum GuildSessionAssociations {
 }
 
 export class GuildSession extends Model<InferAttributes<GuildSession>, InferCreationAttributes<GuildSession>> {
-	@Attribute({ primaryKey: true, type: DataTypes.INTEGER.UNSIGNED, autoIncrement: true })
 	declare id: CreationOptional<string>;
 
 	/** Associated in {@link Guild} */
-	@Attribute({ type: DataTypes.STRING(20), allowNull: false, unique: true })
 	declare guildId: string;
 
-	@Attribute({ type: DataTypes.STRING(20), allowNull: false, unique: true })
 	declare channelId: string;
 
-	@Attribute({ type: DataTypes.DATE, allowNull: true })
 	declare startedAt: Date | null;
 
-	@Attribute({ type: DataTypes.DATE, allowNull: true })
 	declare endedAt: Date | null;
 
-	@Attribute({ type: DataTypes.BOOLEAN, allowNull: false })
 	declare active: boolean;
 
-	@Attribute({ type: DataTypes.STRING(20), allowNull: true })
 	declare sessionMessageId: string | null;
 
-	@HasOne(() => SessionOptions, { foreignKey: { name: 'sessionId', onUpdate: 'RESTRICT', onDelete: 'CASCADE' } })
 	declare defaultOptions?: NonAttribute<SessionOptions>;
-	declare createDefaultOptions: HasOneCreateAssociationMixin<SessionOptions, 'sessionId'>;
+	declare createDefaultOptions: HasOneCreateAssociationMixin<SessionOptions>;
 	declare setDefaultOptions: HasOneSetAssociationMixin<SessionOptions, SessionOptions['sessionId']>;
 	declare getDefaultOptions: HasOneGetAssociationMixin<SessionOptions>;
 
 	/** Users that have ever joined (even if currently not in) this session */
-	@HasMany(() => SessionParticipant, { foreignKey: { name: 'sessionId', onUpdate: 'CASCADE', onDelete: 'CASCADE' } })
 	declare participants?: NonAttribute<SessionParticipant[]>;
 
 	declare createParticipant: HasManyCreateAssociationMixin<SessionParticipant, 'sessionId'>;
@@ -65,19 +56,43 @@ export class GuildSession extends Model<InferAttributes<GuildSession>, InferCrea
 	declare getParticipants: HasManyGetAssociationsMixin<SessionParticipant>;
 
 	/** Time required to be spent in the session (in milliseconds) */
-	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, allowNull: false, defaultValue: 0 })
 	declare timeQuota: CreationOptional<number>;
 
 	/** Points to add to participants when the session ends */
-	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, allowNull: true })
 	declare pointsToAdd: number | null;
 
 	/** Whether participants must meet the time quota to receive points */
-	@Attribute({ type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false })
 	declare mustMeetQuota: CreationOptional<boolean>;
 
-	@Attribute({ type: DataTypes.DATE, allowNull: false })
 	declare createdAt: CreationOptional<Date>;
-	@Attribute({ type: DataTypes.DATE, allowNull: false })
 	declare updatedAt: CreationOptional<Date>;
+}
+
+export function initGuildSessionModel(sequelize: Sequelize) {
+	GuildSession.init(
+		{
+			id: { primaryKey: true, type: DataTypes.INTEGER.UNSIGNED, autoIncrement: true },
+			guildId: { type: DataTypes.STRING(20), allowNull: false, unique: true },
+			channelId: { type: DataTypes.STRING(20), allowNull: false, unique: true },
+			startedAt: { type: DataTypes.DATE, allowNull: true },
+			endedAt: { type: DataTypes.DATE, allowNull: true },
+			active: { type: DataTypes.BOOLEAN, allowNull: false },
+			sessionMessageId: { type: DataTypes.STRING(20), allowNull: true },
+			timeQuota: { type: DataTypes.INTEGER.UNSIGNED, allowNull: false, defaultValue: 0 },
+			pointsToAdd: { type: DataTypes.INTEGER.UNSIGNED, allowNull: true },
+			mustMeetQuota: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+			createdAt: { type: DataTypes.DATE, allowNull: false },
+			updatedAt: { type: DataTypes.DATE, allowNull: false },
+		},
+		{ sequelize, modelName: 'GuildSession' },
+	);
+
+	GuildSession.hasOne(SessionOptions, {
+		as: GuildSessionAssociations.DefaultOptions,
+		foreignKey: 'sessionId',
+	});
+	GuildSession.hasMany(SessionParticipant, {
+		as: GuildSessionAssociations.Participants,
+		foreignKey: 'sessionId',
+	});
 }

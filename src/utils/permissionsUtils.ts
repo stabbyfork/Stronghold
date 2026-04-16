@@ -1,4 +1,4 @@
-import Sequelize, { Op, sql } from '@sequelize/core';
+import { Op, Sequelize, literal } from 'sequelize';
 import { ChatInputCommandInteraction, Guild, GuildChannel, GuildMember, PermissionsBitField, User } from 'discord.js';
 import { Data } from '../data.js';
 import { checkBits } from './genericsUtils.js';
@@ -62,7 +62,7 @@ export function includesAllPermissions(permissionBits: PermissionField, ...permi
  */
 export function getWhereForAllPerms(...permissions: Permission[]) {
 	const calcPerms = permissions.reduce((acc, perm) => acc | PermissionBits[perm], 0);
-	return Sequelize.where(sql`"permissions" & ${calcPerms}`, {
+	return Sequelize.where(literal(`permissions & ${calcPerms}`), {
 		[Op.eq]: calcPerms,
 	});
 }

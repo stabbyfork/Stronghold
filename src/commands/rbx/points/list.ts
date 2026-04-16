@@ -5,7 +5,7 @@ import { defaultEmbed, Pages } from '../../../utils/discordUtils.js';
 import { Data } from '../../../data.js';
 import { reportErrorIfNotSetup } from '../../../utils/subcommandsUtils.js';
 import { Roblox } from '../../../utils/robloxUtils.js';
-import { Op } from '@sequelize/core';
+import { Op } from 'sequelize';
 
 export default async (interaction: ChatInputCommandInteraction) => {
 	const guild = interaction.guild;

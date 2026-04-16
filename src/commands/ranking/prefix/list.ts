@@ -10,7 +10,7 @@ import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js
 import { reportErrorIfNotSetup } from '../../../utils/subcommandsUtils.js';
 import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
 import { Data } from '../../../data.js';
-import { Op } from '@sequelize/core';
+import { Op } from 'sequelize';
 import { Pages } from '../../../utils/discordUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction) => {

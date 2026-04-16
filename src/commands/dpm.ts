@@ -4,7 +4,7 @@ import { UsageScope } from '../utils/usageLimitsUtils.js';
 import { Data } from '../data.js';
 import fuzzysort from 'fuzzysort';
 import { Guild } from '../models/guild.js';
-import { Op } from '@sequelize/core';
+import { Op } from 'sequelize';
 
 const preparedTagCache = [] as Fuzzysort.Prepared[];
 const preparedGameCache = [] as Fuzzysort.Prepared[];
@@ -24,10 +24,10 @@ async function autocompGame(interaction: AutocompleteInteraction) {
 
 export default createCommand<{}, 'dpm'>({
 	once: async () => {
-		Data.models.Guild.hooks.addListener('beforeUpdate', async (instance: Guild) => {
+		Data.models.Guild.addHook('beforeUpdate', async (instance: Guild) => {
 			if (instance.tag) preparedTagCache.splice(preparedTagCache.indexOf(fuzzysort.prepare(instance.tag)), 1);
 		});
-		Data.models.Guild.hooks.addListener('afterUpdate', async (instance: Guild) => {
+		Data.models.Guild.addHook('afterUpdate', async (instance: Guild) => {
 			if (instance.tag) preparedTagCache.push(fuzzysort.prepare(instance.tag));
 			if (instance.dpmGame) {
 				if (!gameCache.has(instance.dpmGame)) {
@@ -36,7 +36,7 @@ export default createCommand<{}, 'dpm'>({
 				}
 			}
 		});
-		Data.models.Guild.hooks.addListener('afterDestroy', async (instance: Guild) => {
+		Data.models.Guild.addHook('afterDestroy', async (instance: Guild) => {
 			if (instance.tag) preparedTagCache.splice(preparedTagCache.indexOf(fuzzysort.prepare(instance.tag)), 1);
 		});
 		Data.models.Guild.findAll({

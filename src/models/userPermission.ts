@@ -7,8 +7,8 @@ import {
 	InferCreationAttributes,
 	Model,
 	NonAttribute,
-} from '@sequelize/core';
-import { Attribute, BelongsTo, Table } from '@sequelize/core/decorators-legacy';
+	Sequelize,
+} from 'sequelize';
 import { Guild } from './guild.js';
 import { User } from './user.js';
 
@@ -16,19 +16,14 @@ export enum UserPermissionAssociations {
 	User = 'user',
 }
 
-@Table({ indexes: [{ unique: true, fields: ['guildId', 'userId'] }] })
 export class UserPermission extends Model<InferAttributes<UserPermission>, InferCreationAttributes<UserPermission>> {
-	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, primaryKey: true, autoIncrement: true })
 	declare id: CreationOptional<number>;
 
-	@Attribute({ type: DataTypes.STRING(20), allowNull: false })
 	declare guildId: ForeignKey<Guild['guildId']>;
 
 	/** Internal database ID */
-	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, allowNull: false })
 	declare userId: ForeignKey<User['id']>;
 
-	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, allowNull: false })
 	declare permissions: number;
 
 	/** Associated in {@link User} */
@@ -36,8 +31,25 @@ export class UserPermission extends Model<InferAttributes<UserPermission>, Infer
 
 	declare getUser: BelongsToGetAssociationMixin<User>;
 
-	@Attribute({ type: DataTypes.DATE, allowNull: false })
 	declare createdAt: CreationOptional<Date>;
-	@Attribute({ type: DataTypes.DATE, allowNull: false })
 	declare updatedAt: CreationOptional<Date>;
+}
+
+export function initUserPermissionModel(sequelize: Sequelize) {
+	UserPermission.init(
+		{
+			id: { type: DataTypes.INTEGER.UNSIGNED, primaryKey: true, autoIncrement: true },
+			guildId: { type: DataTypes.STRING(20), allowNull: false },
+			userId: { type: DataTypes.INTEGER.UNSIGNED, allowNull: false },
+			permissions: { type: DataTypes.INTEGER.UNSIGNED, allowNull: false },
+			createdAt: { type: DataTypes.DATE, allowNull: false },
+			updatedAt: { type: DataTypes.DATE, allowNull: false },
+		},
+		{
+			sequelize,
+			modelName: 'UserPermission',
+			indexes: [{ unique: true, fields: ['guildId', 'userId'] }],
+		},
+	);
+	UserPermission.belongsTo(User, { as: UserPermissionAssociations.User, foreignKey: 'userId' });
 }

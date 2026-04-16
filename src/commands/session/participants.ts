@@ -1,4 +1,4 @@
-import { Op, sql } from '@sequelize/core';
+import { Op } from 'sequelize';
 import { ChatInputCommandInteraction, EmbedBuilder, userMention } from 'discord.js';
 import ms from 'ms';
 import { commandOptions } from '../../cmdOptions.js';

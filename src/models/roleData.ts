@@ -7,36 +7,49 @@ import {
 	InferCreationAttributes,
 	Model,
 	NonAttribute,
-} from '@sequelize/core';
-import { Attribute, BelongsToMany, Table } from '@sequelize/core/decorators-legacy';
+	Sequelize,
+} from 'sequelize';
 import { RoleGroup } from './roleGroup.js';
 
-@Table({ indexes: [{ fields: ['guildId', 'roleId'] }] })
+export enum RoleDataAssociations {
+	RoleGroups = 'roleGroups',
+}
+
 export class RoleData extends Model<InferAttributes<RoleData>, InferCreationAttributes<RoleData>> {
-	@Attribute({ type: DataTypes.INTEGER.UNSIGNED, allowNull: false, primaryKey: true, autoIncrement: true })
 	declare id: CreationOptional<number>;
 
 	/** Associated in {@link Guild} */
-	@Attribute({ type: DataTypes.STRING(20), allowNull: false })
 	declare guildId: string;
 
-	@Attribute({ type: DataTypes.STRING(20), allowNull: false, unique: true })
 	declare roleId: string;
 
-	@BelongsToMany(() => RoleGroup, {
-		through: 'RoleGroupRoles',
-		inverse: 'roles',
-	})
 	declare roleGroups?: NonAttribute<RoleGroup[]>;
 
 	declare getRoleGroups: BelongsToManyGetAssociationsMixin<RoleGroup>;
 	declare addRoleGroup: BelongsToManyAddAssociationMixin<RoleGroup, RoleGroup['id']>;
 
-	@Attribute({ type: DataTypes.STRING(16), allowNull: true })
 	declare prefix: string | null;
 
-	@Attribute({ type: DataTypes.DATE, allowNull: false })
 	declare createdAt: CreationOptional<Date>;
-	@Attribute({ type: DataTypes.DATE, allowNull: false })
 	declare updatedAt: CreationOptional<Date>;
+}
+
+export function initRoleDataModel(sequelize: Sequelize) {
+	RoleData.init(
+		{
+			id: { type: DataTypes.INTEGER.UNSIGNED, allowNull: false, primaryKey: true, autoIncrement: true },
+			guildId: { type: DataTypes.STRING(20), allowNull: false },
+			roleId: { type: DataTypes.STRING(20), allowNull: false, unique: true },
+			prefix: { type: DataTypes.STRING(16), allowNull: true },
+			createdAt: { type: DataTypes.DATE, allowNull: false },
+			updatedAt: { type: DataTypes.DATE, allowNull: false },
+		},
+		{
+			sequelize,
+			modelName: 'RoleData',
+			indexes: [{ fields: ['guildId', 'roleId'] }],
+		},
+	);
+
+	RoleData.belongsToMany(RoleGroup, { as: RoleDataAssociations.RoleGroups, through: 'RoleGroupRoles' });
 }

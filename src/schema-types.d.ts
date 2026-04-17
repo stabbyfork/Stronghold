@@ -162,4 +162,22 @@ export interface Config {
       weight?: number;
     }[];
   };
+  /**
+   * Properties and options for Roblox integration.
+   */
+  roblox?: {
+    /**
+     * Properties and options for Rover integration.
+     */
+    rover?: {
+      /**
+       * A Rover token for Roblox integration. Used for authenticating with the Rover API. Optional, but required for any Rover features to work.
+       */
+      token: string;
+      /**
+       * The base URL for the Rover API.
+       */
+      baseApiUrl: string;
+    };
+  };
 }

@@ -51,5 +51,7 @@ export function initUserPermissionModel(sequelize: Sequelize) {
 			indexes: [{ unique: true, fields: ['guildId', 'userId'] }],
 		},
 	);
-	UserPermission.belongsTo(User, { as: UserPermissionAssociations.User, foreignKey: 'userId' });
+	return () => {
+		UserPermission.belongsTo(User, { as: UserPermissionAssociations.User, foreignKey: 'userId' });
+	};
 }

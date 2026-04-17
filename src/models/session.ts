@@ -87,12 +87,14 @@ export function initGuildSessionModel(sequelize: Sequelize) {
 		{ sequelize, modelName: 'GuildSession' },
 	);
 
-	GuildSession.hasOne(SessionOptions, {
-		as: GuildSessionAssociations.DefaultOptions,
-		foreignKey: 'sessionId',
-	});
-	GuildSession.hasMany(SessionParticipant, {
-		as: GuildSessionAssociations.Participants,
-		foreignKey: 'sessionId',
-	});
+	return () => {
+		GuildSession.hasOne(SessionOptions, {
+			as: GuildSessionAssociations.DefaultOptions,
+			foreignKey: 'sessionId',
+		});
+		GuildSession.hasMany(SessionParticipant, {
+			as: GuildSessionAssociations.Participants,
+			foreignKey: 'sessionId',
+		});
+	};
 }

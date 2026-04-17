@@ -34,4 +34,5 @@ export function initRolePermissionModel(sequelize: Sequelize) {
 			indexes: [{ unique: true, fields: ['guildId', 'roleId'] }],
 		},
 	);
+	return () => {};
 }

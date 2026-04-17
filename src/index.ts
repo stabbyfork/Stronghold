@@ -10,7 +10,7 @@ import { Config } from './config.js';
 import { Data } from './data.js';
 import { runActivityCheckExecute } from './utils/discordUtils.js';
 import { Debug } from './utils/errorsUtils.js';
-import { intDiv } from './utils/genericsUtils.js';
+import { delayFor, intDiv } from './utils/genericsUtils.js';
 //@ts-ignore
 import * as Events from './events/*';
 import { Environment } from './types/envTypes.js';
@@ -18,6 +18,7 @@ import { GuildFlag } from './utils/guildFlagsUtils.js';
 import { Logging } from './utils/loggingUtils.js';
 import { GuildAssociations } from './models/guild.js';
 import ms from 'ms';
+import { ENV } from './env.js';
 
 let activityChecksId: NodeJS.Timeout;
 let cleanupGuildsId: NodeJS.Timeout;
@@ -75,10 +76,6 @@ async function runActivityChecks() {
 	}
 }
 
-function delay(timeInMillis: number): Promise<void> {
-	return new Promise((resolve) => setTimeout(() => resolve(), timeInMillis));
-}
-
 async function cleanupGuilds() {
 	const leftGuilds = await Data.models.Guild.findAll({
 		where: {
@@ -111,9 +108,16 @@ async function cleanupGuilds() {
 			Data.models.Guild.destroy({ where: { guildId: guild.guildId } }),
 		]);
 		console.log(`[CLEANUP] Finished cleaning up guild ${guildId} (${guildTag})`);
-		await delay(5000); // Delay between guild cleanups to avoid overwhelming the database
+		await delayFor(5000); // Delay between guild cleanups to avoid overwhelming the database
 	}
 }
+
+// Init order fix (VERY HACKY)
+// If it ain't broke don't fix it
+//@ts-ignore
+subcommands.activity.checks.create = activity_check_create;
+
+// If not running as part of a script
 
 console.log('[STARTUP] Initialising data');
 await Data.setup();
@@ -130,14 +134,9 @@ process
 	.on('SIGINT', async (signal) => await safeShutdown(signal))
 	.on('SIGTERM', async (signal) => await safeShutdown(signal));
 
-// Init order fix (VERY HACKY)
-// If it ain't broke don't fix it
-//@ts-ignore
-subcommands.activity.checks.create = activity_check_create;
-
 console.log('[STARTUP] Logging in');
-console.log('[STARTUP] Running in', process.env.NODE_ENV);
-if (process.env.NODE_ENV !== Environment.Production) {
+console.log('[STARTUP] Running in', ENV.NODE_ENV);
+if (ENV.NODE_ENV !== Environment.Production) {
 	const dev = Config.get('dev');
 	if (!dev) throw new Error('No dev config found');
 	await client.login(dev.token);

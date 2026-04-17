@@ -40,5 +40,5 @@ export function initSessionOptionsModel(sequelize: Sequelize) {
 		{ sequelize, modelName: 'SessionOptions' },
 	);
 
-	SessionOptions.hasOne(MessageLink, { as: 'imagesLink', foreignKey: 'sessionOptionsId' });
+	return () => SessionOptions.hasOne(MessageLink, { as: 'imagesLink', foreignKey: 'sessionOptionsId' });
 }

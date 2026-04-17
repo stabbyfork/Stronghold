@@ -18,25 +18,27 @@ import { initUserPermissionModel } from './userPermission.js';
 
 let initialised = false;
 
-export function initialiseModels(sequelize: Sequelize) {
-	if (initialised) return;
-
-	initGuildModel(sequelize);
-	initUserPermissionModel(sequelize);
-	initRolePermissionModel(sequelize);
-	initUserModel(sequelize);
-	initActivityCheckModel(sequelize);
-	initRankModel(sequelize);
-	initRankUsageModel(sequelize);
-	initMessageLinkModel(sequelize);
-	initGuildSessionModel(sequelize);
-	initSessionOptionsModel(sequelize);
-	initRelatedGuildModel(sequelize);
-	initSessionParticipantModel(sequelize);
-	initRobloxUserModel(sequelize);
-	initProxyCommandModel(sequelize);
-	initRoleDataModel(sequelize);
-	initRoleGroupModel(sequelize);
+export function initialiseModels(sequelize: Sequelize): (() => void)[] {
+	if (initialised) return [];
+	const associateList: (() => void)[] = [
+		initGuildModel(sequelize),
+		initUserPermissionModel(sequelize),
+		initRolePermissionModel(sequelize),
+		initUserModel(sequelize),
+		initActivityCheckModel(sequelize),
+		initRankModel(sequelize),
+		initRankUsageModel(sequelize),
+		initMessageLinkModel(sequelize),
+		initGuildSessionModel(sequelize),
+		initSessionOptionsModel(sequelize),
+		initRelatedGuildModel(sequelize),
+		initSessionParticipantModel(sequelize),
+		initRobloxUserModel(sequelize),
+		initProxyCommandModel(sequelize),
+		initRoleDataModel(sequelize),
+		initRoleGroupModel(sequelize),
+	];
 
 	initialised = true;
+	return associateList;
 }

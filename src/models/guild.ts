@@ -143,15 +143,17 @@ export function initGuildModel(sequelize: Sequelize) {
 		{ sequelize, modelName: 'Guild', tableName: 'Guilds' },
 	);
 
-	Guild.hasMany(User, { as: GuildAssociations.Users, foreignKey: 'guildId' });
-	Guild.hasOne(ActivityCheck, { as: GuildAssociations.ActivityChecks, foreignKey: 'guildId' });
-	Guild.hasMany(Rank, { as: GuildAssociations.Ranks, foreignKey: 'guildId' });
-	Guild.hasMany(UserPermission, { as: GuildAssociations.UserPermissions, foreignKey: 'guildId' });
-	Guild.hasMany(RolePermission, { as: GuildAssociations.RolePermissions, foreignKey: 'guildId' });
-	Guild.hasOne(GuildSession, { as: GuildAssociations.Session, foreignKey: 'guildId' });
-	Guild.hasMany(RelatedGuild, { as: GuildAssociations.RelatedGuilds, foreignKey: 'guildId' });
-	Guild.hasMany(RobloxUser, { as: GuildAssociations.RobloxUsers, foreignKey: 'guildId' });
-	Guild.hasMany(ProxyCommand, { as: GuildAssociations.ProxyCommands, foreignKey: 'guildId' });
-	Guild.hasMany(RoleGroup, { as: GuildAssociations.RoleGroups, foreignKey: 'guildId' });
-	Guild.hasMany(RoleData, { as: GuildAssociations.Roles, foreignKey: 'guildId' });
+	return () => {
+		Guild.hasMany(User, { as: GuildAssociations.Users, foreignKey: 'guildId' });
+		Guild.hasOne(ActivityCheck, { as: GuildAssociations.ActivityChecks, foreignKey: 'guildId' });
+		Guild.hasMany(Rank, { as: GuildAssociations.Ranks, foreignKey: 'guildId' });
+		Guild.hasMany(UserPermission, { as: GuildAssociations.UserPermissions, foreignKey: 'guildId' });
+		Guild.hasMany(RolePermission, { as: GuildAssociations.RolePermissions, foreignKey: 'guildId' });
+		Guild.hasOne(GuildSession, { as: GuildAssociations.Session, foreignKey: 'guildId' });
+		Guild.hasMany(RelatedGuild, { as: GuildAssociations.RelatedGuilds, foreignKey: 'guildId' });
+		Guild.hasMany(RobloxUser, { as: GuildAssociations.RobloxUsers, foreignKey: 'guildId' });
+		Guild.hasMany(ProxyCommand, { as: GuildAssociations.ProxyCommands, foreignKey: 'guildId' });
+		Guild.hasMany(RoleGroup, { as: GuildAssociations.RoleGroups, foreignKey: 'guildId' });
+		Guild.hasMany(RoleData, { as: GuildAssociations.Roles, foreignKey: 'guildId' });
+	};
 }

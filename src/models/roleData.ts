@@ -10,6 +10,7 @@ import {
 	Sequelize,
 } from 'sequelize';
 import { RoleGroup } from './roleGroup.js';
+import { Prefix } from '../utils/prefixUtils.js';
 
 export enum RoleDataAssociations {
 	RoleGroups = 'roleGroups',
@@ -50,6 +51,14 @@ export function initRoleDataModel(sequelize: Sequelize) {
 			indexes: [{ fields: ['guildId', 'roleId'] }],
 		},
 	);
+	return () => {
+		RoleData.belongsToMany(RoleGroup, { as: RoleDataAssociations.RoleGroups, through: 'RoleGroupRoles' });
 
-	RoleData.belongsToMany(RoleGroup, { as: RoleDataAssociations.RoleGroups, through: 'RoleGroupRoles' });
+		RoleData.addHook('afterDestroy', async (roleData: RoleData) => {
+			if (!roleData.prefix) return;
+			const guildPrefixes = Prefix.prefixCache.get(roleData.guildId);
+			if (!guildPrefixes) return;
+			guildPrefixes.delete(roleData.roleId);
+		});
+	};
 }

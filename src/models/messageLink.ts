@@ -55,4 +55,5 @@ export function initMessageLinkModel(sequelize: Sequelize) {
 			indexes: [{ unique: true, fields: ['guildId', 'channelId', 'messageId'] }],
 		},
 	);
+	return () => {};
 }

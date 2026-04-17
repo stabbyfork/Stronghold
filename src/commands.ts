@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON SAT, 11 APR 2026 13:09:41 GMT WITH 14 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON FRI, 17 APR 2026 16:43:55 GMT WITH 14 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct, CommandExecute } from './types/commandTypes.js';
 
@@ -83,6 +83,7 @@ import rbx_blacklist_clear from './commands/rbx/blacklist/clear.js';
 import rbx_blacklist_check from './commands/rbx/blacklist/check.js';
 import rbx_points_set from './commands/rbx/points/set.js';
 import rbx_points_add from './commands/rbx/points/add.js';
+import rbx_points_add_d from './commands/rbx/points/add_d.js';
 import rbx_points_list from './commands/rbx/points/list.js';
 import rbx_points_remove from './commands/rbx/points/remove.js';
 import rbx_points_get from './commands/rbx/points/get.js';
@@ -221,6 +222,7 @@ rbx: {
   points: {
     set: rbx_points_set,
     add: rbx_points_add,
+    add_d: rbx_points_add_d,
     list: rbx_points_list,
     remove: rbx_points_remove,
     get: rbx_points_get

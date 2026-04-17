@@ -46,7 +46,7 @@
 		"build:register": "npx tsx scripts/cmd-register.ts",
 		"build:schema": "npx json2ts -i ./*.schema.json > src/schema-types.d.ts",
 		"preinstall": "npm ls --global \"pm2@>=6.0.8\" || npm install --global pm2@latest",
-		"logs": "pm2 logs",
+		"logs": "pm2 logs --lines 1000",
 		"compile": "npx tsc",
 		"depCruise": "npx depcruise src/index.ts",
 		"depGraph": "npx depcruise src/index.ts --include-only \"^src\" --output-type dot | dot -T svg > dependency-graph.svg",

@@ -58,6 +58,8 @@ export function initRoleGroupModel(sequelize: Sequelize) {
 		},
 	);
 
-	RoleGroup.belongsToMany(User, { as: RoleGroupAssociations.Users, through: 'UserRoleGroups' });
-	RoleGroup.belongsToMany(RoleData, { as: RoleGroupAssociations.Roles, through: 'RoleGroupRoles' });
+	return () => {
+		RoleGroup.belongsToMany(User, { as: RoleGroupAssociations.Users, through: 'UserRoleGroups' });
+		RoleGroup.belongsToMany(RoleData, { as: RoleGroupAssociations.Roles, through: 'RoleGroupRoles' });
+	};
 }

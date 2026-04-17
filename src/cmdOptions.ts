@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON SAT, 11 APR 2026 13:09:41 GMT WITH 14 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON FRI, 17 APR 2026 16:43:55 GMT WITH 14 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct } from "./types/commandTypes.js";
 
@@ -505,6 +505,16 @@ rbx: {
         "required": true
       }
     },
+    "add_d": {
+      "discord_ids": {
+        "type": "string",
+        "required": true
+      },
+      "points": {
+        "type": "integer",
+        "required": true
+      }
+    },
     "remove": {
       "names": {
         "type": "string",
@@ -780,6 +790,7 @@ rbx: {
   points: {
     set: T,
     add: T,
+    add_d: T,
     list: T,
     remove: T,
     get: T

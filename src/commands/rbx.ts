@@ -96,6 +96,17 @@ export default createCommand<{}, 'rbx'>({
 							option.setName('points').setDescription('Number of points to add').setRequired(true),
 						),
 				)
+				.addSubcommand((cmd) =>
+					cmd
+						.setName('add_d')
+						.setDescription('Add points to one or more Roblox users by Discord ID/mention')
+						.addStringOption((option) =>
+							option.setName('discord_ids').setDescription('Discord users to add to').setRequired(true),
+						)
+						.addIntegerOption((option) =>
+							option.setName('points').setDescription('Number of points to add').setRequired(true),
+						),
+				)
 				.addSubcommand((cmd) => cmd.setName('list').setDescription('List the points of Roblox users'))
 				.addSubcommand((cmd) =>
 					cmd
@@ -121,6 +132,11 @@ export default createCommand<{}, 'rbx'>({
 						),
 				),
 		),
+	description: {
+		points: {
+			add_d: 'The RoVer bot has to be in your server for this command to function! Install it here: https://rover.link/guilds',
+		},
+	},
 	limits: {
 		blacklist: {
 			add: {

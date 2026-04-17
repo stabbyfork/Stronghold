@@ -2,6 +2,7 @@ import { REST, RESTPostAPIChatInputApplicationCommandsJSONBody, Routes } from 'd
 import { Config } from '../config.js';
 import { Errors } from '../types/errors.js';
 import { Environment } from '../types/envTypes.js';
+import { ENV } from '../env.js';
 
 //const defaultCmds = [] as RESTPostAPIChatInputApplicationCommandsJSONBody[];
 
@@ -11,7 +12,7 @@ const proxyCache = new Map<string, RESTPostAPIChatInputApplicationCommandsJSONBo
 export namespace ProxyUtils {
 	const rest = new REST();
 	let clientId: string;
-	if (process.env.NODE_ENV === Environment.Production) {
+	if (ENV.NODE_ENV === Environment.Production) {
 		rest.setToken(Config.get('token'));
 		clientId = Config.get('clientId');
 	} else {

@@ -18,4 +18,5 @@ export function initRankUsageModel(sequelize: Sequelize) {
 		},
 		{ sequelize, modelName: 'RankUsage' },
 	);
+	return () => {};
 }

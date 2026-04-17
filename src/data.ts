@@ -23,6 +23,7 @@ import { Environment } from './types/envTypes.js';
 import { RoleData } from './models/roleData.js';
 import { RoleGroup } from './models/roleGroup.js';
 import { initialiseModels } from './models/initModels.js';
+import { ENV } from './env.js';
 
 const dbConfg = Config.get('database');
 
@@ -48,7 +49,7 @@ export namespace Data {
 		RoleGroup,
 	};
 	export const mainDb =
-		process.env.NODE_ENV === Environment.Production
+		ENV.NODE_ENV === Environment.Production
 			? new Sequelize({
 					password: dbConfg.password,
 					username: dbConfg.username,
@@ -76,12 +77,14 @@ export namespace Data {
 					logging: (q, t) => console.log(q, t, 'ms'),
 				});
 
-	initialiseModels(mainDb);
-
 	export async function setup() {
 		if (ready) {
 			Debug.error('Attempting to setup Data, which is already ready');
 			return;
+		}
+		const associateList = initialiseModels(mainDb);
+		for (const associate of associateList) {
+			associate();
 		}
 		try {
 			await mainDb.authenticate();

@@ -35,4 +35,5 @@ export function initProxyCommandModel(sequelize: Sequelize) {
 			indexes: [{ unique: true, fields: ['guildId', 'proxyCommand'] }],
 		},
 	);
+	return () => {};
 }

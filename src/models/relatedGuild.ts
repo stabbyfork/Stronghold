@@ -65,6 +65,8 @@ export function initRelatedGuildModel(sequelize: Sequelize) {
 		},
 	);
 
-	RelatedGuild.belongsTo(Guild, { as: RelatedGuildAssociations.TargetGuild, foreignKey: 'targetGuildId' });
-	RelatedGuild.belongsTo(Guild, { as: RelatedGuildAssociations.Guild, foreignKey: 'guildId' });
+	return () => {
+		RelatedGuild.belongsTo(Guild, { as: RelatedGuildAssociations.TargetGuild, foreignKey: 'targetGuildId' });
+		RelatedGuild.belongsTo(Guild, { as: RelatedGuildAssociations.Guild, foreignKey: 'guildId' });
+	};
 }

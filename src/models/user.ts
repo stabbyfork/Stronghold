@@ -104,9 +104,11 @@ export function initUserModel(sequelize: Sequelize) {
 		},
 	);
 
-	User.hasOne(UserPermission, { as: UserAssociations.UserPermission, foreignKey: 'userId' });
-	User.belongsTo(Rank, { as: UserAssociations.MainRank, foreignKey: 'mainRankId' });
-	User.belongsToMany(Rank, { as: UserAssociations.SecondaryRanks, through: 'UserRanks' });
-	User.belongsTo(Rank, { as: UserAssociations.NextRank, foreignKey: 'nextRankId' });
-	User.belongsToMany(RoleGroup, { as: UserAssociations.RoleGroups, through: 'UserRoleGroups' });
+	return () => {
+		User.hasOne(UserPermission, { as: UserAssociations.UserPermission, foreignKey: 'userId' });
+		User.belongsTo(Rank, { as: UserAssociations.MainRank, foreignKey: 'mainRankId' });
+		User.belongsToMany(Rank, { as: UserAssociations.SecondaryRanks, through: 'UserRanks' });
+		User.belongsTo(Rank, { as: UserAssociations.NextRank, foreignKey: 'nextRankId' });
+		User.belongsToMany(RoleGroup, { as: UserAssociations.RoleGroups, through: 'UserRoleGroups' });
+	};
 }

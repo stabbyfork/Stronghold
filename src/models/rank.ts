@@ -63,6 +63,8 @@ export function initRankModel(sequelize: Sequelize) {
 		{ sequelize, modelName: 'Rank' },
 	);
 
-	Rank.hasOne(RankUsage, { as: RankAssociations.RankUsage, foreignKey: 'rankId' });
-	Rank.belongsToMany(User, { as: RankAssociations.SecondaryUsers, through: 'UserRanks' });
+	return () => {
+		Rank.hasOne(RankUsage, { as: RankAssociations.RankUsage, foreignKey: 'rankId' });
+		Rank.belongsToMany(User, { as: RankAssociations.SecondaryUsers, through: 'UserRanks' });
+	};
 }

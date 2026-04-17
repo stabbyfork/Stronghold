@@ -126,6 +126,8 @@ export const ErrorReplies = {
 		"This group has a role that is higher than or equal to the bot's highest role. The bot cannot manage roles that are higher than or equal to its highest role. Move the role(s) in this group below the bot's highest role or move the bot's roles higher.",
 	GroupHasRoleHigherThanUser:
 		'This group has a role that is higher than or equal to your highest role. You cannot approve groups that have roles higher than or equal to your highest role.',
+	NoRobloxAccountsFoundForDiscordIds:
+		'No Roblox accounts linked to the provided Discord IDs were found.\nDoes the server have the RoVer bot installed? Install it and verify here: https://rover.link\nOtherwise, an issue may have occurred with the RoVer bot or the Roblox API.',
 } as const;
 
 export namespace Errors {

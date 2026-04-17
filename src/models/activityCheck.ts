@@ -51,4 +51,5 @@ export function initActivityCheckModel(sequelize: Sequelize) {
 		},
 		{ sequelize, modelName: 'ActivityCheck' },
 	);
+	return () => {};
 }

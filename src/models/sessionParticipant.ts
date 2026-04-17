@@ -63,12 +63,14 @@ export function initSessionParticipantModel(sequelize: Sequelize) {
 			indexes: [{ unique: true, fields: ['sessionId', 'userId'] }],
 		},
 	);
-	SessionParticipant.belongsTo(GuildSession, {
-		as: SessionParticipantAssociations.Session,
-		foreignKey: 'sessionId',
-	});
-	SessionParticipant.belongsTo(User, {
-		as: SessionParticipantAssociations.User,
-		foreignKey: 'userId',
-	});
+	return () => {
+		SessionParticipant.belongsTo(GuildSession, {
+			as: SessionParticipantAssociations.Session,
+			foreignKey: 'sessionId',
+		});
+		SessionParticipant.belongsTo(User, {
+			as: SessionParticipantAssociations.User,
+			foreignKey: 'userId',
+		});
+	};
 }

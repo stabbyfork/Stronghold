@@ -180,4 +180,8 @@ export function checkBits(obj: Record<string, number>) {
 
 export type Pair<K, V> = [K, V];
 
+export function delayFor(timeInMillis: number): Promise<void> {
+	return new Promise((resolve) => setTimeout(() => resolve(), timeInMillis));
+}
+
 //#endregion

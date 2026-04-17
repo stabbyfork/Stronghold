@@ -1,7 +1,11 @@
 import axios from 'axios';
-import { Debug } from './errorsUtils.js';
 import urlBuilder from 'build-url-ts';
 import fuzzysort from 'fuzzysort';
+import { Config } from '../config.js';
+import { Debug } from './errorsUtils.js';
+import { delayFor } from './genericsUtils.js';
+import { Data } from '../data.js';
+import path from 'path';
 const { buildUrl } = urlBuilder;
 
 export interface UsernameToUserData {
@@ -28,18 +32,29 @@ interface IdToAvatarBust {
 	version: string;
 }
 
+// Discord connection
+interface DiscordToRobloxData {
+	robloxId: number;
+	cachedUsername: string;
+	discordId: string;
+	guildId: string;
+}
+
 type RobloxUsername = string;
 type RobloxUserId = number;
+type DiscordUserId = string;
+
+const roverConfig = Config.get('roblox')?.rover;
 
 export namespace RbxCaches {
 	/** Uses requested usernames as keys */
-	export const usernamesToData: Map<RobloxUsername, UsernameToUserData> = new Map<
-		RobloxUsername,
-		UsernameToUserData
-	>();
-	export const idsToData: Map<RobloxUserId, IdToUserData> = new Map<RobloxUserId, IdToUserData>();
-	export const idsToAvatarBusts: Map<RobloxUserId, IdToAvatarBust> = new Map<RobloxUserId, IdToAvatarBust>();
+	export const usernamesToData: Map<RobloxUsername, UsernameToUserData> = new Map();
+	export const idsToData: Map<RobloxUserId, IdToUserData> = new Map();
+	export const idsToAvatarBusts: Map<RobloxUserId, IdToAvatarBust> = new Map();
 	export const preparedUsernames: Fuzzysort.Prepared[] = [];
+
+	/** Discord user ID -> Roblox user data (from Rover) */
+	export const discordToRobloxData: Map<DiscordUserId, DiscordToRobloxData> = new Map();
 }
 
 export namespace Roblox {
@@ -194,5 +209,72 @@ export namespace Roblox {
 	 */
 	export async function idToAvatarBust(id: number) {
 		return idsToAvatarBusts(id).then((data) => data[0]);
+	}
+
+	// Discord connection
+
+	let roverLock = false;
+
+	/**
+	 * Fetches Discord to Roblox data for multiple Discord users from the Rover API.
+	 * Results are cached.
+	 *
+	 * @param guildId - The Discord guild ID to query data for
+	 * @param discordIds - Array of Discord user IDs to fetch Roblox data for
+	 * @returns Promise resolving to an array of {@link DiscordToRobloxData} objects containing the mapped user data
+	 *
+	 * @throws Will recursively retry if rate limited, throws error if Retry-After header is invalid
+	 */
+	export async function discordToRobloxData(guildId: string, discordIds: string[], retryNum: number = 0) {
+		if (!roverConfig) {
+			Debug.error('Rover config not found. Cannot fetch Discord to Roblox data.');
+			return [];
+		}
+		if (discordIds.length === 0) return [];
+		const existing = [] as DiscordToRobloxData[];
+		discordIds.forEach((id) => {
+			if (RbxCaches.discordToRobloxData.has(id)) existing.push(RbxCaches.discordToRobloxData.get(id)!);
+		});
+		if (existing.length === discordIds.length) return existing;
+		if (roverLock) {
+			if (retryNum > 5) {
+				Debug.error('Exceeded maximum retry attempts for Rover API. Aborting fetch Discord -> Roblox.');
+				return [];
+			}
+			const waitTime = 1000 * 2 ** retryNum;
+			Debug.error(
+				`Rover API is currently rate limited. Waiting ${waitTime}ms before retrying fetch Discord -> Roblox...`,
+			);
+			await delayFor(waitTime); // Exponential backoff
+			return discordToRobloxData(guildId, discordIds, retryNum + 1);
+		}
+		const results = discordIds.map((id) =>
+			axios
+				.get(path.posix.join(roverConfig.baseApiUrl, `/guilds/${guildId}/discord-to-roblox/${id}`), {
+					headers: { Authorization: `Bearer ${roverConfig.token}` },
+					timeout: 10000,
+					timeoutErrorMessage: 'Request to Rover API timed out.',
+				})
+				.then(async (res) => {
+					// Big scary rate limiter
+					if (res.status === 429) {
+						const delayTime = Number(res.headers['Retry-After']);
+						if (isNaN(delayTime)) {
+							Debug.error(`Invalid Retry-After header value: ${res.headers['Retry-After']}`);
+							throw new Error('Rover API rate limited but Retry-After header is invalid');
+						}
+						roverLock = true;
+						await delayFor(delayTime * 1000 + 500); // Add extra 0.5s for safety
+						roverLock = false;
+					}
+					RbxCaches.discordToRobloxData.set(res.data.discordId, res.data);
+					return res.data as DiscordToRobloxData;
+				}),
+		);
+		return Promise.all(results).then((res) => {
+			if (!res) return [];
+			existing.push(...res);
+			return existing;
+		});
 	}
 }

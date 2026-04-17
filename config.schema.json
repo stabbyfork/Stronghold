@@ -7,27 +7,27 @@
 	"properties": {
 		"$schema": {
 			"type": "string",
-			"description": "Just used to stop VSCode being angry"
+			"description": "Just used to stop VSCode being angry."
 		},
 		"appOwnerUsername": {
 			"type": "string",
-			"description": "The username of the bot owner"
+			"description": "The username of the bot owner."
 		},
 		"appOwnerId": {
 			"type": "string",
-			"description": "The ID of the bot owner"
+			"description": "The ID of the bot owner."
 		},
 		"token": {
 			"type": "string",
-			"description": "The bot token"
+			"description": "The bot token."
 		},
 		"clientId": {
 			"type": "string",
-			"description": "The bot's client ID"
+			"description": "The bot's client ID."
 		},
 		"database": {
 			"type": "object",
-			"description": "Properties and options of the database (MySQL only) to use. See https://sequelize.org for more info",
+			"description": "Properties and options of the database (MySQL only) to use. See https://sequelize.org for more info.",
 			"properties": {
 				"username": {
 					"type": "string",
@@ -56,23 +56,23 @@
 		},
 		"website": {
 			"type": "object",
-			"description": "Properties and options for the website",
+			"description": "Properties and options for the website.",
 			"properties": {
 				"url": {
 					"type": "string",
-					"description": "The link to the bot's website"
+					"description": "The link to the bot's website."
 				},
 				"privacyPolicyUrl": {
 					"type": "string",
-					"description": "The link to the bot's privacy policy"
+					"description": "The link to the bot's privacy policy."
 				},
 				"tosUrl": {
 					"type": "string",
-					"description": "The link to the bot's terms of service"
+					"description": "The link to the bot's terms of service."
 				},
 				"discordUrl": {
 					"type": "string",
-					"description": "The link to the bot's support Discord server"
+					"description": "The link to the bot's support Discord server."
 				}
 			},
 			"readOnly": true,
@@ -205,6 +205,31 @@
 			},
 			"readOnly": true,
 			"required": ["list", "enabled"],
+			"additionalProperties": false
+		},
+		"roblox": {
+			"type": "object",
+			"description": "Properties and options for Roblox integration.",
+			"properties": {
+				"rover": {
+					"type": "object",
+					"description": "Properties and options for Rover integration.",
+					"properties": {
+						"token": {
+							"type": "string",
+							"description": "A Rover token for Roblox integration. Used for authenticating with the Rover API. Optional, but required for any Rover features to work."
+						},
+						"baseApiUrl": {
+							"$ref": "#/definitions/httpPattern",
+							"description": "The base URL for the Rover API."
+						}
+					},
+					"required": ["token", "baseApiUrl"],
+					"readOnly": true,
+					"additionalProperties": false
+				}
+			},
+			"readOnly": true,
 			"additionalProperties": false
 		}
 	},

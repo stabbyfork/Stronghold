@@ -45,4 +45,5 @@ export function initRobloxUserModel(sequelize: Sequelize) {
 			indexes: [{ unique: true, fields: ['guildId', 'userId'] }],
 		},
 	);
+	return () => {};
 }

@@ -139,6 +139,6 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 					`Set point count to \`${points}\` for:\n${users.map((u) => `- \`${u.name}\``).join(',\n')}\n-# ${users.length} user${users.length === 1 ? '' : 's'}`,
 				),
 		(users, points) =>
-			`Set point count of:\n${users.map((u) => `\`${u.displayName}\` (\`${u.name}\`/\`${u.id}\`)`).join(',\n')} to \`${points}\`\n-# ${users.length} user${users.length === 1 ? '' : 's'})`,
+			`Set point count of:\n${users.map((u) => `\`${u.displayName}\` (\`${u.name}\`/\`${u.id}\`)`).join(',\n')} to \`${points}\`\n-# ${users.length} user${users.length === 1 ? '' : 's'}`,
 	);
 };

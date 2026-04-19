@@ -1,10 +1,8 @@
 import {
-	ActionRowBuilder,
 	ComponentType,
 	MessageCreateOptions,
 	MessageFlags,
 	MessagePayload,
-	ModalActionRowComponentBuilder,
 	ModalBuilder,
 	SlashCommandBuilder,
 	TextInputBuilder,
@@ -63,18 +61,19 @@ export default createCommand<typeof commandOptions.feedback>({
 					new ModalBuilder()
 						.setCustomId(CustomId.Bug)
 						.setTitle('Bug report')
-						.addComponents(
-							new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
-								new TextInputBuilder()
-									.setCustomId(CustomId.BugDescription)
-									.setLabel('Describe the bug: errors, options, context')
-									.setStyle(TextInputStyle.Paragraph)
-									.setMaxLength(3600)
-									.setPlaceholder(
-										'You can also paste the error and command.\n\nExample:\nError message:\nArguments:\nContext:\n...',
-									)
-									.setRequired(true),
-							),
+						.addLabelComponents((label) =>
+							label
+								.setLabel('Describe the bug: errors, options, context')
+								.setTextInputComponent(
+									new TextInputBuilder()
+										.setCustomId(CustomId.BugDescription)
+										.setStyle(TextInputStyle.Paragraph)
+										.setMaxLength(3600)
+										.setPlaceholder(
+											'You can also paste the error and command.\n\nExample:\nError message:\nArguments:\nContext:\n...',
+										)
+										.setRequired(true),
+								),
 						),
 				);
 				break;
@@ -83,18 +82,19 @@ export default createCommand<typeof commandOptions.feedback>({
 					new ModalBuilder()
 						.setTitle('Feature request')
 						.setCustomId(CustomId.Feature)
-						.addComponents(
-							new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
-								new TextInputBuilder()
-									.setCustomId(CustomId.FeatureDescription)
-									.setLabel('Why and what would it do?')
-									.setStyle(TextInputStyle.Paragraph)
-									.setMaxLength(3600)
-									.setPlaceholder(
-										'<Insert ridiculous feature>\nYou should add this because I said so...\nIt will achieve nothing...',
-									)
-									.setRequired(true),
-							),
+						.addLabelComponents((label) =>
+							label
+								.setLabel('Why and what would it do?')
+								.setTextInputComponent(
+									new TextInputBuilder()
+										.setCustomId(CustomId.FeatureDescription)
+										.setStyle(TextInputStyle.Paragraph)
+										.setMaxLength(3600)
+										.setPlaceholder(
+											'<Insert ridiculous feature>\nYou should add this because I said so...\nIt will achieve nothing...',
+										)
+										.setRequired(true),
+								),
 						),
 				);
 				break;
@@ -103,16 +103,17 @@ export default createCommand<typeof commandOptions.feedback>({
 					new ModalBuilder()
 						.setTitle('Miscellaneous message')
 						.setCustomId(CustomId.Other)
-						.addComponents(
-							new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
-								new TextInputBuilder()
-									.setCustomId(CustomId.OtherText)
-									.setLabel('Your message')
-									.setStyle(TextInputStyle.Paragraph)
-									.setMaxLength(3600)
-									.setPlaceholder('plss give me 5000 bobuks')
-									.setRequired(true),
-							),
+						.addLabelComponents((label) =>
+							label
+								.setLabel('Your message')
+								.setTextInputComponent(
+									new TextInputBuilder()
+										.setCustomId(CustomId.OtherText)
+										.setStyle(TextInputStyle.Paragraph)
+										.setMaxLength(3600)
+										.setPlaceholder('plss give me 5000 bobuks')
+										.setRequired(true),
+								),
 						),
 				);
 				break;
@@ -121,17 +122,18 @@ export default createCommand<typeof commandOptions.feedback>({
 					new ModalBuilder()
 						.setTitle('Report a server')
 						.setCustomId(CustomId.Report)
-						.addComponents(
-							new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
-								new TextInputBuilder()
-									.setCustomId(CustomId.ReportDescription)
-									.setLabel('Description of the violation')
-									.setStyle(TextInputStyle.Paragraph)
-									.setMaxLength(3600)
-									.setPlaceholder(
-										'The server is... and has an inappropriate tag... (please identify the server)',
-									),
-							),
+						.addLabelComponents((label) =>
+							label
+								.setLabel('Description of the violation')
+								.setTextInputComponent(
+									new TextInputBuilder()
+										.setCustomId(CustomId.ReportDescription)
+										.setStyle(TextInputStyle.Paragraph)
+										.setMaxLength(3600)
+										.setPlaceholder(
+											'The server is... and has an inappropriate tag... (please identify the server)',
+										),
+								),
 						),
 				);
 				break;

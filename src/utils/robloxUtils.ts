@@ -6,6 +6,8 @@ import { Debug } from './errorsUtils.js';
 import { delayFor } from './genericsUtils.js';
 import { Data } from '../data.js';
 import path from 'path';
+import { userMention } from 'discord.js';
+import _ from 'lodash';
 const { buildUrl } = urlBuilder;
 
 export interface UsernameToUserData {
@@ -248,32 +250,63 @@ export namespace Roblox {
 			await delayFor(waitTime); // Exponential backoff
 			return discordToRobloxData(guildId, discordIds, retryNum + 1);
 		}
-		const results = discordIds.map((id) =>
+		const results: Promise<DiscordToRobloxData | null>[] = discordIds.map((id) =>
 			axios
 				.get(path.posix.join(roverConfig.baseApiUrl, `/guilds/${guildId}/discord-to-roblox/${id}`), {
 					headers: { Authorization: `Bearer ${roverConfig.token}` },
 					timeout: 10000,
-					timeoutErrorMessage: 'Request to Rover API timed out.',
+					timeoutErrorMessage: 'Request to RoVer API timed out.',
 				})
-				.then(async (res) => {
-					// Big scary rate limiter
-					if (res.status === 429) {
-						const delayTime = Number(res.headers['Retry-After']);
-						if (isNaN(delayTime)) {
-							Debug.error(`Invalid Retry-After header value: ${res.headers['Retry-After']}`);
-							throw new Error('Rover API rate limited but Retry-After header is invalid');
+				.then(
+					async (res) => {
+						RbxCaches.discordToRobloxData.set(res.data.discordId, res.data);
+						return res.data as DiscordToRobloxData;
+					},
+					async (err) => {
+						if (!axios.isAxiosError(err)) {
+							Debug.error(
+								`Unexpected error type when fetching Discord to Roblox data for ID ${id} in guild ${guildId}: ${err}`,
+							);
+							throw err;
 						}
-						roverLock = true;
-						await delayFor(delayTime * 1000 + 500); // Add extra 0.5s for safety
-						roverLock = false;
-					}
-					RbxCaches.discordToRobloxData.set(res.data.discordId, res.data);
-					return res.data as DiscordToRobloxData;
-				}),
+						const res = err.response;
+						// Big scary rate limiter
+						if (res?.status === 429) {
+							const res = err.response;
+							const delayTime = Number(res!.headers['retry-after']);
+							if (isNaN(delayTime)) {
+								Debug.error(`Invalid retry-after header value: ${res!.headers['retry-after']}`);
+								roverLock = true;
+								_.delay(() => (roverLock = false), 60000); // Wait 1 minute before allowing retries again just in case
+								throw new Error('RoVer API rate limited but retry-after header is invalid');
+							}
+							roverLock = true;
+							await delayFor(delayTime * 1000 + 500); // Add extra 0.5s for safety
+							roverLock = false;
+							return discordToRobloxData(guildId, [id], retryNum).then((data) => data[0]); // Retry the failed ID
+						} else if (res?.status === 404) {
+							throw new Error(
+								`Discord user ${userMention(id)} (id: \`${id}\`) not found in the RoVer database for this server. Is the user verified with RoVer? They can verify here: https://rover.link`,
+							);
+						} else if (res?.status === 403) {
+							Debug.error(
+								`Access forbidden when fetching Discord to Roblox data for ID ${id} in guild ${guildId}.`,
+							);
+							throw new Error(
+								'Access forbidden when fetching from RoVer API. Is the RoVer bot installed in this guild? Install it here: https://rover.link',
+							);
+						} else {
+							Debug.error(
+								`Failed to fetch Roblox data for Discord user ${id}: ${err.message} in guild ${guildId}`,
+							);
+							throw err;
+						}
+					},
+				),
 		);
 		return Promise.all(results).then((res) => {
 			if (!res) return [];
-			existing.push(...res);
+			existing.push(...res.filter((d) => d !== null));
 			return existing;
 		});
 	}

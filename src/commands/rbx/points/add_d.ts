@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, MessageFlags } from 'discord.js';
 import { commandOptions } from '../../../cmdOptions.js';
 import { defaultEmbed } from '../../../utils/discordUtils.js';
-import { getOption } from '../../../utils/subcommandsUtils.js';
+import { getOption, reportErrorIfNotSetup } from '../../../utils/subcommandsUtils.js';
 import { setRbxPoints } from './set.js';
 import { Roblox } from '../../../utils/robloxUtils.js';
 import { constructError, reportErrorToUser } from '../../../utils/errorsUtils.js';
@@ -10,6 +10,9 @@ import { ErrorReplies, Errors } from '../../../types/errors.js';
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.rbx.points.add_d) => {
 	if (!interaction.inGuild()) {
 		await reportErrorToUser(interaction, constructError([ErrorReplies.InteractionHasNoGuild]), true);
+		return;
+	}
+	if (!(await reportErrorIfNotSetup(interaction))) {
 		return;
 	}
 	await interaction.reply({
@@ -27,7 +30,26 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		.matchAll(/\d+/g)
 		.map((match) => match[0])
 		.toArray();
-	const robloxUsers = await Roblox.discordToRobloxData(interaction.guildId, discordUsers);
+	let robloxUsers = [];
+	try {
+		robloxUsers = await Roblox.discordToRobloxData(interaction.guildId, discordUsers);
+	} catch (err) {
+		await interaction.editReply({
+			embeds: [
+				defaultEmbed()
+					.setColor('Red')
+					.setTitle('Error during account linking')
+					.setDescription(
+						constructError(
+							[ErrorReplies.FailedToFetchRobloxDataForDiscordIds],
+							err instanceof Error ? err.message : String(err),
+						),
+					),
+			],
+			allowedMentions: { users: [], roles: [] },
+		});
+		return;
+	}
 	if (robloxUsers.length === 0) {
 		await reportErrorToUser(interaction, constructError([ErrorReplies.NoRobloxAccountsFoundForDiscordIds]), true);
 		return;

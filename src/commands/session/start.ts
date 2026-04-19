@@ -1,5 +1,4 @@
 import {
-	ActionRowBuilder,
 	ButtonBuilder,
 	ButtonStyle,
 	channelMention,
@@ -9,7 +8,6 @@ import {
 	MediaGalleryItemBuilder,
 	Message,
 	MessageFlags,
-	ModalActionRowComponentBuilder,
 	ModalBuilder,
 	ModalSubmitInteraction,
 	PermissionFlagsBits,
@@ -73,26 +71,26 @@ export function createSessionModal(
 	return new ModalBuilder()
 		.setTitle('Session details')
 		.setCustomId(customId)
-		.addComponents(
-			new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
-				new TextInputBuilder()
-					.setCustomId(titleId)
-					.setLabel('Title')
-					.setStyle(TextInputStyle.Short)
-					.setMaxLength(64)
-					.setRequired(true)
-					.setValue(defaults?.title ?? ''),
-			),
-			new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
-				new TextInputBuilder()
-					.setCustomId(messageId)
-					.setLabel('Message')
-					.setStyle(TextInputStyle.Paragraph)
-					.setMaxLength(512)
-					.setPlaceholder('Host: John Discord\nGame: ...')
-					.setRequired(true)
-					.setValue(defaults?.message ?? ''),
-			),
+		.addLabelComponents(
+			(label) =>
+				label.setLabel('Title').setTextInputComponent(
+					new TextInputBuilder()
+						.setCustomId(titleId)
+						.setStyle(TextInputStyle.Short)
+						.setMaxLength(64)
+						.setRequired(true)
+						.setValue(defaults?.title ?? ''),
+				),
+			(label) =>
+				label.setLabel('Message').setTextInputComponent(
+					new TextInputBuilder()
+						.setCustomId(messageId)
+						.setStyle(TextInputStyle.Paragraph)
+						.setMaxLength(512)
+						.setPlaceholder('Host: John Discord\nGame: ...')
+						.setRequired(true)
+						.setValue(defaults?.message ?? ''),
+				),
 		);
 }
 

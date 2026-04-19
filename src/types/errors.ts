@@ -128,6 +128,8 @@ export const ErrorReplies = {
 		'This group has a role that is higher than or equal to your highest role. You cannot approve groups that have roles higher than or equal to your highest role.',
 	NoRobloxAccountsFoundForDiscordIds:
 		'No Roblox accounts linked to the provided Discord IDs were found.\nDoes the server have the RoVer bot installed? Install it and verify here: https://rover.link\nOtherwise, an issue may have occurred with the RoVer bot or the Roblox API.',
+	FailedToFetchRobloxDataForDiscordIds:
+		'Failed to fetch Roblox accounts linked to the provided Discord IDs:\n!{ERROR}\nPlease check the error and try again. If the problem persists, contact the bot developers.',
 } as const;
 
 export namespace Errors {

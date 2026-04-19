@@ -6,6 +6,7 @@ import {
 	Colors,
 	ContainerBuilder,
 	FileBuilder,
+	FileUploadBuilder,
 	MediaGalleryBuilder,
 	MediaGalleryItemBuilder,
 	ModalBuilder,
@@ -26,6 +27,7 @@ import {
 	TextInputBuilder,
 	TextInputStyle,
 	UserSelectMenuBuilder,
+	LabelBuilder,
 } from 'discord.js';
 
 export namespace Dui {
@@ -120,6 +122,8 @@ export namespace Dui {
 		minValues?: number;
 		maxValues?: number;
 		disabled?: boolean;
+		label?: string;
+		description?: string;
 		onInteract?: InteractionHandler<Record<string, string>, unknown, MessageComponentInteraction>;
 	}
 
@@ -129,6 +133,10 @@ export namespace Dui {
 		};
 		section: {
 			accessory?: ElementNode<'button'> | ElementNode<'thumbnail'>;
+		};
+		label: {
+			label: string;
+			description?: string;
 		};
 		text: {
 			content: string;
@@ -153,8 +161,9 @@ export namespace Dui {
 		};
 		textInput: {
 			customId: string;
-			label: string;
 			style: TextInputStyle;
+			label?: string;
+			description?: string;
 			placeholder?: string;
 			required?: boolean;
 			minLength?: number;
@@ -177,6 +186,14 @@ export namespace Dui {
 		thumbnail: {
 			url: string;
 			description?: string;
+		};
+		fileUpload: {
+			customId: string;
+			label?: string;
+			description?: string;
+			minValues?: number;
+			maxValues?: number;
+			required?: boolean;
 		};
 	}
 
@@ -843,6 +860,172 @@ export namespace Dui {
 		return { modal, handlers };
 	}
 
+	const possibleModalChildren = [
+		'userSelect',
+		'roleSelect',
+		'channelSelect',
+		'mentionableSelect',
+		'stringSelect',
+		'textInput',
+		'text',
+		'fileUpload',
+		'label',
+	] as const as (keyof Intrinsics | ComponentType)[];
+
+	function buildModalTextInput(node: ElementNode<'textInput'>, ctx: RenderContext): TextInputBuilder {
+		const props = node.props as Intrinsics['textInput'];
+		const textInput = new TextInputBuilder().setCustomId(withPrefix(props.customId, ctx)).setStyle(props.style);
+		if (props.placeholder !== undefined) textInput.setPlaceholder(props.placeholder);
+		if (props.required !== undefined) textInput.setRequired(props.required);
+		if (props.minLength !== undefined) textInput.setMinLength(props.minLength);
+		if (props.maxLength !== undefined) textInput.setMaxLength(props.maxLength);
+		if (props.value !== undefined) textInput.setValue(props.value);
+		return textInput;
+	}
+
+	function buildModalFileUpload(node: ElementNode<'fileUpload'>, ctx: RenderContext): FileUploadBuilder {
+		const props = node.props as Intrinsics['fileUpload'];
+		const fileUpload = new FileUploadBuilder().setCustomId(withPrefix(props.customId, ctx));
+		if (props.minValues !== undefined) fileUpload.setMinValues(props.minValues);
+		if (props.maxValues !== undefined) fileUpload.setMaxValues(props.maxValues);
+		if (props.required !== undefined) fileUpload.setRequired(props.required);
+		return fileUpload;
+	}
+
+	function buildModalStringSelect(node: ElementNode<'stringSelect'>, ctx: RenderContext): StringSelectMenuBuilder {
+		const props = node.props as Intrinsics['stringSelect'];
+		const select = new StringSelectMenuBuilder().setCustomId(withPrefix(props.customId, ctx));
+		if (props.placeholder !== undefined) select.setPlaceholder(props.placeholder);
+		if (props.minValues !== undefined) select.setMinValues(props.minValues);
+		if (props.maxValues !== undefined) select.setMaxValues(props.maxValues);
+		if (props.disabled !== undefined) select.setDisabled(props.disabled);
+		for (const opt of props.options) {
+			select.addOptions({
+				label: opt.label,
+				value: opt.value,
+				description: opt.description,
+				emoji: opt.emoji,
+				default: opt.default,
+			});
+		}
+		return select;
+	}
+
+	function buildModalSelect(
+		node: ElementNode<'userSelect' | 'roleSelect' | 'channelSelect' | 'mentionableSelect'>,
+		ctx: RenderContext,
+	): UserSelectMenuBuilder | RoleSelectMenuBuilder | ChannelSelectMenuBuilder | MentionableSelectMenuBuilder {
+		const props = node.props as BaseSelectProps;
+		const select =
+			node.type === 'userSelect'
+				? new UserSelectMenuBuilder()
+				: node.type === 'roleSelect'
+					? new RoleSelectMenuBuilder()
+					: node.type === 'channelSelect'
+						? new ChannelSelectMenuBuilder()
+						: new MentionableSelectMenuBuilder();
+		select.setCustomId(withPrefix(props.customId, ctx));
+		if (props.placeholder !== undefined) select.setPlaceholder(props.placeholder);
+		if (props.minValues !== undefined) select.setMinValues(props.minValues);
+		if (props.maxValues !== undefined) select.setMaxValues(props.maxValues);
+		if (props.disabled !== undefined) select.setDisabled(props.disabled);
+		return select;
+	}
+
+	function buildModalLabelFromChild(child: ElementNode, ctx: RenderContext): LabelBuilder {
+		if (child.type === 'label') {
+			const labelProps = child.props as Intrinsics['label'];
+			if (child.children.length !== 1 || !isElementNode(child.children[0])) {
+				throw new Error(
+					'A DUI label modal element must contain exactly one interactive modal child component.',
+				);
+			}
+			const nested = child.children[0] as ElementNode;
+			const label = new LabelBuilder().setLabel(labelProps.label);
+			if (labelProps.description) label.setDescription(labelProps.description);
+			if (nested.type === 'textInput') {
+				label.setTextInputComponent(buildModalTextInput(nested as ElementNode<'textInput'>, ctx));
+				return label;
+			}
+			if (nested.type === 'fileUpload') {
+				label.setFileUploadComponent(buildModalFileUpload(nested as ElementNode<'fileUpload'>, ctx));
+				return label;
+			}
+			if (nested.type === 'stringSelect') {
+				label.setStringSelectMenuComponent(buildModalStringSelect(nested as ElementNode<'stringSelect'>, ctx));
+				return label;
+			}
+			if (
+				nested.type === 'userSelect' ||
+				nested.type === 'roleSelect' ||
+				nested.type === 'channelSelect' ||
+				nested.type === 'mentionableSelect'
+			) {
+				const select = buildModalSelect(
+					nested as ElementNode<'userSelect' | 'roleSelect' | 'channelSelect' | 'mentionableSelect'>,
+					ctx,
+				);
+				if (nested.type === 'userSelect') label.setUserSelectMenuComponent(select as UserSelectMenuBuilder);
+				if (nested.type === 'roleSelect') label.setRoleSelectMenuComponent(select as RoleSelectMenuBuilder);
+				if (nested.type === 'channelSelect')
+					label.setChannelSelectMenuComponent(select as ChannelSelectMenuBuilder);
+				if (nested.type === 'mentionableSelect')
+					label.setMentionableSelectMenuComponent(select as MentionableSelectMenuBuilder);
+				return label;
+			}
+			throw new Error(
+				'A DUI label modal element can only wrap textInput, fileUpload, or select menu components.',
+			);
+		}
+
+		if (child.type === 'textInput') {
+			const props = child.props as Intrinsics['textInput'];
+			const label = new LabelBuilder().setLabel(props.label ?? 'Input');
+			if (props.description) label.setDescription(props.description);
+			label.setTextInputComponent(buildModalTextInput(child as ElementNode<'textInput'>, ctx));
+			return label;
+		}
+
+		if (child.type === 'fileUpload') {
+			const props = child.props as Intrinsics['fileUpload'];
+			const label = new LabelBuilder().setLabel(props.label ?? 'Files');
+			if (props.description) label.setDescription(props.description);
+			label.setFileUploadComponent(buildModalFileUpload(child as ElementNode<'fileUpload'>, ctx));
+			return label;
+		}
+
+		if (child.type === 'stringSelect') {
+			const props = child.props as Intrinsics['stringSelect'];
+			const label = new LabelBuilder().setLabel(props.label ?? 'Select an option');
+			if (props.description) label.setDescription(props.description);
+			label.setStringSelectMenuComponent(buildModalStringSelect(child as ElementNode<'stringSelect'>, ctx));
+			return label;
+		}
+
+		if (
+			child.type === 'userSelect' ||
+			child.type === 'roleSelect' ||
+			child.type === 'channelSelect' ||
+			child.type === 'mentionableSelect'
+		) {
+			const props = child.props as BaseSelectProps;
+			const label = new LabelBuilder().setLabel(props.label ?? 'Select an option');
+			if (props.description) label.setDescription(props.description);
+			const select = buildModalSelect(
+				child as ElementNode<'userSelect' | 'roleSelect' | 'channelSelect' | 'mentionableSelect'>,
+				ctx,
+			);
+			if (child.type === 'userSelect') label.setUserSelectMenuComponent(select as UserSelectMenuBuilder);
+			if (child.type === 'roleSelect') label.setRoleSelectMenuComponent(select as RoleSelectMenuBuilder);
+			if (child.type === 'channelSelect') label.setChannelSelectMenuComponent(select as ChannelSelectMenuBuilder);
+			if (child.type === 'mentionableSelect')
+				label.setMentionableSelectMenuComponent(select as MentionableSelectMenuBuilder);
+			return label;
+		}
+
+		throw new Error('Unsupported modal label child.');
+	}
+
 	function appendToModal(modal: ModalBuilder, child: Child, ctx: RenderContext): void {
 		if (Array.isArray(child)) {
 			for (const nested of child) appendToModal(modal, nested, ctx);
@@ -850,26 +1033,26 @@ export namespace Dui {
 		}
 		if (child === null || child === undefined || typeof child === 'boolean') return;
 		if (!isElementNode(child)) {
-			throw new Error('DUI modal children must be `textInput` elements.');
+			modal.addTextDisplayComponents(new TextDisplayBuilder().setContent(String(child)));
+			return;
 		}
 		if (child.type === Fragment) {
 			for (const nested of child.children) appendToModal(modal, nested, ctx);
 			return;
 		}
-		if (child.type !== 'textInput') {
-			throw new Error('DUI modal children must be `textInput` elements.');
+
+		if (!possibleModalChildren.includes(child.type)) {
+			throw new Error(
+				`DUI modal children must be one of the supported elements: ${possibleModalChildren.map((v) => `\`${v}\``).join(', ')}.`,
+			);
 		}
-		const props = child.props as Intrinsics['textInput'];
-		const textInput = new TextInputBuilder()
-			.setCustomId(withPrefix(props.customId, ctx))
-			.setLabel(props.label)
-			.setStyle(props.style);
-		if (props.placeholder !== undefined) textInput.setPlaceholder(props.placeholder);
-		if (props.required !== undefined) textInput.setRequired(props.required);
-		if (props.minLength !== undefined) textInput.setMinLength(props.minLength);
-		if (props.maxLength !== undefined) textInput.setMaxLength(props.maxLength);
-		if (props.value !== undefined) textInput.setValue(props.value);
-		modal.addComponents(new ActionRowBuilder<TextInputBuilder>().addComponents(textInput));
+		if (child.type === 'text') {
+			const props = child.props as Intrinsics['text'];
+			modal.addTextDisplayComponents(new TextDisplayBuilder().setContent(props.content));
+			return;
+		}
+
+		modal.addLabelComponents(buildModalLabelFromChild(child, ctx));
 	}
 
 	function resolve(node: Child, ctx: RenderContext): ResolvedNode {
@@ -908,7 +1091,7 @@ export namespace Dui {
 		switch (node.type) {
 			case 'modal':
 			case 'textInput': {
-				throw new Error('`modal` and `textInput` are modal-only intrinsics. Use sequence.showModal(...).');
+				throw new Error('modal and textInput are modal-only intrinsics. Use sequence.showModal(...).');
 			}
 			case 'container': {
 				const builder = new ContainerBuilder();

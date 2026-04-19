@@ -216,6 +216,20 @@ export namespace Roblox {
 	// Discord connection
 
 	let roverLock = false;
+	let roverUnlockTimer: number | null = null;
+
+	function setRoverUnlock(newId: number, override: boolean) {
+		if (roverUnlockTimer && !override) {
+			Debug.error(
+				`Attempted to set a new RoVer unlock timer while one is already active, but override is false. New timer ID: ${newId}, existing timer ID: ${roverUnlockTimer}`,
+			);
+			return;
+		}
+		if (roverUnlockTimer) {
+			clearTimeout(roverUnlockTimer);
+		}
+		roverUnlockTimer = newId;
+	}
 
 	/**
 	 * Fetches Discord to Roblox data for multiple Discord users from the Rover API.
@@ -229,8 +243,8 @@ export namespace Roblox {
 	 */
 	export async function discordToRobloxData(guildId: string, discordIds: string[], retryNum: number = 0) {
 		if (!roverConfig) {
-			Debug.error('Rover config not found. Cannot fetch Discord to Roblox data.');
-			return [];
+			Debug.error('RoVer config not found. Cannot fetch Discord to Roblox data.');
+			throw new Error('RoVer config not found. Cannot fetch Discord to Roblox data.');
 		}
 		if (discordIds.length === 0) return [];
 		const existing = [] as DiscordToRobloxData[];
@@ -240,12 +254,14 @@ export namespace Roblox {
 		if (existing.length === discordIds.length) return existing;
 		if (roverLock) {
 			if (retryNum > 5) {
-				Debug.error('Exceeded maximum retry attempts for Rover API. Aborting fetch Discord -> Roblox.');
-				return [];
+				Debug.error(
+					`Exceeded maximum retry attempts for RoVer API. Aborting fetch Discord -> Roblox. (guild ID: ${guildId}, retry number: ${retryNum})`,
+				);
+				throw new Error('Exceeded maximum retry attempts for the RoVer API, it may be unavailable.');
 			}
 			const waitTime = 1000 * 2 ** retryNum;
 			Debug.error(
-				`Rover API is currently rate limited. Waiting ${waitTime}ms before retrying fetch Discord -> Roblox...`,
+				`RoVer API is currently rate limited. Waiting ${waitTime}ms before retrying fetch Discord -> Roblox... (guild ID: ${guildId}, retry number: ${retryNum})`,
 			);
 			await delayFor(waitTime); // Exponential backoff
 			return discordToRobloxData(guildId, discordIds, retryNum + 1);
@@ -277,12 +293,27 @@ export namespace Roblox {
 							if (isNaN(delayTime)) {
 								Debug.error(`Invalid retry-after header value: ${res!.headers['retry-after']}`);
 								roverLock = true;
-								_.delay(() => (roverLock = false), 60000); // Wait 1 minute before allowing retries again just in case
+								setRoverUnlock(
+									_.delay(() => (roverLock = false), 60000),
+									false,
+								); // Wait 1 minute before allowing retries again just in case
 								throw new Error('RoVer API rate limited but retry-after header is invalid');
 							}
 							roverLock = true;
+							if (delayTime >= 5 * 60 * 1000) {
+								setRoverUnlock(
+									_.delay(() => (roverLock = false), delayTime * 1000 + 500),
+									true,
+								); // Add extra 0.5s for safety
+								throw new Error(
+									`RoVer API rate limited with retry-after of over 5 minutes. The API may be overloaded.`,
+								);
+							}
+							setRoverUnlock(
+								_.delay(() => (roverLock = false), delayTime * 1000 + 500),
+								true,
+							); // Add extra 0.5s for safety
 							await delayFor(delayTime * 1000 + 500); // Add extra 0.5s for safety
-							roverLock = false;
 							return discordToRobloxData(guildId, [id], retryNum).then((data) => data[0]); // Retry the failed ID
 						} else if (res?.status === 404) {
 							throw new Error(

@@ -60,18 +60,13 @@ export class Guild extends Model<InferAttributes<Guild>, InferCreationAttributes
 	declare dpmGame: string | null;
 	/**
 	 * Invite URL to the server
+	 *
 	 * Only the second half (no discord.gg/)
+	 *
 	 * Overshoot 10 max characters for safety
 	 * */
-	get serverInvite(): string | null {
-		const code = this.getDataValue('serverInvite');
-		if (!code) return null;
-		return 'https://discord.gg/' + code;
-	}
-	/** Get invite URL */
-	get serverUrl(): NonAttribute<string | null> {
-		return this.getDataValue('serverInvite');
-	}
+	declare serverInvite: string | null;
+	declare serverUrl: string | null;
 
 	declare inactiveRoleId: string | null;
 	declare inSessionRoleId: string | null;
@@ -124,6 +119,17 @@ export function initGuildModel(sequelize: Sequelize) {
 			dpmChannelId: { allowNull: true, type: DataTypes.STRING(20) },
 			dpmGame: { allowNull: true, type: DataTypes.STRING(100) },
 			serverInvite: { allowNull: true, type: DataTypes.STRING(12) },
+			/** Get invite URL */
+			serverUrl: {
+				type: DataTypes.VIRTUAL,
+				get() {
+					const invite = this.getDataValue('serverInvite');
+					return invite ? `https://discord.gg/${invite}` : null;
+				},
+				set() {
+					throw new Error('serverUrl is a read-only virtual field');
+				},
+			},
 			inactiveRoleId: { allowNull: true, type: DataTypes.STRING(20) },
 			inSessionRoleId: { allowNull: true, type: DataTypes.STRING(20) },
 			tag: {

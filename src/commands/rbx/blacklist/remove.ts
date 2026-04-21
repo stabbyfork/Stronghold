@@ -44,6 +44,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		blacklister: null,
 		blacklistTime: null,
 		blacklistDuration: null,
+		blacklistExpiresAt: null,
 	});
 	Logging.quickInfo(interaction, `\`${userData.name}\` (\`${userId}\`) has been unblacklisted.`);
 	const avtr = await Roblox.idToAvatarBust(userId);

@@ -24,6 +24,7 @@ export class RobloxUser extends Model<InferAttributes<RobloxUser>, InferCreation
 	declare blacklistTime: Date | null;
 	/** Duration of the blacklist in seconds, or null if permanent or not blacklisted */
 	declare blacklistDuration: number | null;
+	declare blacklistExpiresAt: Date | null;
 
 	declare createdAt: CreationOptional<Date>;
 	declare updatedAt: CreationOptional<Date>;
@@ -42,6 +43,7 @@ export function initRobloxUserModel(sequelize: Sequelize) {
 			blacklister: { type: DataTypes.STRING(20), allowNull: true },
 			blacklistTime: { type: DataTypes.DATE, allowNull: true },
 			blacklistDuration: { type: DataTypes.BIGINT.UNSIGNED, allowNull: true },
+			blacklistExpiresAt: { type: DataTypes.DATE, allowNull: true },
 			createdAt: { type: DataTypes.DATE },
 			updatedAt: { type: DataTypes.DATE },
 		},

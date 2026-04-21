@@ -19,7 +19,14 @@ export default async (interaction: ChatInputCommandInteraction) => {
 		return;
 	}
 	await Data.models.RobloxUser.update(
-		{ blacklisted: false, blacklistReason: null, blacklister: null },
+		{
+			blacklisted: false,
+			blacklistReason: null,
+			blacklister: null,
+			blacklistTime: null,
+			blacklistDuration: null,
+			blacklistExpiresAt: null,
+		},
 		{ where: { guildId: guild.id } },
 	);
 	Logging.quickInfo(interaction, 'Cleared the Roblox user blacklist.');

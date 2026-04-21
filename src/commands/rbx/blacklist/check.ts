@@ -17,6 +17,7 @@ import { defaultEmbed } from '../../../utils/discordUtils.js';
 import { constructError, reportErrorToUser } from '../../../utils/errorsUtils.js';
 import { Roblox } from '../../../utils/robloxUtils.js';
 import { getOption, reportErrorIfNotSetup } from '../../../utils/subcommandsUtils.js';
+import { Op } from 'sequelize';
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.rbx.blacklist.check) => {
 	const guild = interaction.guild;
@@ -49,7 +50,12 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		const toReply = defaultEmbed();
 		if (avtr.state === 'Completed') toReply.setThumbnail(avtr.imageUrl);
 		const foundUsr = await Data.models.RobloxUser.findOne({
-			where: { guildId: guild.id, userId: userData.id.toString(), blacklisted: true },
+			where: {
+				guildId: guild.id,
+				userId: userData.id.toString(),
+				blacklisted: true,
+				blacklistExpiresAt: { [Op.or]: [{ [Op.lte]: new Date() }, { [Op.eq]: null }] },
+			},
 			attributes: ['blacklistReason', 'blacklister', 'blacklistTime', 'blacklistDuration'],
 		});
 		// Implied to be blacklisted
@@ -103,7 +109,12 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			return;
 		}
 		const inBlacklist = await Data.models.RobloxUser.findAll({
-			where: { guildId: guild.id, userId: userDatas.map((d) => d.id.toString()), blacklisted: true },
+			where: {
+				guildId: guild.id,
+				userId: userDatas.map((d) => d.id.toString()),
+				blacklisted: true,
+				blacklistExpiresAt: { [Op.or]: [{ [Op.lte]: new Date() }, { [Op.eq]: null }] },
+			},
 		});
 		const avatarBusts = await Roblox.idsToAvatarBusts(...userDatas.map((d) => d.id));
 		const toReply = new ContainerBuilder()

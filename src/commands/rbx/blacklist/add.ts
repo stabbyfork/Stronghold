@@ -10,6 +10,7 @@ import { Roblox } from '../../../utils/robloxUtils.js';
 import { Logging } from '../../../utils/loggingUtils.js';
 import ms from 'ms';
 import parseDur from 'parse-duration';
+import { Op } from 'sequelize';
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.rbx.blacklist.add) => {
 	const guild = interaction.guild;
@@ -35,7 +36,12 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	const userId = userData.id;
 	if (
 		await Data.models.RobloxUser.findOne({
-			where: { guildId: guild.id, userId: userId.toString(), blacklisted: true },
+			where: {
+				guildId: guild.id,
+				userId: userId.toString(),
+				blacklisted: true,
+				blacklistExpiresAt: { [Op.or]: [{ [Op.lte]: new Date() }, { [Op.eq]: null }] },
+			},
 		})
 	) {
 		await reportErrorToUser(interaction, constructError([ErrorReplies.UserAlreadyBlacklisted]), true);
@@ -75,6 +81,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		blacklister: interaction.user.id,
 		blacklistTime: new Date(),
 		blacklistDuration: durationSeconds,
+		blacklistExpiresAt: durationSeconds ? new Date(Date.now() + durationSeconds * 1000) : null,
 	});
 	Logging.quickInfo(
 		interaction,

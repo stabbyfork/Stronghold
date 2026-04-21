@@ -40,7 +40,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				guildId: guild.id,
 				userId: userId.toString(),
 				blacklisted: true,
-				blacklistExpiresAt: { [Op.or]: [{ [Op.lte]: new Date() }, { [Op.eq]: null }] },
+				blacklistExpiresAt: { [Op.or]: [{ [Op.gt]: new Date() }, { [Op.eq]: null }] },
 			},
 		})
 	) {

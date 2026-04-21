@@ -8,6 +8,7 @@ import { getOption, reportErrorIfNotSetup } from '../../../utils/subcommandsUtil
 import { defaultEmbed } from '../../../utils/discordUtils.js';
 import { Roblox } from '../../../utils/robloxUtils.js';
 import { Logging } from '../../../utils/loggingUtils.js';
+import { Op } from 'sequelize';
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.rbx.blacklist.remove) => {
 	const guild = interaction.guild;
@@ -32,7 +33,12 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	}
 	const userId = userData.id;
 	const dbRbxUser = await Data.models.RobloxUser.findOne({
-		where: { guildId: guild.id, userId: userId.toString(), blacklisted: true },
+		where: {
+			guildId: guild.id,
+			userId: userId.toString(),
+			blacklisted: true,
+			blacklistExpiresAt: { [Op.or]: [{ [Op.gt]: new Date() }, { [Op.eq]: null }] },
+		},
 	});
 	if (!dbRbxUser) {
 		await reportErrorToUser(interaction, constructError([ErrorReplies.UserNotBlacklisted]), true);

@@ -54,9 +54,9 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				guildId: guild.id,
 				userId: userData.id.toString(),
 				blacklisted: true,
-				blacklistExpiresAt: { [Op.or]: [{ [Op.lte]: new Date() }, { [Op.eq]: null }] },
+				blacklistExpiresAt: { [Op.or]: [{ [Op.gt]: new Date() }, { [Op.eq]: null }] },
 			},
-			attributes: ['blacklistReason', 'blacklister', 'blacklistTime', 'blacklistDuration'],
+			attributes: ['blacklistReason', 'blacklister', 'blacklistTime', 'blacklistDuration', 'blacklistExpiresAt'],
 		});
 		// Implied to be blacklisted
 		if (foundUsr) {
@@ -113,7 +113,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				guildId: guild.id,
 				userId: userDatas.map((d) => d.id.toString()),
 				blacklisted: true,
-				blacklistExpiresAt: { [Op.or]: [{ [Op.lte]: new Date() }, { [Op.eq]: null }] },
+				blacklistExpiresAt: { [Op.or]: [{ [Op.gt]: new Date() }, { [Op.eq]: null }] },
 			},
 		});
 		const avatarBusts = await Roblox.idsToAvatarBusts(...userDatas.map((d) => d.id));

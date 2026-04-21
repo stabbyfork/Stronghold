@@ -1,4 +1,15 @@
-import { ChatInputCommandInteraction, ContainerBuilder, MessageFlags, SectionBuilder, userMention } from 'discord.js';
+import { Dui } from '@dui/core.js';
+import {
+	ChatInputCommandInteraction,
+	ContainerBuilder,
+	MessageFlags,
+	SectionBuilder,
+	TextDisplayBuilder,
+	time,
+	TimestampStyles,
+	userMention,
+} from 'discord.js';
+import ms from 'ms';
 import { commandOptions } from '../../../cmdOptions.js';
 import { Data } from '../../../data.js';
 import { ErrorReplies } from '../../../types/errors.js';
@@ -39,30 +50,46 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		if (avtr.state === 'Completed') toReply.setThumbnail(avtr.imageUrl);
 		const foundUsr = await Data.models.RobloxUser.findOne({
 			where: { guildId: guild.id, userId: userData.id.toString(), blacklisted: true },
-			attributes: ['blacklistReason', 'blacklister'],
+			attributes: ['blacklistReason', 'blacklister', 'blacklistTime', 'blacklistDuration'],
 		});
 		// Implied to be blacklisted
 		if (foundUsr) {
 			await interaction.reply({
-				embeds: [
-					toReply
-						.setTitle('User is blacklisted')
-						.setDescription(
-							`\`${userData.displayName}\` (\`${userData.name}\`/\`${userData.id}\`) is blacklisted by ${userMention(foundUsr.blacklister!)}. Reason: ${foundUsr.blacklistReason ?? 'none.'}`,
-						)
-						.setColor('Red'),
-				],
+				...Dui.render(
+					Dui.createContainer(
+						{
+							accentColor: 'Red',
+						},
+						Dui.createText('## User is blacklisted'),
+						Dui.h(
+							'section',
+							avtr.state === 'Completed' ? { accessory: Dui.h('thumbnail', { url: avtr.imageUrl }) } : {},
+							Dui.createText(
+								`**Blacklist details**\n- Reason: ${foundUsr.blacklistReason ?? 'none.'}\n- Blacklisted on ${time(foundUsr.blacklistTime!, TimestampStyles.LongDateShortTime)} ${foundUsr.blacklistDuration ? `for ${ms(foundUsr.blacklistDuration * 1000, { long: true })}` : 'permanently'}\n- By ${userMention(foundUsr.blacklister!)}`,
+							),
+						),
+					),
+				),
+				allowedMentions: { users: [], roles: [] },
 			});
 		} else {
 			await interaction.reply({
-				embeds: [
-					toReply
-						.setTitle('User is not blacklisted')
-						.setDescription(
-							`\`${userData.displayName}\` (\`${userData.name}\`/\`${userData.id}\`) is not blacklisted.`,
-						)
-						.setColor('Green'),
-				],
+				...Dui.render(
+					Dui.createContainer(
+						{
+							accentColor: 'Green',
+						},
+						Dui.createText('## User is not blacklisted'),
+						Dui.h(
+							'section',
+							avtr.state === 'Completed' ? { accessory: Dui.h('thumbnail', { url: avtr.imageUrl }) } : {},
+							Dui.createText(
+								`\`${userData.displayName}\` (\`${userData.name}\`/\`${userData.id}\`) is not blacklisted.`,
+							),
+						),
+					),
+				),
+				allowedMentions: { users: [], roles: [] },
 			});
 		}
 	} else {
@@ -84,12 +111,22 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			.addSectionComponents(
 				...userDatas.map((d) => {
 					const usrId = d.id.toString();
-					const isBlacklisted = inBlacklist.find((b) => b.userId === usrId);
+					const blData = inBlacklist.find((b) => b.userId === usrId);
 					const avtr = avatarBusts.find((b) => b.targetId === d.id);
-					const section = new SectionBuilder().addTextDisplayComponents((text) =>
-						text.setContent(
-							`${isBlacklisted ? ':warning:' : ':white_check_mark:'} \`${d.displayName}\` (\`${d.name}\`/\`${d.id}\`)${isBlacklisted ? ` **is** blacklisted :warning: Reason: ${isBlacklisted.blacklistReason ?? 'none.'}` : ' **is not** blacklisted :white_check_mark:'}`,
-						),
+
+					const section = new SectionBuilder().addTextDisplayComponents(
+						(text) =>
+							text.setContent(
+								`${blData ? ':warning:' : ':white_check_mark:'} \`${d.displayName}\` (\`${d.name}\`/\`${d.id}\`)${blData ? ` **is** blacklisted :warning: Reason: ${blData.blacklistReason ?? 'none.'}` : ' **is not** blacklisted :white_check_mark:'}`,
+							),
+						...(blData
+							? [
+									(text: TextDisplayBuilder) =>
+										text.setContent(
+											`-# Blacklisted on ${time(blData.blacklistTime!, TimestampStyles.LongDateShortTime)} ${blData.blacklistDuration ? `for ${ms(blData.blacklistDuration * 1000, { long: true })}` : 'permanently'} by ${userMention(blData.blacklister!)}`,
+										),
+								]
+							: []),
 					);
 					if (avtr?.state === 'Completed')
 						section.setThumbnailAccessory((thumb) => thumb.setURL(avtr.imageUrl));
@@ -99,6 +136,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		await interaction.reply({
 			components: [toReply],
 			flags: MessageFlags.IsComponentsV2,
+			allowedMentions: { users: [], roles: [] },
 		});
 	}
 };

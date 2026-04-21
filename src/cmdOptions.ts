@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON FRI, 17 APR 2026 16:43:55 GMT WITH 14 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON TUE, 21 APR 2026 16:55:10 GMT WITH 14 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct } from "./types/commandTypes.js";
 
@@ -467,6 +467,10 @@ rbx: {
         "required": true
       },
       "reason": {
+        "type": "string",
+        "required": false
+      },
+      "duration": {
         "type": "string",
         "required": false
       }

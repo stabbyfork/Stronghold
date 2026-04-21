@@ -30,8 +30,8 @@ export const ErrorReplies = {
 	MustBeServerOwner: 'You must be the server owner to use this command.',
 	ActivityCheckExists: 'An activity check already exists in this guild. Please delete that one first.',
 	InvalidTimeFormat: 'Invalid time format, could not parse. Use this format: `10m`, `5h`, `1d`, etc.',
-	DurationTooShort: 'Duration too short.',
-	DurationTooLong: 'Duration too long.',
+	DurationTooShort: 'Duration is too short.',
+	DurationTooLong: 'Duration is too long.',
 	NotSetup: 'This server is not set up. Please run `/setup` first.',
 	InvalidSequence:
 		'Invalid activity check sequence. Please check the format and try again. See `/activity checks info` for more information.',

@@ -28,6 +28,8 @@ import {
 	TextInputStyle,
 	UserSelectMenuBuilder,
 	LabelBuilder,
+	ComponentBuilder,
+	MessageReplyOptions,
 } from 'discord.js';
 
 export namespace Dui {
@@ -350,7 +352,7 @@ export namespace Dui {
 	 * Contains ContainerBuilder instances and the Components V2 flag.
 	 */
 	export interface RenderOutput {
-		components: [ContainerBuilder];
+		components: ContainerBuilder[];
 		flags: MessageFlags.IsComponentsV2;
 	}
 
@@ -668,7 +670,7 @@ export namespace Dui {
 		}
 
 		private async editMessage(view?: Child): Promise<void> {
-			if (!this.currentMessage) throw new Error('Cannot edit DUI runtime without an attached message.');
+			if (!this.currentMessage) throw new Error('Cannot edit DUI runtime without an attached message');
 			const payload = await this.buildPayload(view);
 			await this.currentMessage.edit({ components: payload.components, flags: payload.flags });
 		}

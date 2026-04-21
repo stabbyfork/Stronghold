@@ -38,7 +38,13 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		await reportErrorToUser(interaction, constructError([ErrorReplies.UserNotBlacklisted]), true);
 		return;
 	}
-	await dbRbxUser.update({ blacklisted: false, blacklistReason: null });
+	await dbRbxUser.update({
+		blacklisted: false,
+		blacklistReason: null,
+		blacklister: null,
+		blacklistTime: null,
+		blacklistDuration: null,
+	});
 	Logging.quickInfo(interaction, `\`${userData.name}\` (\`${userId}\`) has been unblacklisted.`);
 	const avtr = await Roblox.idToAvatarBust(userId);
 	const toReply = defaultEmbed()
@@ -48,6 +54,5 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	if (avtr.state === 'Completed') toReply.setThumbnail(avtr.imageUrl);
 	await interaction.reply({
 		embeds: [toReply],
-		flags: MessageFlags.Ephemeral,
 	});
 };

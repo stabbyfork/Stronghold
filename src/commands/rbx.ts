@@ -43,6 +43,14 @@ export default createCommand<{}, 'rbx'>({
 								.setRequired(false)
 								.setMinLength(1)
 								.setMaxLength(128),
+						)
+						.addStringOption((option) =>
+							option
+								.setName('duration')
+								.setDescription(
+									'Duration of the blacklist in 1d 2h 3m format. Leave empty for a permanent blacklist',
+								)
+								.setRequired(false),
 						),
 				)
 				.addSubcommand((cmd) =>

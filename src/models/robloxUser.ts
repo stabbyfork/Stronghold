@@ -20,6 +20,10 @@ export class RobloxUser extends Model<InferAttributes<RobloxUser>, InferCreation
 	declare blacklistReason: string | null;
 	/** Discord user ID of who blacklisted them */
 	declare blacklister: string | null;
+	/** Time when the user was blacklisted */
+	declare blacklistTime: Date | null;
+	/** Duration of the blacklist in seconds, or null if permanent or not blacklisted */
+	declare blacklistDuration: number | null;
 
 	declare createdAt: CreationOptional<Date>;
 	declare updatedAt: CreationOptional<Date>;
@@ -36,6 +40,8 @@ export function initRobloxUserModel(sequelize: Sequelize) {
 			blacklisted: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
 			blacklistReason: { type: DataTypes.STRING(128), allowNull: true },
 			blacklister: { type: DataTypes.STRING(20), allowNull: true },
+			blacklistTime: { type: DataTypes.DATE, allowNull: true },
+			blacklistDuration: { type: DataTypes.BIGINT.UNSIGNED, allowNull: true },
 			createdAt: { type: DataTypes.DATE },
 			updatedAt: { type: DataTypes.DATE },
 		},

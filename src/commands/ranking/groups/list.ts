@@ -25,6 +25,10 @@ export default async (interaction: ChatInputCommandInteraction) => {
 		order: [['name', 'ASC']],
 		include: [RoleGroupAssociations.Roles],
 	});
+	if (roleGroups.length === 0) {
+		await reportErrorToUser(interaction, constructError([ErrorReplies.NoRoleGroups]), true);
+		return;
+	}
 	const pages = new Pages({
 		itemsPerPage: 10,
 		totalItems: roleGroups.length,

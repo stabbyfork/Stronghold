@@ -130,6 +130,7 @@ export const ErrorReplies = {
 		'No Roblox accounts linked to the provided Discord IDs were found.\nDoes the server have the RoVer bot installed? Install it and verify here: https://rover.link\nOtherwise, an issue may have occurred with the RoVer bot or the Roblox API.',
 	FailedToFetchRobloxDataForDiscordIds:
 		'Failed to fetch Roblox accounts linked to the provided Discord IDs:\n!{ERROR}\nPlease check the error and try again. If the problem persists, contact support.',
+	NoRoleGroups: 'No role groups found. Create one with `/ranking groups create`.',
 } as const;
 
 export namespace Errors {

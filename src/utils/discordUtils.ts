@@ -552,7 +552,7 @@ export async function listGuilds(
 				section.addTextDisplayComponents(
 					(text) =>
 						text.setContent(
-							`### ${t.priority > 0 ? ':star: ' : ''}${g.name}\nTag: \`${t.tag}\`${t.dpmGame ? ` | Game: \`${t.dpmGame}\`` : ''}${t.serverInvite ? ` | Invite: [${t.serverUrl}](${t.serverInvite})` : ''}\nMembers: ${g.memberCount} | Owner: ${userMention(g.ownerId)}`,
+							`### ${t.priority > 0 ? ':star: ' : ''}${g.name}\nTag: \`${t.tag}\`${t.dpmGame ? ` | Game: \`${t.dpmGame}\`` : ''}${t.serverInvite ? ` | Invite: [${t.serverInvite}](${t.serverUrl})` : ''}\nMembers: ${g.memberCount} | Owner: ${userMention(g.ownerId)}`,
 						),
 					(text) =>
 						text.setContent(

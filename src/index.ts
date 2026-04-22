@@ -56,7 +56,7 @@ async function runActivityChecks() {
 			},
 			paused: false,
 			// Run with a 30 minute precision
-			[Op.and]: literal(`(lastRun + interval) <= (1800 + ${intDiv(Date.now(), 1000)})`), // Due in the next 30 minutes
+			[Op.and]: literal(`(\`lastRun\` + \`interval\`) <= (1800 + ${intDiv(Date.now(), 1000)})`), // Due in the next 30 minutes
 		},
 	});
 	const gen = (function* () {

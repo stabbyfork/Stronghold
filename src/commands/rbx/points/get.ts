@@ -9,7 +9,7 @@ import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
 import { Roblox } from '../../../utils/robloxUtils.js';
 import { reportErrorIfNotSetup, getOption } from '../../../utils/subcommandsUtils.js';
 
-export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.rbx.blacklist.remove) => {
+export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.rbx.points.get) => {
 	const guild = interaction.guild;
 	if (!guild) {
 		await reportErrorToUser(interaction, constructError([ErrorReplies.InteractionHasNoGuild]), true);

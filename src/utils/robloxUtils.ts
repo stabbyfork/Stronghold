@@ -300,7 +300,7 @@ export namespace Roblox {
 								throw new Error('RoVer API rate limited but retry-after header is invalid');
 							}
 							roverLock = true;
-							if (delayTime >= 5 * 60 * 1000) {
+							if (delayTime >= 5 * 60) {
 								setRoverUnlock(
 									_.delay(() => (roverLock = false), delayTime * 1000 + 500),
 									true,
@@ -317,7 +317,7 @@ export namespace Roblox {
 							return discordToRobloxData(guildId, [id], retryNum).then((data) => data[0]); // Retry the failed ID
 						} else if (res?.status === 404) {
 							throw new Error(
-								`Discord user ${userMention(id)} (id: \`${id}\`) not found in the RoVer database for this server. Is the user verified with RoVer? They can verify here: https://rover.link`,
+								`Discord user ${userMention(id)} (id: \`${id}\`) not found in the RoVer database for this server. Is the user verified with RoVer? They can verify here: https://rover.link\n-# They may also need to use RoVer's /privacy to allow third-party access.`,
 							);
 						} else if (res?.status === 403) {
 							Debug.error(

@@ -278,7 +278,7 @@ export namespace Data {
 			logType: Logging.Type.Info,
 			extents: [GuildFlag.LogInfo],
 			data: { guildId },
-			formatData: `User ${userMention(user.userId)} was promoted to rank ${bestRank.name}`,
+			formatData: `User ${userMention(user.userId)} was promoted to rank \`${bestRank.name}\``,
 		});
 
 		return bestRank;

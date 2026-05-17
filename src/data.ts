@@ -24,6 +24,8 @@ import { RoleData } from './models/roleData.js';
 import { RoleGroup } from './models/roleGroup.js';
 import { initialiseModels } from './models/initModels.js';
 import { ENV } from './env.js';
+import { Logging } from './utils/loggingUtils.js';
+import { GuildFlag } from './utils/guildFlagsUtils.js';
 
 const dbConfg = Config.get('database');
 
@@ -272,6 +274,12 @@ export namespace Data {
 			await member.roles.add(bestRank.roleId, 'Promoted to new rank.');
 			if (currentRank) await member.roles.remove(currentRank.roleId, 'Promoted to new rank.');
 		}
+		Logging.log({
+			logType: Logging.Type.Info,
+			extents: [GuildFlag.LogInfo],
+			data: { guildId },
+			formatData: `User ${userMention(user.userId)} was promoted to rank ${bestRank.name}`,
+		});
 
 		return bestRank;
 	}

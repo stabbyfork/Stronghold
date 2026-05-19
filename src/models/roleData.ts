@@ -56,7 +56,7 @@ export function initRoleDataModel(sequelize: Sequelize) {
 
 		RoleData.addHook('afterDestroy', async (roleData: RoleData) => {
 			if (!roleData.prefix) return;
-			const guildPrefixes = Prefix.prefixCache.get(roleData.guildId);
+			const guildPrefixes = Prefix.rolePrefixCache.get(roleData.guildId);
 			if (!guildPrefixes) return;
 			guildPrefixes.delete(roleData.roleId);
 		});

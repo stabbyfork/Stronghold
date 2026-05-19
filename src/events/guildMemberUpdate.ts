@@ -11,7 +11,7 @@ export default createEvent({
 			return;
 		}
 		const guild = newMember.guild;
-		let prefixCache = Prefix.prefixCache.get(guild.id) ?? (await Prefix.loadGuildPrefixes(guild.id));
+		let prefixCache = Prefix.rolePrefixCache.get(guild.id) ?? (await Prefix.loadGuildPrefixes(guild.id));
 		if (prefixCache.size === 0) {
 			// No prefixes set up for this guild
 			return;

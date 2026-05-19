@@ -63,6 +63,10 @@ export namespace Prefix {
 		if (oldPrefix && oldDisplay.startsWith(oldPrefix)) {
 			noPrefixName = oldDisplay.slice(oldPrefix.length).trim();
 		}
+		if (newPrefix && noPrefixName.startsWith(newPrefix)) {
+			// New prefix is already present, no need to update
+			return true;
+		}
 		const newDisplay = newPrefix ? `${newPrefix} ${noPrefixName}` : noPrefixName;
 		if (newDisplay.length >= 32) {
 			Logging.log({

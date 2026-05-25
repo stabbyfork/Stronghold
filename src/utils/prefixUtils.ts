@@ -86,6 +86,7 @@ export namespace Prefix {
 				formatData: {
 					msg: `Member ${userMention(member.id)} has a new nickname that would exceed Discord's maximum length of 32 characters. Their prefix will be removed.`,
 					action: 'Member prefix update',
+					cause: `New nickname would be "${newDisplay}" with length ${newDisplay.length}`,
 					userId: member.id,
 				},
 				data: { guildId: member.guild.id },
@@ -101,7 +102,7 @@ export namespace Prefix {
 					extents: [GuildFlag.LogWarnings],
 					formatData: {
 						msg: `Failed to remove prefix for member ${userMention(member.id)} as the new nickname would exceed Discord's maximum length of 32 characters. The bot is possibly missing the permission to rename members (Manage Nicknames). The user may be above the bot in the role hierarchy (or might be the server owner).`,
-						action: 'Member prefix removal',
+						action: 'Member prefix update -> reset prefix',
 						cause: (e as Error).message,
 						userId: member.id,
 					},

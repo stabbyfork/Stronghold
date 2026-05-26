@@ -41,7 +41,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			const users = await Data.models.User.findAll({ where: { mainRankId: rankId }, transaction });
 			await rank.destroy({ transaction });
 			for (const user of users) {
-				await Data.promoteUser(user);
+				await Data.promoteUser(user, transaction);
 			}
 		});
 	} catch (error) {
@@ -49,7 +49,14 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	}
 
 	await interaction.reply({
-		embeds: [defaultEmbed().setTitle('Success').setDescription(`Removed rank ${rank.name}.`).setColor('Green')],
+		embeds: [
+			defaultEmbed()
+				.setTitle('Success')
+				.setDescription(
+					`Removed rank ${rank.name} (${roleMention(rank.roleId)}). This does not automatically remove the rank from users!`,
+				)
+				.setColor('Green'),
+		],
 	});
 	Logging.quickInfo(interaction, `Removed rank ${rank.name}.`);
 };

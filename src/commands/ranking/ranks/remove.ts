@@ -20,7 +20,14 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		await reportErrorToUser(interaction, constructError([ErrorReplies.InteractionHasNoMember]), true);
 		return;
 	}
-	if (!(await hasPermissions(member, guild, true, Permission.ManageRanks))) return;
+	if (!(await hasPermissions(member, guild, true, Permission.ManageRanks))) {
+		await reportErrorToUser(
+			interaction,
+			constructError([ErrorReplies.PermissionsNeededSubstitute], Permission.ManageRanks),
+			true,
+		);
+		return;
+	}
 	const name = getOption(interaction, args, 'rank');
 	const rank = await Data.models.Rank.findOne({ where: { guildId: guild.id, name } });
 	if (!rank) {

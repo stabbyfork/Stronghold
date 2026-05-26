@@ -30,10 +30,11 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	try {
 		// May error
 		await Data.mainDb.transaction(async (transaction) => {
-			for (const user of await Data.models.User.findAll({ where: { mainRankId: rank.rankId }, transaction })) {
+			const rankId = rank.rankId;
+			await rank.destroy({ transaction });
+			for (const user of await Data.models.User.findAll({ where: { mainRankId: rankId }, transaction })) {
 				await Data.promoteUser(user);
 			}
-			await rank.destroy({ transaction });
 		});
 	} catch (error) {
 		await reportErrorToUser(interaction, `Failed to remove rank ${rank.name}. Error: ${error}`, true);

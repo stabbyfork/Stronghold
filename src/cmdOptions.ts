@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON TUE, 21 APR 2026 16:55:10 GMT WITH 14 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON TUE, 26 MAY 2026 19:00:56 GMT WITH 14 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct } from "./types/commandTypes.js";
 
@@ -372,6 +372,10 @@ ranking: {
     "remove": {
       "rank": {
         "type": "string",
+        "required": true
+      },
+      "remove_role": {
+        "type": "boolean",
         "required": true
       }
     },

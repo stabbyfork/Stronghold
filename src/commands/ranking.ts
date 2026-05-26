@@ -308,6 +308,12 @@ export default createCommand<{}, 'ranking'>({
 								.setRequired(true)
 								.setMaxLength(100)
 								.setAutocomplete(true),
+						)
+						.addBooleanOption((option) =>
+							option
+								.setName('remove_role')
+								.setDescription('Whether to also remove the role associated with this rank from users')
+								.setRequired(true),
 						),
 				)
 				.addSubcommand((cmd) =>

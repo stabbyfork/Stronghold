@@ -29,6 +29,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		return;
 	}
 	const name = getOption(interaction, args, 'rank');
+	const removeRole = getOption(interaction, args, 'remove_role');
 	const rank = await Data.models.Rank.findOne({ where: { guildId: guild.id, name } });
 	if (!rank) {
 		await reportErrorToUser(interaction, constructError([ErrorReplies.RankNotFoundSubstitute], name), true);
@@ -42,6 +43,15 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			await rank.destroy({ transaction });
 			for (const user of users) {
 				await Data.promoteUser(user, transaction);
+				if (removeRole) {
+					const member = await guild.members.fetch(user.userId).catch(() => null);
+					if (!member) continue;
+					await member.roles.remove(rank.roleId).catch(() => null);
+					Logging.quickInfo(
+						interaction,
+						`Removed role ${rank.roleId} from user ${user.userId} due to rank removal.`,
+					);
+				}
 			}
 		});
 	} catch (error) {
@@ -53,7 +63,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			defaultEmbed()
 				.setTitle('Success')
 				.setDescription(
-					`Removed rank ${rank.name} (${roleMention(rank.roleId)}). This does not automatically remove the rank from users!`,
+					`Removed rank ${rank.name} (${roleMention(rank.roleId)}). ${removeRole ? 'The associated role has also been removed from users' : 'The associated role was not removed from users'} and was not deleted from the server.`,
 				)
 				.setColor('Green'),
 		],

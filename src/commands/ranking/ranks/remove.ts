@@ -31,8 +31,9 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		// May error
 		await Data.mainDb.transaction(async (transaction) => {
 			const rankId = rank.rankId;
+			const users = await Data.models.User.findAll({ where: { mainRankId: rankId }, transaction });
 			await rank.destroy({ transaction });
-			for (const user of await Data.models.User.findAll({ where: { mainRankId: rankId }, transaction })) {
+			for (const user of users) {
 				await Data.promoteUser(user);
 			}
 		});

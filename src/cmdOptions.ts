@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON TUE, 26 MAY 2026 19:00:56 GMT WITH 14 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON SAT, 30 MAY 2026 09:25:16 GMT WITH 14 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct } from "./types/commandTypes.js";
 
@@ -801,7 +801,8 @@ rbx: {
     add_d: T,
     list: T,
     remove: T,
-    get: T
+    get: T,
+    export: T
   }
 },
 session: {

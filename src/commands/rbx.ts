@@ -138,6 +138,9 @@ export default createCommand<{}, 'rbx'>({
 								.setRequired(true)
 								.setAutocomplete(true),
 						),
+				)
+				.addSubcommand((cmd) =>
+					cmd.setName('export').setDescription('Export the points of all Roblox users to a CSV file'),
 				),
 		),
 	description: {
@@ -176,6 +179,14 @@ export default createCommand<{}, 'rbx'>({
 				scope: UsageScope.GuildMember,
 				intervalMs: 20 * 1000,
 				usesPerInterval: 4,
+			},
+		},
+		points: {
+			export: {
+				useCooldown: 5 * 1000,
+				scope: UsageScope.GuildAll,
+				intervalMs: 5 * 60 * 1000,
+				usesPerInterval: 1,
 			},
 		},
 	},

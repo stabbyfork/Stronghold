@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON TUE, 26 MAY 2026 19:00:56 GMT WITH 14 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON SAT, 30 MAY 2026 09:25:16 GMT WITH 14 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct, CommandExecute } from './types/commandTypes.js';
 
@@ -87,6 +87,7 @@ import rbx_points_add_d from './commands/rbx/points/add_d.js';
 import rbx_points_list from './commands/rbx/points/list.js';
 import rbx_points_remove from './commands/rbx/points/remove.js';
 import rbx_points_get from './commands/rbx/points/get.js';
+import rbx_points_export from './commands/rbx/points/export.js';
 import session_status from './commands/session/status.js';
 import session_start from './commands/session/start.js';
 import session_quickstart from './commands/session/quickstart.js';
@@ -225,7 +226,8 @@ rbx: {
     add_d: rbx_points_add_d,
     list: rbx_points_list,
     remove: rbx_points_remove,
-    get: rbx_points_get
+    get: rbx_points_get,
+    export: rbx_points_export
   }
 },
 session: {

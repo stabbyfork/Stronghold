@@ -303,7 +303,7 @@ export namespace RbxUtils {
 				.get(path.posix.join(roverConfig.baseApiUrl, `/guilds/${guildId}/discord-to-roblox/${id}`), {
 					headers: { Authorization: `Bearer ${roverConfig.token}` },
 					timeout: 10000,
-					timeoutErrorMessage: 'Request to RoVer API timed out.',
+					timeoutErrorMessage: 'Request to RoVer API timed out after 10 seconds',
 				})
 				.then(
 					async (res) => {

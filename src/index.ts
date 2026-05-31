@@ -241,17 +241,12 @@ tx2.action('logUpdate', {}, async (params, reply) => {
 tx2.action('convertRbxPointsToRankingPoints', async (reply) => {
 	// One-off thing for a server that wants to convert their existing Roblox points to the ranking points system
 	const guildId = '1383789120320704573';
-	const robloxUsers = await Data.models.RobloxUser.findAll({ where: { guildId } });
-	const usrs = await RbxUtils.discordToRobloxData(
-		guildId,
-		robloxUsers.map((u) => u.userId),
-	);
-	console.log(
-		`Converting points for ${robloxUsers.length} users in guild ${guildId}, mapping ${usrs.length} users from Roblox to Discord`,
-	);
-	const rbxToDisMap = new Map(usrs.map((u) => [u.robloxId, u.discordId]));
+	const robloxUsers = await Data.models.RobloxUser.findAll({ where: { guildId, points: { [Op.gt]: 0 } } });
+	console.log(`Converting points for ${robloxUsers.length} users in guild ${guildId}`);
 	for (const rbxUser of robloxUsers) {
-		const discordId = rbxToDisMap.get(Number(rbxUser.userId));
+		const discordId = await RbxUtils.discordToRobloxData(guildId, [rbxUser.userId]).then(
+			(data) => data[0]?.discordId,
+		);
 		if (!discordId) {
 			Debug.error(`No Discord ID found for Roblox user ${rbxUser.userId} during points conversion`);
 			continue;
@@ -265,6 +260,7 @@ tx2.action('convertRbxPointsToRankingPoints', async (reply) => {
 		console.log(
 			`Converted points for Roblox user ${rbxUser.userId} (Discord ID ${discordId}): ${rbxUser.points} -> ${user.points}`,
 		);
+		await delayFor(1000);
 	}
 	reply({ success: true, converted: robloxUsers.length });
 	console.log(`Finished converting points for ${robloxUsers.length} users in guild ${guildId}`);

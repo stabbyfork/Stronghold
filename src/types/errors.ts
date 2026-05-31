@@ -127,7 +127,7 @@ export const ErrorReplies = {
 	GroupHasRoleHigherThanUser:
 		'This group has a role that is higher than or equal to your highest role. You cannot approve groups that have roles higher than or equal to your highest role.',
 	NoRobloxAccountsFoundForDiscordIds:
-		'No Roblox accounts linked to the provided Discord IDs were found.\nDoes the server have the RoVer bot installed? Install it and verify here: https://rover.link\nOtherwise, an issue may have occurred with the RoVer bot or the Roblox API.',
+		"No Roblox accounts linked to the provided Discord IDs were found.\nDoes the server have the RoVer bot installed? Install it and verify here: https://rover.link\nOtherwise, an issue may have occurred with the RoVer bot or the Roblox API, see the logs for more information.\n-# The users may also need to use RoVer's /privacy to allow third-party access.",
 	FailedToFetchRobloxDataForDiscordIds:
 		'Failed to fetch Roblox accounts linked to the provided Discord IDs:\n!{ERROR}\nPlease check the error and try again. If the problem persists, contact support.',
 	NoRoleGroups: 'No role groups found. Create one with `/ranking groups create`.',

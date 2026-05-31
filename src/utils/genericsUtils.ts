@@ -184,4 +184,184 @@ export function delayFor(timeInMillis: number): Promise<void> {
 	return new Promise((resolve) => setTimeout(() => resolve(), timeInMillis));
 }
 
+/**
+ * A Map-based FIFO queue data structure that allows for multiple queues identified by keys.
+ * NOT THREAD-SAFE
+ * @typeParam K - The type of the keys used to identify different queues.
+ * @typeParam V - The type of the values stored in the queues.
+ */
+export class MapQueue<K, V> {
+	private map = new Map<K, V[]>();
+	private highestIndex = new Map<K, number>();
+	private lowestIndex = new Map<K, number>();
+	/** A set of keys that are currently locked (no read/write) */
+	private lockBits = new Set<K>();
+	/** A map of listeners for when values are removed from the queues, return true to disconnect the listener */
+	private removalListeners = new Map<K, ((val: V | undefined) => boolean)[]>();
+	/** FIFO order of keys */
+	private keyOrder = [] as K[];
+	private keyOrderLock = false;
+
+	/**
+	 * Adds a value to the end of the queue identified by the given key.
+	 * If the queue does not exist, it is created.
+	 * @param key - The key identifying the queue to which the value should be added.
+	 * @param value - The value to add to the queue.
+	 */
+	push(key: K, value: V) {
+		if (this.lockBits.has(key)) {
+			throw new Error(`Cannot push to queue with key ${key} because it is locked`);
+		}
+		this.lockBits.add(key);
+		if (!this.map.has(key)) {
+			this.map.set(key, []);
+		}
+		this.map.get(key)!.push(value);
+		this.highestIndex.set(key, (this.highestIndex.get(key) ?? -1) + 1);
+		if (!this.lowestIndex.has(key)) {
+			this.lowestIndex.set(key, 0);
+		}
+		this.keyOrder.push(key);
+		this.lockBits.delete(key);
+	}
+
+	/**
+	 * Removes and returns the value at the front of the queue identified by the given key.
+	 * If the queue is empty or does not exist, it returns `undefined`.
+	 * @param key - The key identifying the queue from which to remove the value.
+	 * @returns The value at the front of the queue, or `undefined` if the queue is empty or does not exist.
+	 */
+	popFirst(key: K): V | undefined {
+		if (this.lockBits.has(key)) {
+			throw new Error(`Cannot pop from queue with key ${key} because it is locked`);
+		}
+		this.lockBits.add(key);
+		const queue = this.map.get(key);
+		if (!queue || queue.length === 0) {
+			this.lockBits.delete(key);
+			return undefined;
+		}
+		const value = queue.shift();
+		this.highestIndex.set(key, (this.highestIndex.get(key) ?? -1) - 1);
+
+		const awaiting = this.removalListeners.get(key);
+		if (awaiting && awaiting.length > 0) {
+			for (let i = awaiting.length - 1; i >= 0; i--) {
+				if (awaiting[i](value)) {
+					awaiting.splice(i, 1);
+				}
+			}
+		}
+		this.keyOrder.splice(this.keyOrder.indexOf(key), 1);
+		this.lockBits.delete(key);
+		return value;
+	}
+
+	/**
+	 * Removes and returns the value at the end of the queue identified by the given key.
+	 * If the queue is empty or does not exist, it returns `undefined`.
+	 * @param key - The key identifying the queue from which to remove the value.
+	 * @returns The value at the end of the queue, or `undefined` if the queue is empty or does not exist.
+	 */
+	popLast(key: K): V | undefined {
+		if (this.lockBits.has(key)) {
+			throw new Error(`Cannot pop from queue with key ${key} because it is locked`);
+		}
+		this.lockBits.add(key);
+		const queue = this.map.get(key);
+		if (!queue || queue.length === 0) {
+			this.lockBits.delete(key);
+			return undefined;
+		}
+		this.highestIndex.set(key, (this.highestIndex.get(key) ?? -1) - 1);
+		const value = queue.pop();
+		const awaiting = this.removalListeners.get(key);
+		if (awaiting && awaiting.length > 0) {
+			for (let i = awaiting.length - 1; i >= 0; i--) {
+				if (awaiting[i](value)) {
+					awaiting.splice(i, 1);
+				}
+			}
+		}
+		this.keyOrder.splice(this.keyOrder.indexOf(key), 1);
+		this.lockBits.delete(key);
+		return value;
+	}
+
+	/**
+	 * Returns a promise that resolves with the value of the next removed item from the queue identified by the given key.
+	 * @param key - The key identifying the queue to await a removal from.
+	 * @returns A promise that resolves with the value of the next removed item from the queue, or `undefined` if the queue is empty when the removal occurs.
+	 */
+	awaitRemove(key: K, once: boolean): Promise<V | undefined> {
+		if (this.lockBits.has(key)) {
+			throw new Error(`Cannot await remove from queue with key ${key} because it is locked`);
+		}
+		this.lockBits.add(key);
+		const promise = Promise.withResolvers<V | undefined>();
+		this.removalListeners.set(key, [
+			...(this.removalListeners.get(key) ?? []),
+			(val) => {
+				promise.resolve(val);
+				return once;
+			},
+		]);
+		this.lockBits.delete(key);
+		return promise.promise;
+	}
+
+	/**
+	 * Adds a listener function that will be called whenever a value is removed from the queue identified by the given key.
+	 * The listener function receives the removed value as an argument and should return `true` if it should be removed after being called, or `false` to keep it.
+	 * @param key - The key identifying the queue to which the listener should be added.
+	 * @param listener - The listener function to add, which will be called with the removed value whenever a value is removed from the queue.
+	 */
+	addRemoveListener(key: K, listener: (val: V | undefined) => boolean) {
+		if (this.lockBits.has(key)) {
+			throw new Error(`Cannot add listener to queue with key ${key} because it is locked`);
+		}
+		this.lockBits.add(key);
+		this.removalListeners.set(key, [...(this.removalListeners.get(key) ?? []), listener]);
+		this.lockBits.delete(key);
+	}
+
+	/**
+	 * Removes a listener function from the list of listeners for the queue identified by the given key.
+	 * @param key - The key identifying the queue from which to remove the listener.
+	 * @param listener - The listener function to remove.
+	 * @returns `true` if the listener was found and removed, `false` otherwise.
+	 */
+	removeRemoveListener(key: K, listener: (val: V | undefined) => boolean): boolean {
+		if (this.lockBits.has(key)) {
+			throw new Error(`Cannot remove listener from queue with key ${key} because it is locked`);
+		}
+		this.lockBits.add(key);
+		const listeners = this.removalListeners.get(key);
+		if (listeners) {
+			const index = listeners.indexOf(listener);
+			if (index !== -1) {
+				listeners.splice(index, 1);
+				this.lockBits.delete(key);
+				return true;
+			}
+		}
+		this.lockBits.delete(key);
+		return false;
+	}
+
+	popFirstKeyPair(): [K, V] | undefined {
+		if (this.keyOrderLock) {
+			throw new Error(`Cannot pop first key because the key order is locked`);
+		}
+		if (this.keyOrder.length === 0) return undefined;
+		const key = this.keyOrder[0];
+		const value = this.popFirst(key);
+		if (value === undefined) return undefined;
+		this.keyOrderLock = true;
+		this.keyOrder.splice(this.keyOrder.indexOf(key), 1);
+		this.keyOrderLock = false;
+		return [key, value];
+	}
+}
+
 //#endregion

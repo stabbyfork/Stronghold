@@ -51,32 +51,58 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		return;
 	}
 	if (robloxUsers.length === 0) {
-		await reportErrorToUser(interaction, constructError([ErrorReplies.NoRobloxAccountsFoundForDiscordIds]), true);
+		await interaction.editReply({
+			embeds: [
+				defaultEmbed()
+					.setColor('Red')
+					.setTitle('No linked Roblox accounts found')
+					.setDescription(constructError([ErrorReplies.NoRobloxAccountsFoundForDiscordIds])),
+			],
+			allowedMentions: { users: [], roles: [] },
+		});
 		return;
 	}
 	const notFound = discordUsers.filter((id) => !robloxUsers.some((u) => u.discordId === id));
 	if (notFound.length > 0) {
-		await reportErrorToUser(
-			interaction,
-			`Some of the provided Discord IDs could not be linked to Roblox accounts: ${notFound.map((id) => `\`${id}\``).join(', ')}. \n-# Points were not modified.`,
-			true,
-		);
+		await interaction.editReply({
+			embeds: [
+				defaultEmbed()
+					.setColor('Red')
+					.setTitle('Some Discord IDs could not be linked')
+					.setDescription(
+						`Some of the provided Discord IDs could not be linked to Roblox accounts: ${notFound.map((id) => `\`${id}\``).join(', ')}. \n-# Points were not modified.`,
+					),
+			],
+			allowedMentions: { users: [], roles: [] },
+		});
 		return;
 	}
 
-	setRbxPoints(
-		interaction,
-		robloxUsers.map((u) => u.cachedUsername).join(' '),
-		getOption(interaction, args, 'points'),
-		(prevPoints, givenPoints) => prevPoints + givenPoints,
-		(users, points) =>
-			defaultEmbed()
-				.setColor('Green')
-				.setTitle('Success')
-				.setDescription(
-					`Added \`${points}\` point${points === 1 ? '' : 's'} to:\n${users.map((u) => `- \`${u.name}\``).join(',\n')}\n-# ${users.length} user${users.length === 1 ? '' : 's'}`,
-				),
-		(users, points) =>
-			`Added \`${points}\` point${points === 1 ? '' : 's'} to:\n${users.map((u) => `\`${u.displayName}\` (\`${u.name}\`/\`${u.id}\`)`).join(',\n')}\n-# ${users.length} user${users.length === 1 ? '' : 's'}`,
-	);
+	if (
+		!setRbxPoints(
+			interaction,
+			robloxUsers.map((u) => u.cachedUsername).join(' '),
+			getOption(interaction, args, 'points'),
+			(prevPoints, givenPoints) => prevPoints + givenPoints,
+			(users, points) =>
+				defaultEmbed()
+					.setColor('Green')
+					.setTitle('Success')
+					.setDescription(
+						`Added \`${points}\` point${points === 1 ? '' : 's'} to:\n${users.map((u) => `- \`${u.name}\``).join(',\n')}\n-# ${users.length} user${users.length === 1 ? '' : 's'}`,
+					),
+			(users, points) =>
+				`Added \`${points}\` point${points === 1 ? '' : 's'} to:\n${users.map((u) => `\`${u.displayName}\` (\`${u.name}\`/\`${u.id}\`)`).join(',\n')}\n-# ${users.length} user${users.length === 1 ? '' : 's'}`,
+		)
+	) {
+		await interaction.editReply({
+			embeds: [
+				defaultEmbed()
+					.setColor('Red')
+					.setTitle('Error')
+					.setDescription('Failed to add points to the specified users. An error may be provided.'),
+			],
+			allowedMentions: { users: [], roles: [] },
+		});
+	}
 };

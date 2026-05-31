@@ -16,13 +16,13 @@ import * as Events from './events/*';
 import { Environment } from './types/envTypes.js';
 import { GuildFlag } from './utils/guildFlagsUtils.js';
 import { Logging } from './utils/loggingUtils.js';
-import { GuildAssociations } from './models/guild.js';
 import ms from 'ms';
 import { ENV } from './env.js';
 import { RbxUtils } from './utils/robloxUtils.js';
 
 let activityChecksId: NodeJS.Timeout;
 let cleanupGuildsId: NodeJS.Timeout;
+let roverApiRequestsId: NodeJS.Timeout;
 
 async function registerEvents() {
 	for (const file of Events.default) {
@@ -37,7 +37,13 @@ async function registerEvents() {
 async function safeShutdown(signal: NodeJS.Signals) {
 	console.log('-----------------SHUTDOWN INITIATED-----------------');
 	console.log('Shutting down with signal', signal);
-	await Promise.all([client.destroy(), Data.closeDb(), clearInterval(activityChecksId)])
+	await Promise.all([
+		client.destroy(),
+		Data.closeDb(),
+		clearInterval(activityChecksId),
+		clearInterval(cleanupGuildsId),
+		clearInterval(roverApiRequestsId),
+	])
 		.then(() => {
 			console.log('-----------------SHUTDOWN COMPLETE-----------------');
 			process.exit(0);
@@ -113,6 +119,31 @@ async function cleanupGuilds() {
 	}
 }
 
+async function runRoverApiRequests() {
+	const pendingRequests = RbxUtils._dUserRequestQueue.popFirstKeyPair();
+	if (!pendingRequests) return;
+	const [discordId, [requestResolve, requestReject, retryCount, guildId]] = pendingRequests;
+	try {
+		const result = await RbxUtils._processDiscordToRobloxRequest(
+			guildId,
+			discordId,
+			requestResolve,
+			requestReject,
+			retryCount,
+		);
+		if (!result) {
+			Debug.error(
+				`Failed to process RoVer API request for Discord ID ${discordId} in guild ${guildId} after ${retryCount} retries, without an error`,
+			);
+		}
+	} catch (e) {
+		requestReject(e instanceof Error ? e : new Error(String(e)));
+		Debug.error(
+			`Failed to process RoVer API request for Discord ID ${discordId} in guild ${guildId} after ${retryCount} retries, with error: ${e}`,
+		);
+	}
+}
+
 // Init order fix (VERY HACKY)
 // If it ain't broke don't fix it
 //@ts-ignore
@@ -130,6 +161,9 @@ activityChecksId = setInterval(runActivityChecks, 60 * 60 * 1000);
 console.log('[STARTUP] Registering guild cleanup');
 // Every 24 hours
 cleanupGuildsId = setInterval(cleanupGuilds, 24 * 60 * 60 * 1000);
+console.log('[STARTUP] Registering RoVer API request runner');
+// Every 5 seconds
+roverApiRequestsId = setInterval(runRoverApiRequests, 5 * 1000);
 
 process
 	.on('SIGINT', async (signal) => await safeShutdown(signal))

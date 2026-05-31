@@ -338,7 +338,7 @@ export namespace RbxUtils {
 									true,
 								); // Add extra 0.5s for safety
 								throw new Error(
-									`RoVer API rate limited with retry-after of over 5 minutes. The API may be overloaded.`,
+									`RoVer API rate limited with retry-after of over 5 minutes. The API may be overloaded. Retry after ${delayTime} seconds.`,
 								);
 							}
 							setRoverUnlock(

@@ -120,6 +120,7 @@ async function cleanupGuilds() {
 }
 
 async function runRoverApiRequests() {
+	if (RbxUtils.roverLock) return; // Don't run if locked, to avoid multiple concurrent runs making the lock redundant
 	const pendingDsRequests = RbxUtils._dUserRequestQueue.popFirstKeyPair();
 	if (pendingDsRequests) {
 		const [discordId, [requestResolve, requestReject, retryCount, guildId]] = pendingDsRequests;

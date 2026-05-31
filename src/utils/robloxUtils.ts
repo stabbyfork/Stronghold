@@ -257,7 +257,7 @@ export namespace RbxUtils {
 
 	// Discord connection
 
-	let roverLock = false;
+	export let roverLock = false;
 	let roverUnlockTimer: number | null = null;
 
 	/** Discord user ID -> list of [pending resolver, pending rejector, retry count, guild ID] */
@@ -437,10 +437,9 @@ export namespace RbxUtils {
 						const delayTime = Number(res!.headers['retry-after']);
 						if (isNaN(delayTime)) {
 							Debug.error(`Invalid retry-after header value: ${res!.headers['retry-after']}`);
-							lockRover(60); // Lock for 1 minute as a fallback
+							roverLock = true; // Lock indefinitely until manually unlocked, since we don't know how long to lock for
 							throw new Error('RoVer API rate limited but retry-after header is invalid');
 						}
-						roverLock = true;
 						if (delayTime >= 5 * 60) {
 							lockRover(delayTime);
 							throw new Error(

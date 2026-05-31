@@ -363,7 +363,7 @@ export namespace RbxUtils {
 						);
 					} else {
 						Debug.error(
-							`Failed to fetch Roblox data for Discord user ${discordId}: ${err.message} in guild ${guildId}`,
+							`Failed to fetch Roblox data for Discord user ${discordId}: ${err.message} in guild ${guildId}, error code: ${res?.data.errorCode}, status: ${res?.status}, message: ${res?.data.message}`,
 						);
 						throw err;
 					}

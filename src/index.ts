@@ -278,8 +278,8 @@ tx2.action('convertRbxPointsToRankingPoints', async (reply) => {
 	const robloxUsers = await Data.models.RobloxUser.findAll({ where: { guildId, points: { [Op.gt]: 0 } } });
 	console.log(`Converting points for ${robloxUsers.length} users in guild ${guildId}`);
 	for (const rbxUser of robloxUsers) {
-		const discordId = await RbxUtils.discordToRobloxData(guildId, [rbxUser.userId]).then(
-			(data) => data[0]?.discordId,
+		const discordId = await RbxUtils.robloxToDiscordData(guildId, [Number(rbxUser.userId)]).then(
+			(data) => data[0]?.discordUsers[0]?.user?.id,
 		);
 		if (!discordId) {
 			Debug.error(`No Discord ID found for Roblox user ${rbxUser.userId} during points conversion`);

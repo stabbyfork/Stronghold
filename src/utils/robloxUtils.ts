@@ -258,7 +258,7 @@ export namespace RbxUtils {
 	// Discord connection
 
 	export let roverLock = false;
-	let roverUnlockTimer: number | null = null;
+	let roverUnlockTimer: NodeJS.Timeout | null = null;
 
 	/** Discord user ID -> list of [pending resolver, pending rejector, retry count, guild ID] */
 	export const _dUserRequestQueue = new MapQueue<
@@ -272,7 +272,7 @@ export namespace RbxUtils {
 		[(resolveWith: RobloxToDiscordData) => void, (rejectWith: Error) => void, number, string]
 	>();
 
-	function setRoverUnlock(newId: number, override: boolean) {
+	function setRoverUnlock(newId: NodeJS.Timeout, override: boolean) {
 		if (roverUnlockTimer && !override) {
 			Debug.error(
 				`Attempted to set a new RoVer unlock timer while one is already active, but override is false. New timer ID: ${newId}, existing timer ID: ${roverUnlockTimer}`,
@@ -293,7 +293,7 @@ export namespace RbxUtils {
 	function lockRover(delayTime: number) {
 		roverLock = true;
 		setRoverUnlock(
-			_.delay(
+			setTimeout(
 				() => {
 					roverLock = false;
 					roverUnlockTimer = null;

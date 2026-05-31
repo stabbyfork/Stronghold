@@ -2,7 +2,7 @@ import { AutocompleteInteraction, InteractionContextType, SlashCommandBuilder } 
 import { createCommand } from '../types/commandTypes.js';
 import { UsageScope } from '../utils/usageLimitsUtils.js';
 import fuzzysort from 'fuzzysort';
-import { RbxCaches, Roblox } from '../utils/robloxUtils.js';
+import { RbxCaches, RbxUtils } from '../utils/robloxUtils.js';
 
 async function completeRbxUsername(interaction: AutocompleteInteraction) {
 	const focusedOption = interaction.options.getFocused(true);

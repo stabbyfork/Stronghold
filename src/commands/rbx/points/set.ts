@@ -6,7 +6,7 @@ import { defaultEmbed } from '../../../utils/discordUtils.js';
 import { constructError, reportErrorToUser } from '../../../utils/errorsUtils.js';
 import { Logging } from '../../../utils/loggingUtils.js';
 import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
-import { Roblox, UsernameToUserData } from '../../../utils/robloxUtils.js';
+import { RbxUtils, UsernameToUserData } from '../../../utils/robloxUtils.js';
 import { getOption, reportErrorIfNotSetup } from '../../../utils/subcommandsUtils.js';
 
 const enum SafeInt32 {
@@ -57,7 +57,7 @@ export async function setRbxPoints(
 		return false;
 	}
 	if (!interaction.deferred && !interaction.replied) await interaction.deferReply();
-	const rbxUsers = await Roblox.usernamesToData(...usernames);
+	const rbxUsers = await RbxUtils.usernamesToData(...usernames);
 	if (rbxUsers.length === 0) {
 		await reportErrorToUser(
 			interaction,
@@ -84,7 +84,7 @@ export async function setRbxPoints(
 					transaction,
 				});
 				if (dbRbxUsr?.blacklisted) {
-					const avtr = await Roblox.idToAvatarBust(usr.id);
+					const avtr = await RbxUtils.idToAvatarBust(usr.id);
 					const toReply = defaultEmbed()
 						.setColor('Red')
 						.setTitle('User is blacklisted')

@@ -7,7 +7,7 @@ import { defaultEmbed } from '../../../utils/discordUtils.js';
 import { Data } from '../../../data.js';
 import { Op } from 'sequelize';
 import { Logging } from '../../../utils/loggingUtils.js';
-import { Roblox as RbxUtils } from '../../../utils/robloxUtils.js';
+import { RbxUtils } from '../../../utils/robloxUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction) => {
 	const guild = interaction.guild;

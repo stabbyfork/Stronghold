@@ -4,7 +4,7 @@ import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js
 import { defaultEmbed, getAttachment, Pages } from '../../../utils/discordUtils.js';
 import { Data } from '../../../data.js';
 import { reportErrorIfNotSetup } from '../../../utils/subcommandsUtils.js';
-import { Roblox } from '../../../utils/robloxUtils.js';
+import { RbxUtils } from '../../../utils/robloxUtils.js';
 import { AssetId, Assets } from '../../../utils/assets.js';
 
 export default async (interaction: ChatInputCommandInteraction) => {
@@ -38,12 +38,12 @@ export default async (interaction: ChatInputCommandInteraction) => {
 				offset: index * perPage,
 				attributes: ['userId', 'blacklistReason', 'blacklister'],
 			});
-			const processedUsers = (await Roblox.idsToData(...users.map((u) => Number(u.userId)))).map((u) => ({
+			const processedUsers = (await RbxUtils.idsToData(...users.map((u) => Number(u.userId)))).map((u) => ({
 				...u,
 				blacklistReason: users.find((b) => b.userId === u.id.toString())!.blacklistReason,
 				blacklister: users.find((b) => b.userId === u.id.toString())!.blacklister,
 			}));
-			const avatarBusts = await Roblox.idsToAvatarBusts(...users.map((u) => Number(u.userId)));
+			const avatarBusts = await RbxUtils.idsToAvatarBusts(...users.map((u) => Number(u.userId)));
 			return new ContainerBuilder()
 				.addTextDisplayComponents((text) => text.setContent('## List of blacklisted users'))
 				.addSectionComponents(

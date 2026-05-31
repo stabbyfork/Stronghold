@@ -15,7 +15,7 @@ import { Data } from '../../../data.js';
 import { ErrorReplies } from '../../../types/errors.js';
 import { defaultEmbed } from '../../../utils/discordUtils.js';
 import { constructError, reportErrorToUser } from '../../../utils/errorsUtils.js';
-import { Roblox } from '../../../utils/robloxUtils.js';
+import { RbxUtils } from '../../../utils/robloxUtils.js';
 import { getOption, reportErrorIfNotSetup } from '../../../utils/subcommandsUtils.js';
 import { Op } from 'sequelize';
 
@@ -34,7 +34,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		await reportErrorToUser(interaction, constructError([ErrorReplies.TooManyUsernamesProvided]), true);
 		return;
 	}
-	const userDatas = await Roblox.usernamesToData(...usernames);
+	const userDatas = await RbxUtils.usernamesToData(...usernames);
 	if (userDatas.length === 0) {
 		await reportErrorToUser(
 			interaction,
@@ -43,7 +43,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		);
 		return;
 	}
-	const avatarBusts = await Roblox.idsToAvatarBusts(...userDatas.map((d) => d.id));
+	const avatarBusts = await RbxUtils.idsToAvatarBusts(...userDatas.map((d) => d.id));
 	if (userDatas.length === 1) {
 		const userData = userDatas[0];
 		const avtr = avatarBusts[0];
@@ -116,7 +116,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				blacklistExpiresAt: { [Op.or]: [{ [Op.gt]: new Date() }, { [Op.eq]: null }] },
 			},
 		});
-		const avatarBusts = await Roblox.idsToAvatarBusts(...userDatas.map((d) => d.id));
+		const avatarBusts = await RbxUtils.idsToAvatarBusts(...userDatas.map((d) => d.id));
 		const toReply = new ContainerBuilder()
 			.addTextDisplayComponents((text) => text.setContent('## Checked users'))
 			.addSectionComponents(

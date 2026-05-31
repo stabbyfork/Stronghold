@@ -6,7 +6,7 @@ import { defaultEmbed } from '../../../utils/discordUtils.js';
 import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js';
 import { Logging } from '../../../utils/loggingUtils.js';
 import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
-import { Roblox } from '../../../utils/robloxUtils.js';
+import { RbxUtils } from '../../../utils/robloxUtils.js';
 import { reportErrorIfNotSetup, getOption } from '../../../utils/subcommandsUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.rbx.points.get) => {
@@ -17,7 +17,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	}
 	if (!(await reportErrorIfNotSetup(interaction))) return;
 	const username = getOption(interaction, args, 'name');
-	const userData = await Roblox.usernameToData(username);
+	const userData = await RbxUtils.usernameToData(username);
 	if (!userData) {
 		await reportErrorToUser(interaction, constructError([ErrorReplies.RobloxUserNotFound], username), true);
 		return;
@@ -36,7 +36,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		return;
 	}
 
-	const avtr = await Roblox.idToAvatarBust(userId);
+	const avtr = await RbxUtils.idToAvatarBust(userId);
 	const toReply = defaultEmbed()
 		.setTitle('User points')
 		.setDescription(`\`${userData.name}\` has ${dbRbxUser.points} point${dbRbxUser.points === 1 ? '' : 's'}.`)

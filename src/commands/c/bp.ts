@@ -6,7 +6,7 @@ import { defaultEmbed } from '../../utils/discordUtils.js';
 import { constructError, reportErrorToUser } from '../../utils/errorsUtils.js';
 import { Logging } from '../../utils/loggingUtils.js';
 import { hasPermissions, Permission } from '../../utils/permissionsUtils.js';
-import { Roblox } from '../../utils/robloxUtils.js';
+import { RbxUtils } from '../../utils/robloxUtils.js';
 import { getOption, reportErrorIfNotSetup } from '../../utils/subcommandsUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.c.bp) => {
@@ -29,12 +29,12 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	// Set to default of 1 if not provided
 	const points = getOption(interaction, args, 'points') ?? 1;
 
-	const userData = await Roblox.usernameToData(rbxName);
+	const userData = await RbxUtils.usernameToData(rbxName);
 	if (!userData) {
 		await reportErrorToUser(interaction, `Could not find Roblox user \`${rbxName}\`.`, true);
 		return;
 	}
-	const avatar = await Roblox.idToAvatarBust(userData.id);
+	const avatar = await RbxUtils.idToAvatarBust(userData.id);
 
 	const session = await Data.models.GuildSession.findOne({ where: { guildId: guild.id } });
 	if (!session?.active) {

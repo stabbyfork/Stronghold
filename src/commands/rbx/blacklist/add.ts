@@ -6,7 +6,7 @@ import { ErrorReplies, Errors } from '../../../types/errors.js';
 import { Data } from '../../../data.js';
 import { defaultEmbed } from '../../../utils/discordUtils.js';
 import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
-import { Roblox } from '../../../utils/robloxUtils.js';
+import { RbxUtils } from '../../../utils/robloxUtils.js';
 import { Logging } from '../../../utils/loggingUtils.js';
 import ms from 'ms';
 import parseDur from 'parse-duration';
@@ -28,7 +28,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		return;
 	}
 	const username = getOption(interaction, args, 'name');
-	const userData = await Roblox.usernameToData(username);
+	const userData = await RbxUtils.usernameToData(username);
 	if (!userData) {
 		await reportErrorToUser(interaction, constructError([ErrorReplies.RobloxUserNotFound], username), true);
 		return;
@@ -87,7 +87,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		interaction,
 		`\`${userData.name}\` (\`${userId}\`) has been blacklisted. Reason: ${reason ?? 'none.'}.`,
 	);
-	const avatarBust = await Roblox.idToAvatarBust(userData.id);
+	const avatarBust = await RbxUtils.idToAvatarBust(userData.id);
 	const toReply = defaultEmbed()
 		.setTitle('User blacklisted')
 		.setDescription(

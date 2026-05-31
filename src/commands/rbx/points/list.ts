@@ -4,7 +4,7 @@ import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js
 import { defaultEmbed, Pages } from '../../../utils/discordUtils.js';
 import { Data } from '../../../data.js';
 import { reportErrorIfNotSetup } from '../../../utils/subcommandsUtils.js';
-import { Roblox } from '../../../utils/robloxUtils.js';
+import { RbxUtils } from '../../../utils/robloxUtils.js';
 import { Op } from 'sequelize';
 
 export default async (interaction: ChatInputCommandInteraction) => {
@@ -37,7 +37,7 @@ export default async (interaction: ChatInputCommandInteraction) => {
 				order: [['points', 'DESC']],
 			});
 			pages.setTotalItems(users.count);
-			const processedUsers = (await Roblox.idsToData(...users.rows.map((u) => Number(u.userId)))).map((u) => ({
+			const processedUsers = (await RbxUtils.idsToData(...users.rows.map((u) => Number(u.userId)))).map((u) => ({
 				...u,
 				points: users.rows.find((b) => b.userId === u.id.toString())!.points,
 			}));

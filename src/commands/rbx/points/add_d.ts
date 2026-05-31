@@ -3,7 +3,7 @@ import { commandOptions } from '../../../cmdOptions.js';
 import { defaultEmbed } from '../../../utils/discordUtils.js';
 import { getOption, reportErrorIfNotSetup } from '../../../utils/subcommandsUtils.js';
 import { setRbxPoints } from './set.js';
-import { Roblox } from '../../../utils/robloxUtils.js';
+import { RbxUtils } from '../../../utils/robloxUtils.js';
 import { constructError, reportErrorToUser } from '../../../utils/errorsUtils.js';
 import { ErrorReplies, Errors } from '../../../types/errors.js';
 
@@ -32,7 +32,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		.toArray();
 	let robloxUsers = [];
 	try {
-		robloxUsers = await Roblox.discordToRobloxData(interaction.guildId, discordUsers);
+		robloxUsers = await RbxUtils.discordToRobloxData(interaction.guildId, discordUsers);
 	} catch (err) {
 		await interaction.editReply({
 			embeds: [

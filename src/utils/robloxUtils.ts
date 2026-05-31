@@ -47,6 +47,7 @@ type RobloxUserId = number;
 type DiscordUserId = string;
 
 const roverConfig = Config.get('roblox')?.rover;
+const CHUNK_SIZE = 100 as const; // Number of users to fetch from Roblox API at once when doing bulk fetches
 
 export namespace RbxCaches {
 	/** Uses requested usernames as keys */
@@ -59,7 +60,7 @@ export namespace RbxCaches {
 	export const discordToRobloxData: Map<DiscordUserId, DiscordToRobloxData> = new Map();
 }
 
-export namespace Roblox {
+export namespace RbxUtils {
 	/**
 	 * Convert a list of usernames to their corresponding corresponding data.
 	 * @param usernames The usernames to convert.
@@ -69,33 +70,44 @@ export namespace Roblox {
 	export async function usernamesToData(...usernames: RobloxUsername[]) {
 		if (usernames.length === 0) return [];
 		const existing = [] as UsernameToUserData[];
+		const nonExistingUsernames = [] as RobloxUsername[];
 		usernames.forEach((username) => {
 			if (RbxCaches.usernamesToData.has(username)) existing.push(RbxCaches.usernamesToData.get(username)!);
+			else {
+				nonExistingUsernames.push(username);
+			}
 		});
 		if (existing.length === usernames.length) return existing;
-		return axios
-			.post(
-				'https://users.roblox.com/v1/usernames/users',
-				{
-					usernames: usernames.filter((username) => !RbxCaches.usernamesToData.has(username)),
-					excludeBannedUsers: true,
-				},
-				{
-					timeout: 15000,
-					timeoutErrorMessage:
-						'Roblox API did not respond within 15 seconds. Perhaps too many users are being requested at once or a username is taking too long to resolve?',
-				},
-			)
-			.catch((err) => Debug.error(`Failed to convert usernames to data: ${err}`))
-			.then((res) => {
-				if (!res) return existing;
-				existing.push(...(res.data.data as UsernameToUserData[]));
-				(res.data.data as UsernameToUserData[]).forEach((user) => {
-					RbxCaches.usernamesToData.set(user.requestedUsername, user);
-					RbxCaches.preparedUsernames.push(fuzzysort.prepare(user.name));
+		for (const chunk of _.chunk(nonExistingUsernames, CHUNK_SIZE)) {
+			// Process in chunks of 100 to avoid hitting length limits of the Roblox API
+			await axios
+				.post(
+					'https://users.roblox.com/v1/usernames/users',
+					{
+						usernames: chunk,
+						excludeBannedUsers: true,
+					},
+					{
+						timeout: 15000,
+						timeoutErrorMessage:
+							'Roblox API did not respond within 15 seconds. Perhaps a username is taking too long to resolve?',
+					},
+				)
+				.catch((err) =>
+					Debug.error(
+						`Failed to convert usernames to data: ${err}. This may be caused by too many usernames being requested at once or the Roblox API being slow to respond.`,
+					),
+				)
+				.then((res) => {
+					if (!res) return existing;
+					existing.push(...(res.data.data as UsernameToUserData[]));
+					(res.data.data as UsernameToUserData[]).forEach((user) => {
+						RbxCaches.usernamesToData.set(user.requestedUsername, user);
+						RbxCaches.preparedUsernames.push(fuzzysort.prepare(user.name));
+					});
 				});
-				return existing;
-			});
+		}
+		return existing;
 	}
 
 	/**
@@ -117,29 +129,41 @@ export namespace Roblox {
 	export async function idsToData(...ids: RobloxUserId[]) {
 		if (ids.length === 0) return [];
 		const existing = [] as IdToUserData[];
+		const nonExistingIds = [] as RobloxUserId[];
 		ids.forEach((id) => {
 			if (RbxCaches.idsToData.has(id)) existing.push(RbxCaches.idsToData.get(id)!);
+			else {
+				nonExistingIds.push(id);
+			}
 		});
 		if (existing.length === ids.length) return existing;
-		return axios
-			.post(
-				'https://users.roblox.com/v1/users',
-				{
-					userIds: ids.filter((id) => !RbxCaches.idsToData.has(id)),
-				},
-				{
-					timeout: 15000,
-					timeoutErrorMessage:
-						'Roblox API did not respond within 15 seconds. Perhaps too many users are being requested at once or the server is busy?',
-				},
-			)
-			.catch((err) => Debug.error(`Failed to convert ids to data: ${err}`))
-			.then((res) => {
-				if (!res) return existing;
-				existing.push(...(res.data.data as IdToUserData[]));
-				(res.data.data as IdToUserData[]).forEach((user) => RbxCaches.idsToData.set(user.id, user));
-				return existing;
-			});
+		for (const chunk of _.chunk(nonExistingIds, CHUNK_SIZE)) {
+			// Process in chunks of CHUNK_SIZE to avoid hitting length limits of the Roblox API
+			await axios
+				.post(
+					'https://users.roblox.com/v1/users',
+					{
+						userIds: chunk,
+					},
+					{
+						timeout: 15000,
+						timeoutErrorMessage:
+							'Roblox API did not respond within 15 seconds. Perhaps the server is busy?',
+					},
+				)
+				.catch((err) =>
+					Debug.error(
+						`Failed to convert ids to data: ${err}. This may be caused by too many IDs being requested at once or the Roblox API being slow to respond.`,
+					),
+				)
+				.then((res) => {
+					if (!res) return existing;
+					existing.push(...(res.data.data as IdToUserData[]));
+					(res.data.data as IdToUserData[]).forEach((user) => RbxCaches.idsToData.set(user.id, user));
+				});
+		}
+
+		return existing;
 	}
 
 	/**
@@ -175,32 +199,39 @@ export namespace Roblox {
 	export async function idsToAvatarBusts(...ids: RobloxUserId[]) {
 		if (ids.length === 0) return [];
 		const existing = [] as IdToAvatarBust[];
+		const nonExistingIds = [] as RobloxUserId[];
 		ids.forEach((id) => {
 			if (RbxCaches.idsToAvatarBusts.has(id)) {
 				existing.push(RbxCaches.idsToAvatarBusts.get(id)!);
+			} else {
+				nonExistingIds.push(id);
 			}
 		});
+
 		if (existing.length === ids.length) return existing;
-		return axios
-			.get(
-				buildUrl('https://thumbnails.roblox.com/v1/users/avatar-bust', {
-					queryParams: {
-						userIds: ids.filter((id) => !RbxCaches.idsToAvatarBusts.has(id)),
-						size: '150x150',
-						format: 'Png',
-						isCircular: false,
-					},
-				}),
-			)
-			.catch((err) => Debug.error(`Failed to convert ids to avatar busts: ${err}`))
-			.then((res) => {
-				if (!res) return existing;
-				existing.push(...(res.data.data as IdToAvatarBust[]));
-				(res.data.data as IdToAvatarBust[]).forEach((avtr) =>
-					RbxCaches.idsToAvatarBusts.set(avtr.targetId, avtr),
-				);
-				return existing;
-			});
+		for (const chunk of _.chunk(nonExistingIds, CHUNK_SIZE)) {
+			// Process in chunks of CHUNK_SIZE to avoid hitting length limits of the Roblox API
+			await axios
+				.get(
+					buildUrl('https://thumbnails.roblox.com/v1/users/avatar-bust', {
+						queryParams: {
+							userIds: chunk,
+							size: '150x150',
+							format: 'Png',
+							isCircular: false,
+						},
+					}),
+				)
+				.catch((err) => Debug.error(`Failed to convert ids to avatar busts: ${err}`))
+				.then((res) => {
+					if (!res) return existing;
+					existing.push(...(res.data.data as IdToAvatarBust[]));
+					(res.data.data as IdToAvatarBust[]).forEach((avtr) =>
+						RbxCaches.idsToAvatarBusts.set(avtr.targetId, avtr),
+					);
+				});
+		}
+		return existing;
 	}
 
 	/**

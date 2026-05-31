@@ -120,27 +120,51 @@ async function cleanupGuilds() {
 }
 
 async function runRoverApiRequests() {
-	const pendingRequests = RbxUtils._dUserRequestQueue.popFirstKeyPair();
-	if (!pendingRequests) return;
-	const [discordId, [requestResolve, requestReject, retryCount, guildId]] = pendingRequests;
-	try {
-		const result = await RbxUtils._processDiscordToRobloxRequest(
-			guildId,
-			discordId,
-			requestResolve,
-			requestReject,
-			retryCount,
-		);
-		if (!result) {
+	const pendingDsRequests = RbxUtils._dUserRequestQueue.popFirstKeyPair();
+	if (pendingDsRequests) {
+		const [discordId, [requestResolve, requestReject, retryCount, guildId]] = pendingDsRequests;
+		try {
+			const result = await RbxUtils._processDiscordToRobloxRequest(
+				guildId,
+				discordId,
+				requestResolve,
+				requestReject,
+				retryCount,
+			);
+			if (!result) {
+				Debug.error(
+					`Failed to process RoVer API request for Discord ID ${discordId} in guild ${guildId} after ${retryCount} retries, without an error`,
+				);
+			}
+		} catch (e) {
+			requestReject(e instanceof Error ? e : new Error(String(e)));
 			Debug.error(
-				`Failed to process RoVer API request for Discord ID ${discordId} in guild ${guildId} after ${retryCount} retries, without an error`,
+				`Failed to process RoVer API request for Discord ID ${discordId} in guild ${guildId} after ${retryCount} retries, with error: ${e}`,
 			);
 		}
-	} catch (e) {
-		requestReject(e instanceof Error ? e : new Error(String(e)));
-		Debug.error(
-			`Failed to process RoVer API request for Discord ID ${discordId} in guild ${guildId} after ${retryCount} retries, with error: ${e}`,
-		);
+	}
+	const pendingRbxRequests = RbxUtils._rUserRequestQueue.popFirstKeyPair();
+	if (pendingRbxRequests) {
+		const [robloxId, [rbxRequestResolve, rbxRequestReject, rbxRetryCount, rbxGuildId]] = pendingRbxRequests;
+		try {
+			const result = await RbxUtils._processRobloxToDiscordRequest(
+				rbxGuildId,
+				robloxId,
+				rbxRequestResolve,
+				rbxRequestReject,
+				rbxRetryCount,
+			);
+			if (!result) {
+				Debug.error(
+					`Failed to process RoVer API request for Roblox ID ${robloxId} in guild ${rbxGuildId} after ${rbxRetryCount} retries, without an error`,
+				);
+			}
+		} catch (e) {
+			rbxRequestReject(e instanceof Error ? e : new Error(String(e)));
+			Debug.error(
+				`Failed to process RoVer API request for Roblox ID ${robloxId} in guild ${rbxGuildId} after ${rbxRetryCount} retries, with error: ${e}`,
+			);
+		}
 	}
 }
 
@@ -162,8 +186,8 @@ console.log('[STARTUP] Registering guild cleanup');
 // Every 24 hours
 cleanupGuildsId = setInterval(cleanupGuilds, 24 * 60 * 60 * 1000);
 console.log('[STARTUP] Registering RoVer API request runner');
-// Every 5 seconds
-roverApiRequestsId = setInterval(runRoverApiRequests, 5 * 1000);
+// Every 3 seconds
+roverApiRequestsId = setInterval(runRoverApiRequests, 3 * 1000);
 
 process
 	.on('SIGINT', async (signal) => await safeShutdown(signal))

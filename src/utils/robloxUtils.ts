@@ -268,6 +268,7 @@ export namespace RbxUtils {
 	 *
 	 * @param guildId - The Discord guild ID to query data for
 	 * @param discordIds - Array of Discord user IDs to fetch Roblox data for
+	 * @param retryNum - The current retry attempt number for this request, used internally for exponential backoff when rate limited. Should not be provided when calling this function.
 	 * @returns Promise resolving to an array of {@link DiscordToRobloxData} objects containing the mapped user data
 	 *
 	 * @throws Will recursively retry if rate limited, throws error if Retry-After header is invalid

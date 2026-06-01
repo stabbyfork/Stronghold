@@ -292,6 +292,7 @@ export namespace RbxUtils {
 	 */
 	function lockRover(delayTime: number) {
 		roverLock = true;
+		Debug.error(`RoVer API has been locked for ${delayTime} seconds due to rate limiting.`);
 		setRoverUnlock(
 			setTimeout(
 				() => {
@@ -436,7 +437,9 @@ export namespace RbxUtils {
 						const res = err.response;
 						const delayTime = Number(res!.headers['retry-after']);
 						if (isNaN(delayTime)) {
-							Debug.error(`Invalid retry-after header value: ${res!.headers['retry-after']}`);
+							Debug.error(
+								`Invalid retry-after header value: ${res!.headers['retry-after']}, locking RoVer indefinitely`,
+							);
 							roverLock = true; // Lock indefinitely until manually unlocked, since we don't know how long to lock for
 							throw new Error('RoVer API rate limited but retry-after header is invalid');
 						}
@@ -507,6 +510,7 @@ export namespace RbxUtils {
 		});
 		const results = await Promise.allSettled(promises);
 		results.forEach((res, index) => {
+			console.log(`Result ${index}: ${res.status}`);
 			if (res.status === 'fulfilled' && res.value) existing.push(res.value);
 			else if (res.status === 'rejected') {
 				Logging.log({
@@ -522,6 +526,9 @@ export namespace RbxUtils {
 				});
 			}
 		});
+		console.log(
+			`Found existing Discord to Roblox data for ${existing.length} out of ${discordIds.length} users: ${existing.map((d) => `${d.discordId} -> ${d.robloxId}`).join(',')}`,
+		);
 		return existing;
 	}
 

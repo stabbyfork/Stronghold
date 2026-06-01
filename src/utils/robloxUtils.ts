@@ -555,6 +555,14 @@ export namespace RbxUtils {
 		const promises = nonExistingRobloxIds.map((id) => {
 			const thisPromise = Promise.withResolvers<RobloxToDiscordData>();
 			_rUserRequestQueue.push(id, [thisPromise.resolve, thisPromise.reject, 0, guildId]);
+			thisPromise.promise.then(
+				() => {
+					console.log(`Successfully fetched Roblox to Discord data for Roblox ID ${id}`);
+				},
+				(err) => {
+					console.error(`Failed to fetch Roblox to Discord data for Roblox ID ${id}`);
+				},
+			);
 			return thisPromise.promise;
 		});
 		const results = await Promise.allSettled(promises);

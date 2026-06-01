@@ -5,7 +5,7 @@ import _ from 'lodash';
 import { Config } from '../config.js';
 import { Debug } from './errorsUtils.js';
 import { delayFor, MapQueue, Pair } from './genericsUtils.js';
-import { APIGuildMember, userMention } from 'discord.js';
+import { APIGuildMember, Interaction, userMention } from 'discord.js';
 import path from 'path';
 import { Logging } from './loggingUtils.js';
 import { GuildFlag } from './guildFlagsUtils.js';
@@ -485,6 +485,7 @@ export namespace RbxUtils {
 	 *
 	 * @param guildId - The Discord guild ID to query data for
 	 * @param discordIds - Array of Discord user IDs to fetch Roblox data for
+	 * @param interaction - Optional logging context (overrides guildId if provided)
 	 * @returns Promise resolving to an array of {@link DiscordToRobloxData} objects containing the mapped user data
 	 *
 	 * @throws Will recursively retry if rate limited, throws error if Retry-After header is invalid
@@ -510,7 +511,6 @@ export namespace RbxUtils {
 		});
 		const results = await Promise.allSettled(promises);
 		results.forEach((res, index) => {
-			console.log(`Result ${index}: ${res.status}`);
 			if (res.status === 'fulfilled' && res.value) existing.push(res.value);
 			else if (res.status === 'rejected') {
 				Logging.log({
@@ -526,9 +526,6 @@ export namespace RbxUtils {
 				});
 			}
 		});
-		console.log(
-			`Found existing Discord to Roblox data for ${existing.length} out of ${discordIds.length} users: ${existing.map((d) => `${d.discordId} -> ${d.robloxId}`).join(',')}`,
-		);
 		return existing;
 	}
 
@@ -562,6 +559,7 @@ export namespace RbxUtils {
 		});
 		const results = await Promise.allSettled(promises);
 		results.forEach((res, index) => {
+			console.log(`Result ${index}: ${res.status}`);
 			if (res.status === 'fulfilled' && res.value) existing.push(res.value);
 			else if (res.status === 'rejected') {
 				Logging.log({
@@ -576,6 +574,9 @@ export namespace RbxUtils {
 				});
 			}
 		});
+		console.log(
+			`Found existing Roblox to Discord data for ${existing.length} out of ${robloxIds.length} users: ${existing.map((d) => `${d.robloxId} -> ${d.discordUsers[0].user.id}`).join(',')}`,
+		);
 		return existing;
 	}
 }

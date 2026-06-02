@@ -1,4 +1,4 @@
-import { GuildMember, userMention } from 'discord.js';
+import { Collection, GuildMember, Role, userMention } from 'discord.js';
 import { Data } from '../data.js';
 import { Op } from 'sequelize';
 import { RoleData } from '../models/roleData.js';
@@ -29,13 +29,18 @@ export namespace Prefix {
 		return roleDatas;
 	}
 
-	export async function getHighestPrefix(member: GuildMember): Promise<string | undefined> {
+	export async function getHighestPrefix(
+		member: GuildMember,
+		roles?: Collection<string, Role>,
+	): Promise<string | undefined> {
 		const guildPrefixes = rolePrefixCache.get(member.guild.id) ?? (await loadGuildPrefixes(member.guild.id));
 		if (!CacheUtils.areGuildMembersCached(member.guild.id)) {
 			await CacheUtils.fetchGuildMembers(member.guild);
 		}
 		// Descending order by role position
-		const memberRoles = member.roles.cache.sort((a, b) => b.position - a.position);
+		const memberRoles =
+			roles?.sort((a, b) => b.position - a.position) ??
+			member.roles.cache.sort((a, b) => b.position - a.position);
 		for (const role of memberRoles.values()) {
 			const prefix = guildPrefixes.get(role.id);
 			if (prefix) {
@@ -44,17 +49,20 @@ export namespace Prefix {
 		}
 	}
 
-	export async function getMemberPrefix(member: GuildMember): Promise<string | undefined> {
-		const guildPrefixes = userPrefixCache.get(member.guild.id);
-		const cachedPrefix = guildPrefixes?.get(member.id);
+	export async function getMemberPrefix(
+		member: GuildMember,
+		roles?: Collection<string, Role>,
+	): Promise<string | undefined> {
+		const userPrefixes = userPrefixCache.get(member.guild.id);
+		const cachedPrefix = userPrefixes?.get(member.id);
 		if (cachedPrefix !== undefined) return cachedPrefix;
 
-		const prefix = await getHighestPrefix(member);
+		const prefix = await getHighestPrefix(member, roles);
 		if (prefix === undefined) {
-			guildPrefixes?.delete(member.id);
+			userPrefixes?.delete(member.id);
 			return undefined;
 		}
-		guildPrefixes?.set(member.id, prefix);
+		userPrefixes?.set(member.id, prefix);
 		return prefix;
 	}
 
@@ -70,16 +78,16 @@ export namespace Prefix {
 		}
 		if (newPrefix && noPrefixName.startsWith(newPrefix)) {
 			// New prefix is already present, no need to update
-			const guildPrefixes = userPrefixCache.get(member.guild.id);
-			if (!guildPrefixes) {
+			const userPrefixes = userPrefixCache.get(member.guild.id);
+			if (!userPrefixes) {
 				userPrefixCache.set(member.guild.id, new Map([[member.id, newPrefix]]));
-			} else if (!guildPrefixes.has(member.id)) {
-				guildPrefixes.set(member.id, newPrefix);
+			} else if (!userPrefixes.has(member.id)) {
+				userPrefixes.set(member.id, newPrefix);
 			}
 			return true;
 		}
 		const newDisplay = newPrefix ? `${newPrefix} ${noPrefixName}` : noPrefixName;
-		if (newDisplay.length >= 32) {
+		if (newDisplay.length > 32) {
 			Logging.log({
 				logType: Logging.Type.Warning,
 				extents: [GuildFlag.LogWarnings],
@@ -94,8 +102,8 @@ export namespace Prefix {
 			try {
 				// Revert to no prefix name
 				await member.setNickname(noPrefixName);
-				const guildPrefixes = userPrefixCache.get(member.guild.id);
-				guildPrefixes?.delete(member.id);
+				const userPrefixes = userPrefixCache.get(member.guild.id);
+				userPrefixes?.delete(member.id);
 			} catch (e) {
 				Logging.log({
 					logType: Logging.Type.Warning,
@@ -129,11 +137,11 @@ export namespace Prefix {
 			});
 			return false;
 		}
-		const guildPrefixes = userPrefixCache.get(member.guild.id);
+		const userPrefixes = userPrefixCache.get(member.guild.id);
 		if (newPrefix !== undefined) {
-			guildPrefixes?.set(member.id, newPrefix);
+			userPrefixes?.set(member.id, newPrefix);
 		} else {
-			guildPrefixes?.delete(member.id);
+			userPrefixes?.delete(member.id);
 		}
 		return true;
 	}

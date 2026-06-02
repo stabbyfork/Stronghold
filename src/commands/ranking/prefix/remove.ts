@@ -61,15 +61,14 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		const prevPrefixes = new Map(
 			await Promise.all(members.map(async (mem) => [mem.id, await Prefix.getMemberPrefix(mem)] as const)),
 		);
-		const guildPrefixes = Prefix.rolePrefixCache.get(guild.id) ?? (await Prefix.loadGuildPrefixes(guild.id));
-		guildPrefixes.delete(role.id);
+		const rolePrefixes = Prefix.rolePrefixCache.get(guild.id) ?? (await Prefix.loadGuildPrefixes(guild.id));
+		rolePrefixes.delete(role.id);
 		for (const [, member] of members) {
-			if (member.user.bot) continue;
-			const hasUpdated = await Prefix.updateMemberPrefix(
-				member,
-				prevPrefixes.get(member.id),
-				await Prefix.getHighestPrefix(member),
-			);
+			//if (member.user.bot) continue;
+			const oldPrefix = prevPrefixes.get(member.id);
+			const highestPrefix = await Prefix.getHighestPrefix(member);
+			if (highestPrefix === oldPrefix) continue;
+			const hasUpdated = await Prefix.updateMemberPrefix(member, oldPrefix, highestPrefix);
 			if (!hasUpdated) {
 				failedMembers.push(member);
 				continue;

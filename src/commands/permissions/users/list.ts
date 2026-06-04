@@ -6,6 +6,7 @@ import { defaultEmbed } from '../../../utils/discordUtils.js';
 import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js';
 import { getOption } from '../../../utils/subcommandsUtils.js';
 import { Permission, PermissionBits } from '../../../utils/permissionsUtils.js';
+import { UserAssociations } from '../../../models/user.js';
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.permissions.users.list) => {
 	const guild = interaction.guild;
@@ -14,8 +15,17 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		return;
 	}
 	const user = getOption(interaction, args, 'user') ?? interaction.user;
-	const permsNum =
-		(await Data.models.UserPermission.findOne({ where: { guildId: guild.id, userId: user.id } }))?.permissions ?? 0;
+	const dbUser = await Data.models.User.findOne({
+		where: { guildId: guild.id, userId: user.id },
+		include: [
+			{
+				association: UserAssociations.UserPermission,
+				where: { guildId: guild.id },
+				required: true,
+			},
+		],
+	});
+	const permsNum = dbUser?.userPermission?.permissions ?? 0;
 	let perms = [] as Permission[];
 	for (const perm of Object.values(Permission)) {
 		if (permsNum & PermissionBits[perm]) {

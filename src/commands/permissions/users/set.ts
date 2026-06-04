@@ -7,6 +7,7 @@ import { reportErrorToUser, constructError } from '../../../utils/errorsUtils.js
 import { reportErrorIfNotSetup, getOption } from '../../../utils/subcommandsUtils.js';
 import { hasPermissions, Permission, PermissionBits } from '../../../utils/permissionsUtils.js';
 import { Logging } from '../../../utils/loggingUtils.js';
+import { UserAssociations } from '../../../models/user.js';
 
 export async function setPermissionsWithInteractionUsers({
 	interaction,
@@ -57,6 +58,7 @@ export async function setPermissionsWithInteractionUsers({
 		return;
 	}
 	for (const perm of splitPerms) {
+		console.log(`Checking permission: ${perm}`);
 		if (!possiblePerms.includes(perm as Permission)) {
 			await reportErrorToUser(
 				interaction,
@@ -82,10 +84,10 @@ export async function setPermissionsWithInteractionUsers({
 
 		accumulatedPerms |= PermissionBits[perm as Permission];
 	}
-	Data.mainDb
-		.transaction(async (transaction) => {
+	try {
+		Data.mainDb.transaction(async (transaction) => {
 			for (const userId of users) {
-				const user = guild.members.cache.get(userId);
+				const user = await guild.members.fetch(userId).catch(() => null);
 				if (user) {
 					if (userId === member.id && userId !== guild.ownerId) {
 						await reportErrorToUser(
@@ -100,16 +102,27 @@ export async function setPermissionsWithInteractionUsers({
 					) {
 						await reportErrorToUser(
 							interaction,
-							'You do not have permission to manage users with a higher role than you. You must be the server owner to do so.',
+							'You do not have permission to manage users with a higher or equal role than you. You must be the server owner to do so.',
 							true,
 						);
 						throw new Errors.HandledError('User cannot be managed');
 					}
-					const prevPerms = await Data.models.UserPermission.findOne({
-						where: { guildId: guild.id, userId: user.id },
+					const dbUser = await Data.models.User.findOne({
+						where: { guildId: guild.id, userId },
+						include: [
+							{
+								association: UserAssociations.UserPermission,
+								where: { guildId: guild.id },
+								required: true,
+							},
+						],
+						transaction,
 					});
+					const prevPerms = dbUser?.userPermission;
 					// Potential data loss!!
+					console.log(`Previous permissions for user ${userId}: ${prevPerms?.permissions ?? 0}`);
 					const newPerms = setPermFunc(prevPerms?.permissions ?? 0, accumulatedPerms);
+					console.log(`New permissions for user ${userId}: ${newPerms}`);
 					if (prevPerms) {
 						if (prevPerms.permissions === newPerms) {
 							await reportErrorToUser(
@@ -154,12 +167,12 @@ export async function setPermissionsWithInteractionUsers({
 					throw new Errors.HandledError('User not found');
 				}
 			}
-		})
-		.catch(async (err) => {
-			if (!(err instanceof Errors.HandledError)) {
-				throw err;
-			}
 		});
+	} catch (err) {
+		if (!(err instanceof Errors.HandledError)) {
+			throw err;
+		}
+	}
 
 	if (createSuccessEmbed) {
 		await interaction.reply({

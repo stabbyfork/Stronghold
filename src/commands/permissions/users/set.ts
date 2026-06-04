@@ -58,7 +58,6 @@ export async function setPermissionsWithInteractionUsers({
 		return;
 	}
 	for (const perm of splitPerms) {
-		console.log(`Checking permission: ${perm}`);
 		if (!possiblePerms.includes(perm as Permission)) {
 			await reportErrorToUser(
 				interaction,
@@ -120,9 +119,7 @@ export async function setPermissionsWithInteractionUsers({
 					});
 					const prevPerms = dbUser?.userPermission;
 					// Potential data loss!!
-					console.log(`Previous permissions for user ${userId}: ${prevPerms?.permissions ?? 0}`);
 					const newPerms = setPermFunc(prevPerms?.permissions ?? 0, accumulatedPerms);
-					console.log(`New permissions for user ${userId}: ${newPerms}`);
 					if (prevPerms) {
 						if (prevPerms.permissions === newPerms) {
 							await reportErrorToUser(

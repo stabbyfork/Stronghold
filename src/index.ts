@@ -299,7 +299,7 @@ tx2.action('logUpdate', {}, async (params, reply) => {
 
 tx2.action('convertRbxPointsToRankingPoints', async (reply) => {
 	// One-off thing for a server that wants to convert their existing Roblox points to the ranking points system
-	const guildId = '847852338721980418';
+	const guildId = '1383789120320704573';
 	const robloxUsers = await Data.models.RobloxUser.findAll({ where: { guildId, points: { [Op.gt]: 0 } } });
 	const robloxToDiscordIds = new Map(
 		await RbxUtils.robloxToDiscordData(

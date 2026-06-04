@@ -121,9 +121,6 @@ async function cleanupGuilds() {
 
 async function runRoverApiRequests() {
 	if (RbxUtils.roverLock) return; // Don't run if locked, to avoid multiple concurrent runs making the lock redundant
-	console.log('Running RoVer API request runner');
-	console.log(`Pending Discord to Roblox requests: ${RbxUtils._dUserRequestQueue.keySize}`);
-	console.log(`Pending Roblox to Discord requests: ${RbxUtils._rUserRequestQueue.keySize}`);
 	const pendingDsRequests = RbxUtils._dUserRequestQueue.popFirstKeyPair();
 	if (pendingDsRequests) {
 		const [discordId, [requestResolve, requestReject, retryCount, guildId]] = pendingDsRequests;

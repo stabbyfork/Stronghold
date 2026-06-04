@@ -551,25 +551,16 @@ export namespace RbxUtils {
 			else nonExistingRobloxIds.push(id);
 		});
 		if (existing.length === robloxIds.length) return existing;
-		console.log('Roblox IDs to fetch:', nonExistingRobloxIds);
 		const promises = nonExistingRobloxIds.map((id) => {
 			const thisPromise = Promise.withResolvers<RobloxToDiscordData>();
 			_rUserRequestQueue.push(id, [thisPromise.resolve, thisPromise.reject, 0, guildId]);
-			thisPromise.promise.then(
-				(val) => {
-					console.log(`Successfully fetched Roblox to Discord data for Roblox ID ${id}`);
-					return val;
-				},
-				(err) => {
-					console.error(`Failed to fetch Roblox to Discord data for Roblox ID ${id}`);
-				},
-			);
+			thisPromise.promise.then((val) => {
+				return val;
+			});
 			return thisPromise.promise;
 		});
 		const results = await Promise.allSettled(promises);
-		console.log('Results of fetching Roblox to Discord data:', results);
 		results.forEach((res, index) => {
-			console.log(`Result ${index}: ${res.status}`);
 			if (res.status === 'fulfilled' && res.value) existing.push(res.value);
 			else if (res.status === 'rejected') {
 				Logging.log({
@@ -584,9 +575,6 @@ export namespace RbxUtils {
 				});
 			}
 		});
-		console.log(
-			`Found existing Roblox to Discord data for ${existing.length} out of ${robloxIds.length} users: ${existing.map((d) => `${d.robloxId} -> ${d.discordUsers[0].user.id}`).join(',')}`,
-		);
 		return existing;
 	}
 }

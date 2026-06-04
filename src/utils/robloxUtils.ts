@@ -556,8 +556,9 @@ export namespace RbxUtils {
 			const thisPromise = Promise.withResolvers<RobloxToDiscordData>();
 			_rUserRequestQueue.push(id, [thisPromise.resolve, thisPromise.reject, 0, guildId]);
 			thisPromise.promise.then(
-				() => {
+				(val) => {
 					console.log(`Successfully fetched Roblox to Discord data for Roblox ID ${id}`);
+					return val;
 				},
 				(err) => {
 					console.error(`Failed to fetch Roblox to Discord data for Roblox ID ${id}`);

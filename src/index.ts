@@ -123,50 +123,54 @@ let roverRunnerLock = false; // Simple lock to prevent multiple concurrent runs 
 async function runRoverApiRequests() {
 	if (RbxUtils.roverLock || roverRunnerLock) return; // Don't run if locked, to avoid multiple concurrent runs making the lock redundant
 	roverRunnerLock = true;
-	const pendingDsRequests = RbxUtils._dUserRequestQueue.popFirstKeyPair();
-	if (pendingDsRequests) {
-		const [discordId, [requestResolve, requestReject, retryCount, guildId]] = pendingDsRequests;
-		try {
-			const result = await RbxUtils._processDiscordToRobloxRequest(
-				guildId,
-				discordId,
-				requestResolve,
-				requestReject,
-				retryCount,
-			);
-			if (!result) {
-				Debug.error(
-					`Failed to process RoVer API request for Discord ID ${discordId} in guild ${guildId} after ${retryCount} retries, without an error`,
+	{
+		const pendingDsRequests = RbxUtils._dUserRequestQueue.popFirstKeyPair();
+		if (pendingDsRequests) {
+			const [discordId, [requestResolve, requestReject, retryCount, guildId]] = pendingDsRequests;
+			try {
+				const result = await RbxUtils._processDiscordToRobloxRequest(
+					guildId,
+					discordId,
+					requestResolve,
+					requestReject,
+					retryCount,
 				);
-			}
-		} catch (e) {
-			requestReject(e instanceof Error ? e : new Error(String(e)));
-			/*Debug.error(
+				if (!result) {
+					Debug.error(
+						`Failed to process RoVer API request for Discord ID ${discordId} in guild ${guildId} after ${retryCount} retries, without an error`,
+					);
+				}
+			} catch (e) {
+				requestReject(e instanceof Error ? e : new Error(String(e)));
+				/*Debug.error(
 				`Failed to process RoVer API request for Discord ID ${discordId} in guild ${guildId} after ${retryCount} retries, with error: ${e}`,
 			);*/
+			}
 		}
 	}
-	const pendingRbxRequests = RbxUtils._rUserRequestQueue.popFirstKeyPair();
-	if (pendingRbxRequests) {
-		const [robloxId, [rbxRequestResolve, rbxRequestReject, rbxRetryCount, rbxGuildId]] = pendingRbxRequests;
-		try {
-			const result = await RbxUtils._processRobloxToDiscordRequest(
-				rbxGuildId,
-				robloxId,
-				rbxRequestResolve,
-				rbxRequestReject,
-				rbxRetryCount,
-			);
-			if (!result) {
-				Debug.error(
-					`Failed to process RoVer API request for Roblox ID ${robloxId} in guild ${rbxGuildId} after ${rbxRetryCount} retries, without an error`,
+	{
+		const pendingRbxRequests = RbxUtils._rUserRequestQueue.popFirstKeyPair();
+		if (pendingRbxRequests) {
+			const [robloxId, [rbxRequestResolve, rbxRequestReject, rbxRetryCount, rbxGuildId]] = pendingRbxRequests;
+			try {
+				const result = await RbxUtils._processRobloxToDiscordRequest(
+					rbxGuildId,
+					robloxId,
+					rbxRequestResolve,
+					rbxRequestReject,
+					rbxRetryCount,
 				);
-			}
-		} catch (e) {
-			rbxRequestReject(e instanceof Error ? e : new Error(String(e)));
-			/*Debug.error(
+				if (!result) {
+					Debug.error(
+						`Failed to process RoVer API request for Roblox ID ${robloxId} in guild ${rbxGuildId} after ${rbxRetryCount} retries, without an error`,
+					);
+				}
+			} catch (e) {
+				rbxRequestReject(e instanceof Error ? e : new Error(String(e)));
+				/*Debug.error(
 				`Failed to process RoVer API request for Roblox ID ${robloxId} in guild ${rbxGuildId} after ${rbxRetryCount} retries, with error: ${e}`,
 			);*/
+			}
 		}
 	}
 	roverRunnerLock = false;

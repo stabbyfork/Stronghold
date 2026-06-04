@@ -164,9 +164,9 @@ async function runRoverApiRequests() {
 			}
 		} catch (e) {
 			rbxRequestReject(e instanceof Error ? e : new Error(String(e)));
-			Debug.error(
+			/*Debug.error(
 				`Failed to process RoVer API request for Roblox ID ${robloxId} in guild ${rbxGuildId} after ${rbxRetryCount} retries, with error: ${e}`,
-			);
+			);*/
 		}
 	}
 	roverRunnerLock = false;

@@ -37,7 +37,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			defaultEmbed()
 				.setTitle(`Permissions for ${user.displayName} (@${user.username})`)
 				.setDescription(
-					`${userMention(user.id)} ${perms.length === 0 ? '**does not** have any bot permissions' : `has the bot permissions: ${perms.map((perm) => `\`${perm}\``).join(', ')}`}.`,
+					`${userMention(user.id)} ${perms.length === 0 ? '**does not** have any bot permissions' : `has the following bot permissions: ${perms.map((perm) => `\`${perm}\``).join(', ')}`}.`,
 				),
 		],
 		flags: MessageFlags.Ephemeral,

@@ -200,7 +200,6 @@ export class MapQueue<K, V> {
 	private removalListeners = new Map<K, ((val: V | undefined) => boolean)[]>();
 	/** FIFO order of keys */
 	private keyOrder = [] as K[];
-	private keyOrderLock = false;
 
 	/**
 	 * Adds a value to the end of the queue identified by the given key.
@@ -235,10 +234,6 @@ export class MapQueue<K, V> {
 		if (this.lockBits.has(key)) {
 			throw new Error(`Cannot pop from queue with key ${key} because it is locked`);
 		}
-		if (this.keyOrderLock) {
-			throw new Error(`Cannot pop from queue with key ${key} because the key order is locked`);
-		}
-		this.keyOrderLock = true;
 		this.lockBits.add(key);
 		const queue = this.map.get(key);
 		if (!queue || queue.length === 0) {
@@ -257,7 +252,6 @@ export class MapQueue<K, V> {
 			}
 		}
 		this.keyOrder.splice(this.keyOrder.indexOf(key), 1);
-		this.keyOrderLock = false;
 		this.lockBits.delete(key);
 		return value;
 	}
@@ -272,10 +266,6 @@ export class MapQueue<K, V> {
 		if (this.lockBits.has(key)) {
 			throw new Error(`Cannot pop from queue with key ${key} because it is locked`);
 		}
-		if (this.keyOrderLock) {
-			throw new Error(`Cannot pop from queue with key ${key} because the key order is locked`);
-		}
-		this.keyOrderLock = true;
 		this.lockBits.add(key);
 		const queue = this.map.get(key);
 		if (!queue || queue.length === 0) {
@@ -293,7 +283,6 @@ export class MapQueue<K, V> {
 			}
 		}
 		this.keyOrder.splice(this.keyOrder.indexOf(key), 1);
-		this.keyOrderLock = false;
 		this.lockBits.delete(key);
 		return value;
 	}
@@ -360,15 +349,10 @@ export class MapQueue<K, V> {
 	}
 
 	popFirstKeyPair(): [K, V] | undefined {
-		if (this.keyOrderLock) {
-			throw new Error(`Cannot pop first key because the key order is locked`);
-		}
-		this.keyOrderLock = true;
 		if (this.keyOrder.length === 0) return undefined;
 		const key = this.keyOrder[0];
 		const value = this.popFirst(key);
 		if (value === undefined) return undefined;
-		this.keyOrderLock = false;
 		return [key, value];
 	}
 

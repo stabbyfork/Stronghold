@@ -119,8 +119,10 @@ async function cleanupGuilds() {
 	}
 }
 
+let roverRunnerLock = false; // Simple lock to prevent multiple concurrent runs of the RoVer API request processor
 async function runRoverApiRequests() {
-	if (RbxUtils.roverLock) return; // Don't run if locked, to avoid multiple concurrent runs making the lock redundant
+	if (RbxUtils.roverLock || roverRunnerLock) return; // Don't run if locked, to avoid multiple concurrent runs making the lock redundant
+	roverRunnerLock = true;
 	const pendingDsRequests = RbxUtils._dUserRequestQueue.popFirstKeyPair();
 	if (pendingDsRequests) {
 		const [discordId, [requestResolve, requestReject, retryCount, guildId]] = pendingDsRequests;
@@ -139,9 +141,9 @@ async function runRoverApiRequests() {
 			}
 		} catch (e) {
 			requestReject(e instanceof Error ? e : new Error(String(e)));
-			Debug.error(
+			/*Debug.error(
 				`Failed to process RoVer API request for Discord ID ${discordId} in guild ${guildId} after ${retryCount} retries, with error: ${e}`,
-			);
+			);*/
 		}
 	}
 	const pendingRbxRequests = RbxUtils._rUserRequestQueue.popFirstKeyPair();
@@ -167,6 +169,7 @@ async function runRoverApiRequests() {
 			);
 		}
 	}
+	roverRunnerLock = false;
 }
 
 // Init order fix (VERY HACKY)

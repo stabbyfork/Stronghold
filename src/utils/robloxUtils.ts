@@ -272,6 +272,11 @@ export namespace RbxUtils {
 		[(resolveWith: RobloxToDiscordData) => void, (rejectWith: Error) => void, number, string]
 	>();
 
+	export let _previousDKeySize = 0;
+	export let _previousRKeySize = 0;
+	export let _dKeysAddedSinceLastRun = 0;
+	export let _rKeysAddedSinceLastRun = 0;
+
 	function setRoverUnlock(newId: NodeJS.Timeout, override: boolean) {
 		if (roverUnlockTimer && !override) {
 			Debug.error(
@@ -509,6 +514,7 @@ export namespace RbxUtils {
 			_dUserRequestQueue.push(id, [thisPromise.resolve, thisPromise.reject, 0, guildId]);
 			return thisPromise.promise;
 		});
+		//_dKeysAddedSinceLastRun += nonExistingDiscordIds.length;
 		const results = await Promise.allSettled(promises);
 		results.forEach((res, index) => {
 			if (res.status === 'fulfilled' && res.value) existing.push(res.value);
@@ -559,6 +565,7 @@ export namespace RbxUtils {
 			});
 			return thisPromise.promise;
 		});
+		//_rKeysAddedSinceLastRun += nonExistingRobloxIds.length;
 		const results = await Promise.allSettled(promises);
 		results.forEach((res, index) => {
 			if (res.status === 'fulfilled' && res.value) existing.push(res.value);

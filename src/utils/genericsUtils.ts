@@ -362,6 +362,18 @@ export class MapQueue<K, V> {
 		this.keyOrderLock = false;
 		return [key, value];
 	}
+
+	get keySize() {
+		return this.keyOrder.length;
+	}
+
+	get size() {
+		let size = 0;
+		for (const queue of this.map.values()) {
+			size += queue.length;
+		}
+		return size;
+	}
 }
 
 //#endregion

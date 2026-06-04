@@ -149,6 +149,7 @@ async function runRoverApiRequests() {
 		}
 	}
 	{
+		console.log(`Current R queue size: ${RbxUtils._rUserRequestQueue.keySize}`);
 		const pendingRbxRequests = RbxUtils._rUserRequestQueue.popFirstKeyPair();
 		if (pendingRbxRequests) {
 			const [robloxId, [rbxRequestResolve, rbxRequestReject, rbxRetryCount, rbxGuildId]] = pendingRbxRequests;

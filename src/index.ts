@@ -138,6 +138,7 @@ async function runRoverApiRequests() {
 					Debug.error(
 						`Failed to process RoVer API request for Discord ID ${discordId} in guild ${guildId} after ${retryCount} retries, without an error`,
 					);
+					requestReject(new Error('Failed to process RoVer API request without an error'));
 				}
 			} catch (e) {
 				requestReject(e instanceof Error ? e : new Error(String(e)));
@@ -166,6 +167,7 @@ async function runRoverApiRequests() {
 					Debug.error(
 						`Failed to process RoVer API request for Roblox ID ${robloxId} in guild ${rbxGuildId} after ${rbxRetryCount} retries, without an error`,
 					);
+					rbxRequestReject(new Error('Failed to process RoVer API request without an error'));
 				}
 			} catch (e) {
 				rbxRequestReject(e instanceof Error ? e : new Error(String(e)));

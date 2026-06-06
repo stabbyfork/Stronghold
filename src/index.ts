@@ -119,10 +119,9 @@ async function cleanupGuilds() {
 	}
 }
 
-let roverRunnerLock = false; // Simple lock to prevent multiple concurrent runs of the RoVer API request processor
+//let roverRunnerLock = false; // Simple lock to prevent multiple concurrent runs of the RoVer API request processor
 async function runRoverApiRequests() {
-	if (RbxUtils.roverLock || roverRunnerLock) return; // Don't run if locked, to avoid multiple concurrent runs making the lock redundant
-	roverRunnerLock = true;
+	if (RbxUtils.roverLock) return; // Don't run if locked, to avoid multiple concurrent runs making the lock redundant
 	{
 		const pendingDsRequests = RbxUtils._dUserRequestQueue.popFirstKeyPair();
 		if (pendingDsRequests) {
@@ -176,7 +175,6 @@ async function runRoverApiRequests() {
 			}
 		}
 	}
-	roverRunnerLock = false;
 }
 
 // Init order fix (VERY HACKY)

@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, GuildMember, MessageFlags, roleMention } from 'discord.js';
+import { ChatInputCommandInteraction, GuildMember, MessageFlags, roleMention, userMention } from 'discord.js';
 import { commandOptions } from '../../../cmdOptions.js';
 import { Data } from '../../../data.js';
 import { ErrorReplies, Errors } from '../../../types/errors.js';
@@ -9,6 +9,7 @@ import { getOption, reportErrorIfNotSetup } from '../../../utils/subcommandsUtil
 import { Logging } from '../../../utils/loggingUtils.js';
 import { Op } from 'sequelize';
 import { RankAssociations } from '../../../models/rank.js';
+import { GuildFlag } from '../../../utils/guildFlagsUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.ranking.ranks.edit) => {
 	if (!(await reportErrorIfNotSetup(interaction))) return;
@@ -59,8 +60,22 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			}
 			if (stackable === false) {
 				for (const dbUsr of usersInRank) {
-					const usr = guild.members.cache.get(dbUsr.userId) ?? (await guild.members.fetch(dbUsr.userId));
-					await usr.roles.remove(rank.roleId);
+					try {
+						const usr = guild.members.cache.get(dbUsr.userId) ?? (await guild.members.fetch(dbUsr.userId));
+						await usr.roles.remove(rank.roleId);
+					} catch (e) {
+						Logging.log({
+							data: interaction,
+							extents: [GuildFlag.LogErrors],
+							logType: Logging.Type.Error,
+							formatData: {
+								msg: `Failed to find or remove role from user ${userMention(dbUsr.userId)} (${dbUsr.userId})`,
+								action: `Editing rank ${rank.name}`,
+								cause: e instanceof Error ? (e.stack ?? e.message) : String(e),
+								userId: interaction.user.id,
+							},
+						});
+					}
 				}
 			}
 			await rank.update(

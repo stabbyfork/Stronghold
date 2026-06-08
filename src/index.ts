@@ -330,7 +330,10 @@ tx2.action('convertRbxPointsToRankingPoints', async (reply) => {
 			where: { guildId, userId: discordId },
 			defaults: { guildId, userId: discordId },
 		});
-		user.points = Math.round(rbxUser.points / 3);
+		const newPoints = Math.round(rbxUser.points / 3);
+		if (newPoints === 0) continue;
+		if (newPoints < user.points) continue; // Don't convert if it would reduce points, to avoid potential issues with multiple conversions or users already having points
+		user.points = newPoints;
 		await user.save();
 		console.log(
 			`Converted points for Roblox user ${rbxUser.userId} (Discord ID ${discordId}): ${rbxUser.points} -> ${user.points}`,

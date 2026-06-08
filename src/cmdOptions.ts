@@ -1,4 +1,4 @@
-// AUTO-GENERATED ON SAT, 30 MAY 2026 09:25:16 GMT WITH 14 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
+// AUTO-GENERATED ON MON, 08 JUN 2026 11:41:49 GMT WITH 14 TOP-LEVEL COMMANDS AND DERIVED FROM src/commands; SOURCE OF TRUTH
 
 import type { CommandConstruct } from "./types/commandTypes.js";
 
@@ -598,6 +598,24 @@ session: {
         },
         {
           "name": "Participants who have met the time quota",
+          "value": 2
+        }
+      ],
+      "type": "integer"
+    },
+    "display_type": {
+      "required": false,
+      "choices": [
+        {
+          "name": "Mentions",
+          "value": 0
+        },
+        {
+          "name": "Names",
+          "value": 1
+        },
+        {
+          "name": "User IDs",
           "value": 2
         }
       ],

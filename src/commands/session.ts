@@ -8,6 +8,12 @@ export enum SessionParticipantsOptions {
 	MetTimeQuota,
 }
 
+export enum SessionParticipantsOutputTypes {
+	Mention,
+	Name,
+	UserId,
+}
+
 export default createCommand<{}, 'session'>({
 	data: new SlashCommandBuilder()
 		.setName('session')
@@ -103,6 +109,22 @@ export default createCommand<{}, 'session'>({
 							},
 						)
 						.setRequired(true),
+				)
+				.addIntegerOption((option) =>
+					option.setName('display_type').setDescription('How to display participants').addChoices(
+						{
+							name: 'Mentions',
+							value: SessionParticipantsOutputTypes.Mention,
+						},
+						{
+							name: 'Names',
+							value: SessionParticipantsOutputTypes.Name,
+						},
+						{
+							name: 'User IDs',
+							value: SessionParticipantsOutputTypes.UserId,
+						},
+					),
 				),
 		)
 		.addSubcommand((cmd) =>

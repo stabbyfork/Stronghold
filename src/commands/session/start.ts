@@ -272,6 +272,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				active: true,
 			});
 		}
+		await data.setParticipants([], { transaction });
 		await data.save({ transaction });
 	});
 	Logging.quickInfo(interaction, `Started session in ${channelMention(channel.id)}`);

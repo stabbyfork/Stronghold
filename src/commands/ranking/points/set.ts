@@ -117,7 +117,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				.setColor('Green')
 				.setTitle('Success')
 				.setDescription(
-					`Set point count to \`${points}\` for ${userIds.map(userMention).join(', ')}\n-# ${userIds.length} users`,
+					`Set point count to \`${points}\` for ${userIds.map(userMention).join(', ')}\n-# ${userIds.length} user${userIds.length === 1 ? '' : 's'}`,
 				),
 		(userIds, points) => `Set points of ${userIds.map(userMention).join(', ')} to ${points}`,
 	);

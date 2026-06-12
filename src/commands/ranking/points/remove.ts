@@ -15,7 +15,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				.setColor('Green')
 				.setTitle('Success')
 				.setDescription(
-					`Removed \`${points}\` points from ${userIds.map(userMention).join(', ')}\n-# ${userIds.length} users`,
+					`Removed \`${points}\` points from ${userIds.map(userMention).join(', ')}\n-# ${userIds.length} user${userIds.length === 1 ? '' : 's'}`,
 				),
 		(userIds, points) => `Removed ${points} points from ${userIds.map(userMention).join(', ')}`,
 	);

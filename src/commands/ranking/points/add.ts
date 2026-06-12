@@ -15,7 +15,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				.setColor('Green')
 				.setTitle('Success')
 				.setDescription(
-					`Added \`${points}\` points to ${userIds.map(userMention).join(', ')}\n-# ${userIds.length} users`,
+					`Added \`${points}\` points to ${userIds.map(userMention).join(', ')}\n-# ${userIds.length} user${userIds.length === 1 ? '' : 's'}`,
 				),
 		(userIds, points) => `Added ${points} points to ${userIds.map(userMention).join(', ')}`,
 	);

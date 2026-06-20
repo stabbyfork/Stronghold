@@ -25,7 +25,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		return;
 	}
 	const typeOfParticipants = getOption(interaction, args, 'type');
-	const displayType = getOption(interaction, args, 'display_type') ?? SessionParticipantsOutputTypes.Mention;
+	const displayType = getOption(interaction, args, 'display_type');
 	let participants: SessionParticipant[];
 	switch (typeOfParticipants) {
 		case SessionParticipantsOptions.AllParticipants:
@@ -92,7 +92,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		);
 	}
 
-	switch (displayType) {
+	switch (displayType ?? SessionParticipantsOutputTypes.Mention) {
 		case SessionParticipantsOutputTypes.Mention:
 			participantMapper = (u) => userMention(u.user!.userId);
 			break;

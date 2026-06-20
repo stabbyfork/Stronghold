@@ -132,6 +132,7 @@ export const ErrorReplies = {
 	FailedToFetchRobloxDataForDiscordIds:
 		'Failed to fetch Roblox accounts linked to the provided Discord IDs:\n!{ERROR}\nPlease check the error and try again. If the problem persists, contact support.',
 	NoRoleGroups: 'No role groups found. Create one with `/ranking groups create`.',
+	CannotHaveNegativePoints: 'Ranks cannot have negative points required: !{ERROR}',
 } as const;
 
 export namespace Errors {

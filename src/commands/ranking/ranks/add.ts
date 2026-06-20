@@ -10,6 +10,7 @@ import { Logging } from '../../../utils/loggingUtils.js';
 import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
 import { getOption, reportErrorIfNotSetup } from '../../../utils/subcommandsUtils.js';
 import { client } from '../../../client.js';
+import { CacheUtils } from '../../../utils/cacheUtils.js';
 
 export default async (interaction: ChatInputCommandInteraction, args: typeof commandOptions.ranking.ranks.add) => {
 	if (!(await reportErrorIfNotSetup(interaction))) return;
@@ -90,6 +91,14 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			).id;
 	let createdRank: Rank | null = null;
 	await Data.mainDb.transaction(async (transaction) => {
+		if (pointsReq < 0) {
+			await reportErrorToUser(
+				interaction,
+				constructError([ErrorReplies.CannotHaveNegativePoints], String(pointsReq)),
+				true,
+			);
+			return;
+		}
 		try {
 			createdRank = await Data.models.Rank.create(
 				{
@@ -111,11 +120,25 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			}
 			throw e;
 		}
-		for (const usr of await Data.models.User.findAll({
-			where: { guildId: guild.id, [Op.or]: [{ mainRankId: null }, { points: { [Op.gte]: pointsReq } }] },
-			transaction,
-		})) {
-			await Data.promoteUser(usr, transaction);
+		if (pointsReq === 0) {
+			const allMembers = await CacheUtils.fetchGuildMembers(guild);
+			for (const [id, _] of allMembers.filter((m) => !m.user.bot)) {
+				const [dbUser, created] = await Data.models.User.findCreateFind({
+					where: { guildId: guild.id, userId: id },
+					defaults: { guildId: guild.id, userId: id },
+					transaction,
+				});
+				if (created || dbUser.points >= pointsReq) {
+					await Data.promoteUser(dbUser, transaction);
+				}
+			}
+		} else {
+			for (const usr of await Data.models.User.findAll({
+				where: { guildId: guild.id, [Op.or]: [{ mainRankId: null }, { points: { [Op.gte]: pointsReq } }] },
+				transaction,
+			})) {
+				await Data.promoteUser(usr, transaction);
+			}
 		}
 	});
 	if (!createdRank) {

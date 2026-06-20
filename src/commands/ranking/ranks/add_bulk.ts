@@ -9,6 +9,7 @@ import { constructError, reportErrorToUser } from '../../../utils/errorsUtils.js
 import { hasPermissions, Permission } from '../../../utils/permissionsUtils.js';
 import { getOption, reportErrorIfNotSetup } from '../../../utils/subcommandsUtils.js';
 import { Logging } from '../../../utils/loggingUtils.js';
+import { CacheUtils } from '../../../utils/cacheUtils.js';
 
 const ajv = new Ajv();
 
@@ -285,24 +286,46 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				replyStr += `${roleMention(role.id)}: \`${rank.points}\` points, ${rank.limit !== -1 ? `limit: \`${rank.limit}\` users` : 'no limit'}${stackable ? ' (stacking)' : ''}\n`;
 			}
 			const minPointReq = Math.min(...json.map((rank) => rank.points));
-			const usersToPromote = await Data.models.User.findAll({
-				where: {
-					guildId: guild.id,
-					[Op.or]: [
-						{
-							points: {
-								[Op.gte]: minPointReq,
+			if (minPointReq < 0) {
+				await reportErrorToUser(
+					interaction,
+					constructError([ErrorReplies.CannotHaveNegativePoints], String(minPointReq)),
+					true,
+				);
+			}
+			// All users with points >= minPointReq should be promoted to the next rank if they don't have one already
+			if (minPointReq === 0) {
+				const allMembers = await CacheUtils.fetchGuildMembers(guild);
+				for (const [id, _] of allMembers) {
+					const [user, created] = await Data.models.User.findCreateFind({
+						where: { guildId: guild.id, userId: id },
+						defaults: { guildId: guild.id, userId: id },
+						transaction,
+					});
+					if (created || user.points >= minPointReq) {
+						await Data.promoteUser(user, transaction);
+					}
+				}
+			} else {
+				const usersToPromote = await Data.models.User.findAll({
+					where: {
+						guildId: guild.id,
+						[Op.or]: [
+							{
+								points: {
+									[Op.gte]: minPointReq,
+								},
 							},
-						},
-						{
-							nextRankId: null,
-						},
-					],
-				},
-				transaction,
-			});
-			for (const user of usersToPromote) {
-				await Data.promoteUser(user, transaction);
+							{
+								nextRankId: null,
+							},
+						],
+					},
+					transaction,
+				});
+				for (const user of usersToPromote) {
+					await Data.promoteUser(user, transaction);
+				}
 			}
 		})
 		.catch(async (e) => {

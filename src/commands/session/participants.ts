@@ -25,7 +25,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		return;
 	}
 	const typeOfParticipants = getOption(interaction, args, 'type');
-	const displayType = getOption(interaction, args, 'display_type');
+	const displayType = getOption(interaction, args, 'display_type') ?? SessionParticipantsOutputTypes.Mention;
 	let participants: SessionParticipant[];
 	switch (typeOfParticipants) {
 		case SessionParticipantsOptions.AllParticipants:

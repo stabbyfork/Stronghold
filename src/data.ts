@@ -148,7 +148,7 @@ export namespace Data {
 		try {
 			member = guild.members.cache.get(user.userId) ?? (await guild.members.fetch(user.userId));
 		} catch (e) {
-			Debug.error(`Failed to fetch member ${user.userId} from guild ${guildId}: ${e}`);
+			Debug.error(`Failed to fetch member ${user.userId} from guild ${guildId} during promotion: ${e}`);
 			return;
 		}
 

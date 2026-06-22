@@ -49,7 +49,6 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	if (inactiveRoleId && userToCheck.roles.cache.has(inactiveRoleId)) {
 		message.addFields({ name: 'Inactive', value: 'Considered inactive', inline: true });
 	}
-	// TODO: Add rank field
 	if (await hasPermissions(userToCheck, guild, true, Permission.NoInactivityKick)) {
 		message.addFields({
 			name: 'Immune to inactivity kicks',
@@ -60,47 +59,52 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 	const rank = data?.mainRank;
 	const nextRank = data?.nextRank;
 	const permissions = data?.userPermission?.permissions;
-	message.addFields(
-		{
-			name: 'Inactivity strikes',
-			value: data?.inactivityStrikes.toString() ?? '0',
-			inline: true,
-		},
-		{
-			name: 'Current rank',
-			value: rank && rank.showInRanking ? `\`${rank.name}\` (${rank.pointsRequired} points)` : 'None',
-			inline: true,
-		},
-		{
-			name: 'Next rank',
-			value:
-				nextRank && nextRank.showInRanking
-					? `\`${nextRank.name}\` (${nextRank.pointsRequired} points)`
-					: 'None',
-			inline: true,
-		},
-		{
-			name: 'Permissions',
-			value: permissions
-				? `${Object.values(Permission)
+	const fields = [
+		data?.inactivityStrikes
+			? {
+					name: 'Inactivity strikes',
+					value: data.inactivityStrikes.toString(),
+					inline: true,
+				}
+			: null,
+		rank && rank.showInRanking
+			? {
+					name: 'Current rank',
+					value: `\`${rank.name}\` (${rank.pointsRequired} points)`,
+					inline: true,
+				}
+			: null,
+		nextRank && nextRank.showInRanking
+			? {
+					name: 'Next rank',
+					value: `\`${nextRank.name}\` (${nextRank.pointsRequired} points)`,
+					inline: true,
+				}
+			: null,
+		permissions !== undefined
+			? {
+					name: 'Permissions',
+					value: `${Object.values(Permission)
 						.filter((perm) => permissions & PermissionBits[perm])
 						.map((perm) => `\`${perm}\``)
-						.join(', ')}`
-				: 'None',
-			inline: true,
-		},
-		{
-			name: 'Secondary ranks',
-			value:
-				data?.ranks && data.ranks.length // More than 0
-					? data.ranks.map((rank) => `\`${rank.name}\` (${rank.pointsRequired} points)`).join(', ')
-					: 'None',
-			inline: true,
-		},
+						.join(', ')}`,
+					inline: true,
+				}
+			: null,
+		data?.ranks && data.ranks.length > 0
+			? {
+					name: 'Secondary ranks',
+					value: data.ranks.map((rank) => `\`${rank.name}\` (${rank.pointsRequired} points)`).join(', '),
+					inline: true,
+				}
+			: null,
+	];
+	message.addFields(
+		fields.filter((field): field is { name: string; value: string; inline: boolean } => field !== null),
 	);
 	if (rank) {
 		const rankRole = guild.roles.cache.get(rank.roleId) ?? (await guild.roles.fetch(rank.roleId));
-		if (rankRole && rankRole.color) message.setColor(rankRole.color);
+		if (rankRole && rankRole.colors.primaryColor) message.setColor(rankRole.colors.primaryColor);
 	}
 
 	await interaction.reply({ embeds: [message] });

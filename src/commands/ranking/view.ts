@@ -27,8 +27,10 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		.setColor('Green')
 		.setAuthor({
 			name: `Ranking details of @${userToCheck.user.username} (${userToCheck.id})`,
-			iconURL: userToCheck.avatarURL() ?? undefined,
 		});
+
+	const avatarUrl = userToCheck.avatarURL({ size: 256 });
+	if (avatarUrl) message.setThumbnail(avatarUrl);
 
 	const data = await Data.models.User.findOne({
 		where: { guildId: guild.id, userId: userToCheck.id },

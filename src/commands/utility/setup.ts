@@ -71,6 +71,7 @@ export async function createInactiveRoleIfMissing(guild: Guild, transaction: Tra
 			const created = await guild.roles.create({
 				name: RoleNames.Inactive,
 				permissions: [],
+				position: 1,
 				colors: { primaryColor: [60, 60, 60] },
 				reason: 'Default Inactive role created during setup',
 			});
@@ -102,6 +103,7 @@ export async function createInSessionRoleIfMissing(guild: Guild, transaction: Tr
 		try {
 			const created = await guild.roles.create({
 				name: RoleNames.InSession,
+				position: 1,
 				permissions: [],
 				colors: { primaryColor: [60, 60, 200] },
 				reason: 'Default in-session role created during setup',

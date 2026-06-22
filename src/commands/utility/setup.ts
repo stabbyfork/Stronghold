@@ -720,10 +720,10 @@ export default createCommand<typeof commandOptions.setup>({
 					if (!role) {
 						await reportErrorToUser(
 							interaction,
-							'Failed to create inactive role. Perhaps the bot does not have the permission to create roles?',
+							'Failed to create inactive role. Perhaps the bot does not have the permission to create roles? The bot might not have a high enough role.',
 							true,
 						);
-						throw new Errors.ThirdPartyError('Failed to create inactive role');
+						throw new Errors.HandledError('Failed to create inactive role during setup');
 					}
 					setupConfig.inactiveRole = role;
 					endReplyMsg.addTextDisplayComponents((text) =>
@@ -734,12 +734,12 @@ export default createCommand<typeof commandOptions.setup>({
 				if (setupConfig.createInSession) {
 					const role = await createInSessionRoleIfMissing(guild, transaction);
 					if (!role) {
-						reportErrorToUser(
+						await reportErrorToUser(
 							interaction,
-							'Failed to create in-session role. Perhaps the bot does not have the permission to create roles?',
+							'Failed to create in-session role. Perhaps the bot does not have the permission to create roles? The bot might not have a high enough role.',
 							true,
 						);
-						throw new Errors.ThirdPartyError('Failed to create in-session role');
+						throw new Errors.HandledError('Failed to create in-session role during setup');
 					}
 					setupConfig.inSessionRole = role;
 					endReplyMsg.addTextDisplayComponents((text) =>
@@ -830,7 +830,7 @@ export default createCommand<typeof commandOptions.setup>({
 							'You must provide at least one category to log if a logging channel is chosen (or to be created).',
 							true,
 						);
-						throw new Errors.HandledError('User must provide at least one category to log');
+						throw new Errors.HandledError('No log extents chosen during setup with log channel');
 					}
 					const bits = setupConfig.logExtents.reduce((a, b) => a | GuildFlagBits[b], 0);
 					if (prevData) {
@@ -931,7 +931,7 @@ export default createCommand<typeof commandOptions.setup>({
 					],
 					flags: MessageFlags.IsComponentsV2,
 				});
-				if (!(e instanceof Errors.ExpectedError)) throw e;
+				if (!(e instanceof Errors.HandledError)) throw e;
 				return;
 			});
 		Logging.quickInfo(interaction, 'Setup completed.');

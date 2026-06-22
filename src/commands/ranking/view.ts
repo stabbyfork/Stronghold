@@ -1,4 +1,11 @@
-import { ChatInputCommandInteraction, ContainerBuilder, Embed, EmbedBuilder, GuildMember } from 'discord.js';
+import {
+	ChatInputCommandInteraction,
+	ContainerBuilder,
+	Embed,
+	EmbedBuilder,
+	GuildMember,
+	MessageFlags,
+} from 'discord.js';
 import { ErrorReplies } from '../../types/errors.js';
 import { commandOptions } from '../../cmdOptions.js';
 import { Data } from '../../data.js';
@@ -29,7 +36,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 			name: `Ranking details of @${userToCheck.user.username} (${userToCheck.id})`,
 		});
 
-	const avatarUrl = userToCheck.avatarURL({ size: 256 });
+	const avatarUrl = userToCheck.user.avatarURL({ size: 256 });
 	if (avatarUrl) message.setThumbnail(avatarUrl);
 
 	const data = await Data.models.User.findOne({
@@ -101,9 +108,7 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 				}
 			: null,
 	];
-	message.addFields(
-		fields.filter((field): field is { name: string; value: string; inline: boolean } => field !== null),
-	);
+	message.addFields(fields.filter((field) => field !== null));
 	if (rank) {
 		const rankRole = guild.roles.cache.get(rank.roleId) ?? (await guild.roles.fetch(rank.roleId));
 		if (rankRole && rankRole.colors.primaryColor) message.setColor(rankRole.colors.primaryColor);

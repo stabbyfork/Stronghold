@@ -33,9 +33,11 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 		.setTitle(`${userToCheck.displayName}`)
 		.setColor('Green')
 		.setAuthor({
-			name: `Ranking details of @${userToCheck.user.username} (${userToCheck.id})`,
-		});
+			name: `Ranking stats for @${userToCheck.user.username}`,
+		})
+		.setFooter({ text: `User ID: ${userToCheck.id}` });
 
+	// .user is very important!!
 	const avatarUrl = userToCheck.user.avatarURL({ size: 256 });
 	if (avatarUrl) message.setThumbnail(avatarUrl);
 

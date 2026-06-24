@@ -76,15 +76,15 @@ export default async (interaction: ChatInputCommandInteraction, args: typeof com
 									.slice(start, start + perPage)
 									.map((d, i) => {
 										const ind = i + 1 + start;
-										return `${ind === 1 ? '## ** **' : ind === 2 || ind === 3 ? '### ** ** ' : ''}${ind}. ${userMention(d.userId)}: \`${d.points}\` (${
+										return `${ind === 1 ? '## ** **' : ind === 2 || ind === 3 ? '### ** ** ' : ''}${ind}. ${userMention(d.userId)}: \`${d.points}\`${
 											d.mainRank
-												? roleMention(d.mainRank.roleId)
+												? ` (${roleMention(d.mainRank.roleId)})`
 												: showStacking && d.ranks?.length
-													? getHighestStackingRanks(d)
+													? ` (${getHighestStackingRanks(d)
 															.map((r) => roleMention(r.roleId))
-															.join(', ')
-													: '\`No rank\`'
-										}) `;
+															.join(', ')})`
+													: ''
+										}`;
 									})
 									.join('\n'),
 					),
